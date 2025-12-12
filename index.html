@@ -19,11 +19,19 @@
             color: #fff;
         }
         
+        body.retro-mode {
+            font-family: 'Courier New', monospace;
+        }
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: #fff;
             min-height: 100vh;
+        }
+        
+        .retro-mode .container {
+            background: #2d5016;
         }
         
         .header {
@@ -33,6 +41,11 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+        
+        .retro-mode .header {
+            background: #1a3a0d;
+            border-bottom: 4px solid #8bc34a;
         }
         
         .header::before {
@@ -53,6 +66,17 @@
             pointer-events: none;
         }
         
+        .retro-mode .header::before {
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 20px,
+                    rgba(139,195,74,0.1) 20px,
+                    rgba(139,195,74,0.1) 21px
+                );
+        }
+        
         .header-content {
             position: relative;
             z-index: 1;
@@ -65,33 +89,51 @@
             letter-spacing: -0.02em;
         }
         
+        .retro-mode .header h1 {
+            color: #8bc34a;
+            text-shadow: 2px 2px #000;
+            letter-spacing: 0.05em;
+        }
+        
         .header p {
             font-size: 1.1em;
             opacity: 0.7;
             font-weight: 300;
         }
-
-        .loading {
-            text-align: center;
-            padding: 80px 40px;
-            color: #666;
-            font-size: 1.2em;
+        
+        .retro-mode .header p {
+            color: #cddc39;
+            opacity: 1;
         }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .theme-toggle button {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .theme-toggle button:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .retro-mode .theme-toggle button {
+            background: #1a3a0d;
+            border-color: #8bc34a;
+            color: #8bc34a;
+            font-family: 'Courier New', monospace;
         }
         
         .summary-box {
@@ -100,11 +142,21 @@
             border-bottom: 1px solid #e0e0e0;
         }
         
+        .retro-mode .summary-box {
+            background: #3d6b1f;
+            border-bottom: 4px solid #000;
+        }
+        
         .summary-box h2 {
             font-size: 1.6em;
             margin-bottom: 32px;
             color: #000;
             font-weight: 800;
+        }
+        
+        .retro-mode .summary-box h2 {
+            color: #cddc39;
+            text-shadow: 2px 2px #000;
         }
         
         .summary-grid {
@@ -123,10 +175,22 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
+        .retro-mode .summary-item {
+            background: #2d5016;
+            border: 3px solid #000;
+            border-radius: 0;
+            box-shadow: 4px 4px 0 #000;
+        }
+        
         .summary-item:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
             border-color: #000;
+        }
+        
+        .retro-mode .summary-item:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
         }
         
         .summary-label {
@@ -138,6 +202,10 @@
             letter-spacing: 0.05em;
         }
         
+        .retro-mode .summary-label {
+            color: #8bc34a;
+        }
+        
         .summary-value {
             font-size: 1.05em;
             font-weight: 600;
@@ -145,10 +213,73 @@
             line-height: 1.4;
         }
         
+        .retro-mode .summary-value {
+            color: #fff;
+            text-shadow: 1px 1px #000;
+        }
+        
+        .streak-box {
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .retro-mode .streak-box {
+            background: #1a3a0d;
+            border: 4px solid #8bc34a;
+            border-left: 0;
+            border-right: 0;
+        }
+        
+        .streak-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .streak-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .retro-mode .streak-label {
+            color: #cddc39;
+        }
+        
+        .streak-value {
+            font-size: 2em;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .retro-mode .streak-value {
+            color: #8bc34a;
+            text-shadow: 3px 3px #000;
+        }
+        
+        .streak-context {
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+        
+        .retro-mode .streak-context {
+            color: #fff;
+        }
+        
         .controls {
             padding: 40px;
             background: white;
             border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .retro-mode .controls {
+            background: #3d6b1f;
+            border-bottom: 4px solid #000;
         }
         
         .search-bar {
@@ -165,6 +296,14 @@
             background: #fafafa;
         }
         
+        .retro-mode .search-input {
+            background: #2d5016;
+            border: 3px solid #000;
+            border-radius: 0;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+        
         .search-input:focus {
             outline: none;
             border-color: #000;
@@ -172,8 +311,14 @@
             box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
         }
         
+        .retro-mode .search-input:focus {
+            background: #1a3a0d;
+            border-color: #8bc34a;
+            box-shadow: 0 0 0 4px rgba(139,195,74,0.2);
+        }
+        
         .filter-section {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
         
         .filter-section-label {
@@ -185,22 +330,34 @@
             letter-spacing: 0.05em;
         }
         
+        .retro-mode .filter-section-label {
+            color: #8bc34a;
+        }
+        
         .filter-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
         
         .filter-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: 2px solid #e0e0e0;
             background: white;
             border-radius: 24px;
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 0.85em;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             color: #000;
+        }
+        
+        .retro-mode .filter-btn {
+            background: #2d5016;
+            border: 2px solid #000;
+            border-radius: 0;
+            color: #fff;
+            font-family: 'Courier New', monospace;
         }
         
         .filter-btn:hover {
@@ -209,237 +366,190 @@
             transform: translateY(-1px);
         }
         
+        .retro-mode .filter-btn:hover {
+            background: #1a3a0d;
+            border-color: #8bc34a;
+        }
+        
         .filter-btn select {
             margin-left: 8px;
             padding: 4px 8px;
             border: 1px solid #ccc;
             border-radius: 6px;
             background: white;
-            cursor: pointer;
-            font-weight: 600;
+        }
+        
+        .retro-mode .filter-btn select {
+            background: #1a3a0d;
+            border: 2px solid #000;
+            border-radius: 0;
+            color: #8bc34a;
+            font-family: 'Courier New', monospace;
         }
         
         .filter-btn.active {
             background: #000;
             color: white;
             border-color: #000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
-        .filter-btn.active select {
-            background: rgba(255,255,255,0.15);
-            border-color: rgba(255,255,255,0.3);
-            color: white;
-        }
-
-        .advanced-filters {
-            background: #fafafa;
-            padding: 24px;
-            border-radius: 12px;
-            margin-top: 24px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .advanced-filters h3 {
-            font-size: 1em;
+        .retro-mode .filter-btn.active {
+            background: #8bc34a;
             color: #000;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .filter-group label {
-            font-size: 0.85em;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.9em;
-            background: white;
-            transition: all 0.2s;
-        }
-
-        .filter-group select:focus,
-        .filter-group input:focus {
-            outline: none;
             border-color: #000;
-            box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
         }
+        
 
-        .filter-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .btn-primary {
-            padding: 10px 24px;
-            background: #000;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #1a1a1a;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .btn-secondary {
-            padding: 10px 24px;
+        
+        .results-header {
+            padding: 32px 40px;
             background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .retro-mode .results-header {
+            background: #3d6b1f;
+            border-bottom: 4px solid #000;
+        }
+        
+        .result-count {
+            font-size: 1.4em;
+            font-weight: 700;
             color: #000;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            margin-bottom: 24px;
         }
-
-        .btn-secondary:hover {
-            background: #fafafa;
-            border-color: #bbb;
-        }
-
-        .active-filters {
-            margin-top: 16px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .filter-tag {
-            padding: 6px 12px;
-            background: #000;
-            color: white;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-tag button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-            transition: all 0.2s;
-        }
-
-        .filter-tag button:hover {
-            background: rgba(255,255,255,0.3);
+        
+        .retro-mode .result-count {
+            color: #cddc39;
+            text-shadow: 2px 2px #000;
         }
         
         .stats-bar {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 16px;
-            margin-top: 32px;
-            padding-top: 32px;
-            border-top: 1px solid #e0e0e0;
         }
         
-        .stat-card {
+        .stat-item {
             background: #fafafa;
-            padding: 20px;
+            padding: 16px;
             border-radius: 12px;
-            text-align: center;
             border: 1px solid #e0e0e0;
         }
         
-        .stat-value {
-            font-size: 2.2em;
-            font-weight: 900;
-            color: #000;
-            margin-bottom: 4px;
+        .retro-mode .stat-item {
+            background: #2d5016;
+            border: 3px solid #000;
+            border-radius: 0;
         }
         
         .stat-label {
-            font-size: 0.85em;
+            font-size: 0.75em;
             color: #666;
+            margin-bottom: 6px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.05em;
         }
         
-        .results {
-            padding: 40px;
-            background: white;
-            color: #000;
+        .retro-mode .stat-label {
+            color: #8bc34a;
         }
         
-        .result-count {
+        .stat-value {
             font-size: 1.3em;
             font-weight: 700;
-            margin-bottom: 32px;
             color: #000;
+        }
+        
+        .retro-mode .stat-value {
+            color: #fff;
+            text-shadow: 1px 1px #000;
+        }
+        
+        .matches {
+            padding: 32px 40px 64px;
+            background: white;
+        }
+        
+        .retro-mode .matches {
+            background: #3d6b1f;
         }
         
         .match-card {
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 16px;
-            padding: 28px;
-            margin-bottom: 20px;
-            position: relative;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
+        .retro-mode .match-card {
+            background: #2d5016;
+            border: 3px solid #000;
+            border-radius: 0;
+            box-shadow: 4px 4px 0 #000;
+        }
+        
         .match-card:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-            border-color: #ccc;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #000;
+        }
+        
+        .retro-mode .match-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
         }
         
         .match-tags {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         
         .record-tag {
-            padding: 6px 14px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #000;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.75em;
             font-weight: 700;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #000;
             letter-spacing: 0.03em;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+        }
+        
+        .record-tag.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            box-shadow: 0 2px 8px rgba(192,192,192,0.3);
+        }
+        
+        .record-tag.silver[onclick] {
+            cursor: pointer;
+        }
+        
+        .record-tag.silver[onclick]:hover {
+            background: linear-gradient(135deg, #a8a8a8 0%, #d0d0d0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(192,192,192,0.5);
+        }
+        
+        .retro-mode .record-tag {
+            border-radius: 0;
+            border: 2px solid #000;
+            background: #ffd700;
+        }
+        
+        .retro-mode .record-tag.silver {
+            background: #c0c0c0;
+        }
+        
+        .retro-mode .record-tag.silver[onclick]:hover {
+            background: #a8a8a8;
         }
         
         .match-header {
@@ -447,800 +557,805 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         
         .match-date {
-            font-weight: 700;
-            color: #000;
-            font-size: 0.95em;
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .retro-mode .match-date {
+            color: #8bc34a;
         }
         
         .badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.8em;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
             font-weight: 700;
-            margin-left: 8px;
-            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 6px;
         }
         
-        .badge.win { 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        .retro-mode .badge {
+            border-radius: 0;
+            border: 2px solid #000;
         }
-        .badge.loss { 
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        
+        .badge.win {
+            background: #dcfce7;
+            color: #166534;
         }
-        .badge.draw { 
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-        }
-        .badge.home { 
-            background: #000;
-            color: #fff;
-        }
-        .badge.away { 
-            background: #e0e0e0;
+        
+        .retro-mode .badge.win {
+            background: #8bc34a;
             color: #000;
+        }
+        
+        .badge.loss {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .retro-mode .badge.loss {
+            background: #ff5252;
+            color: #000;
+        }
+        
+        .badge.draw {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .retro-mode .badge.draw {
+            background: #cddc39;
+            color: #000;
+        }
+        
+        .badge.home {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .retro-mode .badge.home {
+            background: #2196f3;
+            color: #000;
+        }
+        
+        .badge.away {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+        
+        .retro-mode .badge.away {
+            background: #9c27b0;
+            color: #fff;
         }
         
         .match-fixture {
-            font-size: 1.4em;
-            font-weight: 800;
-            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 16px;
             color: #000;
-            line-height: 1.4;
+        }
+        
+        .retro-mode .match-fixture {
+            color: #fff;
+            text-shadow: 1px 1px #000;
         }
         
         .match-score {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
-            color: white;
-            border-radius: 12px;
-            margin: 0 16px;
-            font-weight: 900;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 1.3em;
+            color: #000;
+            padding: 0 20px;
+        }
+        
+        .retro-mode .match-score {
+            color: #8bc34a;
+            text-shadow: 2px 2px #000;
         }
         
         .match-details {
             font-size: 0.9em;
             color: #666;
-            margin-top: 12px;
-            line-height: 1.8;
+            line-height: 1.6;
+        }
+        
+        .retro-mode .match-details {
+            color: #cddc39;
         }
         
         .match-details strong {
             color: #000;
         }
         
+        .retro-mode .match-details strong {
+            color: #fff;
+        }
+        
         .scorers {
-            margin-top: 16px;
-            padding-top: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #e0e0e0;
             font-size: 0.9em;
+            color: #444;
+        }
+        
+        .retro-mode .scorers {
+            border-top: 2px solid #000;
+            color: #fff;
         }
         
         .scorers strong {
             color: #000;
-            font-weight: 700;
+        }
+        
+        .retro-mode .scorers strong {
+            color: #8bc34a;
         }
         
         .scorers-list {
             color: #666;
-            margin-top: 4px;
         }
-
-        .sort-controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .sort-controls label {
-            font-size: 0.9em;
-            font-weight: 600;
-            color: #666;
-        }
-
-        .sort-controls select {
-            padding: 8px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.9em;
-            background: white;
-            cursor: pointer;
+        
+        .retro-mode .scorers-list {
+            color: #cddc39;
         }
         
         @media (max-width: 768px) {
-            body { padding: 0; }
-            .header { padding: 32px 20px; }
-            .header h1 { font-size: 2em; }
-            .summary-box { padding: 32px 20px; }
-            .controls { padding: 24px 20px; }
-            .results { padding: 24px 20px; }
-            .match-card { padding: 20px; }
-            .filter-btn { min-width: auto; }
-            .summary-grid { grid-template-columns: 1fr; }
-            .filter-grid { grid-template-columns: 1fr; }
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .match-fixture {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="theme-toggle">
+                <button onclick="toggleTheme()">🎮 Toggle 16-bit Mode</button>
+            </div>
             <div class="header-content">
-                <h1>⚽ West Didsbury & Chorlton FC</h1>
-                <p>Men's Team Match Archive • 2012-2025</p>
-                <p style="font-size: 0.9em; opacity: 0.6; margin-top: 8px;">Women's team stats coming soon</p>
+                <h1>West Didsbury & Chorlton FC</h1>
+                <p>Men's Team Match Archive</p>
             </div>
         </div>
         
-        <div class="loading" id="loadingIndicator">
-            <div class="loading-spinner"></div>
-            <div>Loading match data...</div>
+        <div class="streak-box" id="streakBox" style="display: none;">
+            <div class="streak-content">
+                <div class="streak-label">Current Streak</div>
+                <div class="streak-value" id="streakValue"></div>
+                <div class="streak-context" id="streakContext"></div>
+            </div>
         </div>
-
-        <div id="mainContent" style="display: none;">
-            <div class="summary-box">
-                <h2>📊 Quick Stats</h2>
-                <div class="summary-grid">
-                    <div class="summary-item" onclick="setQuickFilter('biggest-win')">
-                        <div class="summary-label">🏆 Biggest Win</div>
-                        <div class="summary-value" id="summaryBiggestWin">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('biggest-defeat')">
-                        <div class="summary-label">📉 Biggest Defeat</div>
-                        <div class="summary-value" id="summaryBiggestDefeat">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('highest-attendance')">
-                        <div class="summary-label">👥 Highest Attendance</div>
-                        <div class="summary-value" id="summaryHighestAttendance">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('highest-attendance-home')">
-                        <div class="summary-label">🏠 Highest (Home)</div>
-                        <div class="summary-value" id="summaryHighestAttendanceHome">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('highest-attendance-away')">
-                        <div class="summary-label">🚌 Highest (Away)</div>
-                        <div class="summary-value" id="summaryHighestAttendanceAway">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('high-scoring')">
-                        <div class="summary-label">🎯 Highest Scoring</div>
-                        <div class="summary-value" id="summaryHighScoring">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('win-streak')">
-                        <div class="summary-label">🔥 Win Streak</div>
-                        <div class="summary-value" id="summaryWinStreak">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('unbeaten-streak')">
-                        <div class="summary-label">💪 Unbeaten Streak</div>
-                        <div class="summary-value" id="summaryUnbeatenStreak">-</div>
-                    </div>
-                    <div class="summary-item" onclick="setQuickFilter('loss-streak')">
-                        <div class="summary-label">❄️ Loss Streak</div>
-                        <div class="summary-value" id="summaryLossStreak">-</div>
-                    </div>
+        
+        <div class="summary-box">
+            <h2>Club Records</h2>
+            <div class="summary-grid" id="summaryGrid"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, or season...">
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-section-label">Quick Filters</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="setFilter('all')">All Matches</button>
+                    <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
+                    <button class="filter-btn" onclick="setFilter('on-this-day')">On This Day</button>
+                    <button class="filter-btn" onclick="setFilter('recent')">
+                        Recent
+                        <select id="recentCount" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
+                            <option>10</option>
+                            <option>20</option>
+                            <option>50</option>
+                        </select>
+                    </button>
+                    <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
+                    <select id="seasonSelect" class="filter-btn" style="display:none;" onchange="filterBySeason()"></select>
                 </div>
             </div>
             
-            <div class="controls">
-                <div class="search-bar">
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="🔍 Search by opposition..." />
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-label">Quick Filters</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" onclick="setQuickFilter('all')">All Matches</button>
-                        <button class="filter-btn" onclick="setQuickFilter('recent')">Recent 
-                            <select id="recentCount" onclick="event.stopPropagation()" onchange="applyFilters()">
-                                <option value="10" selected>10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                        </button>
-                        <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
-                        <button class="filter-btn" onclick="setQuickFilter('on-this-day')">📅 On This Day</button>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-label">Match Type</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn" onclick="setQuickFilter('league')">⚽ League Only</button>
-                        <button class="filter-btn" onclick="setQuickFilter('cup')">🏆 Cup Only</button>
-                        <button class="filter-btn" onclick="setQuickFilter('away-wins')">✈️ Away Wins</button>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-label">Performance</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn" onclick="setQuickFilter('clean-sheets')">🧤 Clean Sheets</button>
-                        <button class="filter-btn" onclick="setQuickFilter('failed-to-score')">😔 Failed to Score</button>
-                        <button class="filter-btn" onclick="setQuickFilter('comebacks')">🎭 Won from Losing at HT</button>
-                        <button class="filter-btn" onclick="setQuickFilter('threw-away')">💔 Lost from Winning at HT</button>
-                        <button class="filter-btn" onclick="setQuickFilter('0-0-draws')">😴 0-0 Draws</button>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-label">Records</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn" onclick="setQuickFilter('biggest-win')">🏆 Biggest Win</button>
-                        <button class="filter-btn" onclick="setQuickFilter('biggest-defeat')">📉 Biggest Defeat</button>
-                        <button class="filter-btn" onclick="setQuickFilter('highest-attendance')">👥 Highest Attendance</button>
-                        <button class="filter-btn" onclick="setQuickFilter('lowest-attendance')">🔻 Lowest Attendance</button>
-                        <button class="filter-btn" onclick="setQuickFilter('high-scoring')">🎯 High Scoring</button>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-label">Streaks</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn" onclick="setQuickFilter('win-streak')">🔥 Win Streak</button>
-                        <button class="filter-btn" onclick="setQuickFilter('draw-streak')">➡️ Draw Streak</button>
-                        <button class="filter-btn" onclick="setQuickFilter('loss-streak')">❄️ Loss Streak</button>
-                        <button class="filter-btn" onclick="setQuickFilter('unbeaten-streak')">💪 Unbeaten</button>
-                        <button class="filter-btn" onclick="setQuickFilter('winless-streak')">😔 Winless</button>
-                    </div>
-                </div>
-
-                <!-- Advanced Filters Section -->
-                <div class="advanced-filters">
-                    <h3>🔧 Advanced Filters</h3>
-                    <div class="filter-grid">
-                        <div class="filter-group">
-                            <label>Season</label>
-                            <select id="filterSeason">
-                                <option value="">All Seasons</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Competition</label>
-                            <select id="filterCompetition">
-                                <option value="">All Competitions</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Opposition</label>
-                            <select id="filterOpposition">
-                                <option value="">All Teams</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Result</label>
-                            <select id="filterResult">
-                                <option value="">All Results</option>
-                                <option value="W">Win</option>
-                                <option value="D">Draw</option>
-                                <option value="L">Loss</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Venue</label>
-                            <select id="filterVenue">
-                                <option value="">Home & Away</option>
-                                <option value="H">Home</option>
-                                <option value="A">Away</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Goals For (Min)</label>
-                            <input type="number" id="filterGoalsForMin" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Goals For (Max)</label>
-                            <input type="number" id="filterGoalsForMax" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Goals Against (Min)</label>
-                            <input type="number" id="filterGoalsAgainstMin" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Goals Against (Max)</label>
-                            <input type="number" id="filterGoalsAgainstMax" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Attendance (Min)</label>
-                            <input type="number" id="filterAttendanceMin" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Attendance (Max)</label>
-                            <input type="number" id="filterAttendanceMax" min="0" placeholder="Any">
-                        </div>
-                        <div class="filter-group">
-                            <label>Date From</label>
-                            <input type="date" id="filterDateFrom">
-                        </div>
-                        <div class="filter-group">
-                            <label>Date To</label>
-                            <input type="date" id="filterDateTo">
-                        </div>
-                    </div>
-                    <div class="filter-actions">
-                        <button class="btn-primary" onclick="applyAdvancedFilters()">Apply Filters</button>
-                        <button class="btn-secondary" onclick="clearAdvancedFilters()">Clear All</button>
-                    </div>
-                    <div class="active-filters" id="activeFilters"></div>
-                </div>
-                
-                <div class="stats-bar">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statMatches">0</div>
-                        <div class="stat-label">Matches</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statWins">0</div>
-                        <div class="stat-label">Wins</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statDraws">0</div>
-                        <div class="stat-label">Draws</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statLosses">0</div>
-                        <div class="stat-label">Losses</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statGoalsFor">0</div>
-                        <div class="stat-label">Goals For</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statGoalsAgainst">0</div>
-                        <div class="stat-label">Goals Against</div>
-                    </div>
+            <div class="filter-section">
+                <div class="filter-section-label">Match Type</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('home-games')">Home Games</button>
+                    <button class="filter-btn" onclick="setFilter('away-games')">Away Games</button>
+                    <button class="filter-btn" onclick="setFilter('wins')">Wins</button>
+                    <button class="filter-btn" onclick="setFilter('draws')">Draws</button>
+                    <button class="filter-btn" onclick="setFilter('losses')">Losses</button>
                 </div>
             </div>
             
-            <div class="results">
-                <div class="sort-controls">
-                    <label>Sort by:</label>
-                    <select id="sortBy" onchange="applyFilters()">
-                        <option value="date-desc">Date (Newest First)</option>
-                        <option value="date-asc">Date (Oldest First)</option>
-                        <option value="opposition-asc">Opposition (A-Z)</option>
-                        <option value="opposition-desc">Opposition (Z-A)</option>
-                        <option value="attendance-desc">Attendance (High to Low)</option>
-                        <option value="attendance-asc">Attendance (Low to High)</option>
-                        <option value="goals-for-desc">Goals For (High to Low)</option>
-                        <option value="goals-against-desc">Goals Against (High to Low)</option>
-                    </select>
+            <div class="filter-section">
+                <div class="filter-section-label">Records</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('biggest-wins')">Biggest Wins</button>
+                    <button class="filter-btn" onclick="setFilter('biggest-losses')">Biggest Losses</button>
+                    <button class="filter-btn" onclick="showAttendanceFilter('highest')">
+                        Highest Attendance
+                        <select id="highestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('highest')">
+                            <option value="all">All</option>
+                            <option value="home">Home</option>
+                            <option value="away">Away</option>
+                        </select>
+                    </button>
+                    <button class="filter-btn" onclick="showAttendanceFilter('lowest')">
+                        Lowest Attendance
+                        <select id="lowestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('lowest')">
+                            <option value="all">All</option>
+                            <option value="home">Home</option>
+                            <option value="away">Away</option>
+                        </select>
+                    </button>
                 </div>
-                <div class="result-count" id="resultCount">0 matches found</div>
-                <div id="matchList"></div>
             </div>
+            
+            
+            <div class="filter-section">
+                <div class="filter-section-label">Streaks</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('win-streak')">Longest Win Streak</button>
+                    <button class="filter-btn" onclick="setFilter('draw-streak')">Longest Draw Streak</button>
+                    <button class="filter-btn" onclick="setFilter('loss-streak')">Longest Loss Streak</button>
+                    <button class="filter-btn" onclick="setFilter('unbeaten-streak')">Longest Unbeaten</button>
+                    <button class="filter-btn" onclick="setFilter('winless-streak')">Longest Winless</button>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-section-label">Performance</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('most-goals-scored')">Most Goals Scored</button>
+                    <button class="filter-btn" onclick="setFilter('most-goals-conceded')">Most Goals Conceded</button>
+                    <button class="filter-btn" onclick="setFilter('scoreless-draws')">Scoreless Draws</button>
+                    <button class="filter-btn" onclick="setFilter('high-scoring-draws')">High Scoring Draws</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-header">
+            <div class="result-count" id="resultCount"></div>
+            <div class="stats-bar" id="statsBar">
+                <div class="stat-item">
+                    <div class="stat-label">Matches</div>
+                    <div class="stat-value" id="statMatches">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Wins</div>
+                    <div class="stat-value" id="statWins">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Draws</div>
+                    <div class="stat-value" id="statDraws">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Losses</div>
+                    <div class="stat-value" id="statLosses">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Goals For</div>
+                    <div class="stat-value" id="statGoalsFor">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Goals Against</div>
+                    <div class="stat-value" id="statGoalsAgainst">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="matches">
+            <div id="matchList"></div>
         </div>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?output=csv';
-        
-        let MATCHES_DATA = [];
-        let currentQuickFilter = 'all';
+        const MATCHES_DATA = [{"Date": "7th September 2024", "Opposition": "Sale United", "Competition": "Fred Burton Memorial Trophy", "Home/Away": "H", "Goals For": 3, "Goals Against": 2, "Result": "W", "HT Goals For": 2, "HT Goals Against": 1, "West Scorers": "Craig, Tom W x2", "Attendance": 28}, {"Date": "14th September 2024", "Opposition": "Maine Road", "Competition": "League", "Home/Away": "A", "Goals For": 3, "Goals Against": 2, "Result": "W", "HT Goals For": 1, "HT Goals Against": 2, "West Scorers": "Tom W, Pat, Rob", "Attendance": 85}, {"Date": "21st September 2024", "Opposition": "Wilmslow Albion", "Competition": "League", "Home/Away": "A", "Goals For": 0, "Goals Against": 7, "Result": "L", "HT Goals For": 0, "HT Goals Against": 3, "West Scorers": null, "Attendance": 50}, {"Date": "28th September 2024", "Opposition": "Springhead", "Competition": "FA Vase", "Home/Away": "A", "Goals For": 0, "Goals Against": 1, "Result": "L", "HT Goals For": 0, "HT Goals Against": 1, "West Scorers": null, "Attendance": 93}, {"Date": "5th October 2024", "Opposition": "Altrincham Reserves", "Competition": "League", "Home/Away": "H", "Goals For": 1, "Goals Against": 1, "Result": "D", "HT Goals For": 0, "HT Goals Against": 0, "West Scorers": "Pat", "Attendance": 46}, {"Date": "12th October 2024", "Opposition": "Staly Reserves", "Competition": "League", "Home/Away": "A", "Goals For": 1, "Goals Against": 5, "Result": "L", "HT Goals For": 1, "HT Goals Against": 1, "West Scorers": "Pat", "Attendance": 22}, {"Date": "19th October 2024", "Opposition": "Wythenshawe Town", "Competition": "League", "Home/Away": "H", "Goals For": 2, "Goals Against": 3, "Result": "L", "HT Goals For": 2, "HT Goals Against": 1, "West Scorers": "Pat, Rob", "Attendance": 34}, {"Date": "26th October 2024", "Opposition": "Manchester Rovers", "Competition": "Manchester Premier Cup", "Home/Away": "H", "Goals For": 1, "Goals Against": 0, "Result": "W", "HT Goals For": 0, "HT Goals Against": 0, "West Scorers": "Tom W", "Attendance": 15}, {"Date": "2nd November 2024", "Opposition": "Atherton Collieries Reserves", "Competition": "League", "Home/Away": "A", "Goals For": 0, "Goals Against": 2, "Result": "L", "HT Goals For": 0, "HT Goals Against": 0, "West Scorers": null, "Attendance": 15}, {"Date": "9th November 2024", "Opposition": "Elton Vale", "Competition": "League", "Home/Away": "H", "Goals For": 2, "Goals Against": 0, "Result": "W", "HT Goals For": 0, "HT Goals Against": 0, "West Scorers": "Rob x2", "Attendance": 18}, {"Date": "23rd November 2024", "Opposition": "Denton Town", "Competition": "League", "Home/Away": "A", "Goals For": 0, "Goals Against": 1, "Result": "L", "HT Goals For": 0, "HT Goals Against": 1, "West Scorers": null, "Attendance": 49}, {"Date": "30th November 2024", "Opposition": "South Manchester", "Competition": "League", "Home/Away": "H", "Goals For": 2, "Goals Against": 1, "Result": "W", "HT Goals For": 1, "HT Goals Against": 1, "West Scorers": "Tom S, Rob", "Attendance": 27}, {"Date": "14th December 2024", "Opposition": "Bury AFC", "Competition": "Manchester Premier Cup", "Home/Away": "A", "Goals For": 3, "Goals Against": 8, "Result": "L", "HT Goals For": 1, "HT Goals Against": 3, "West Scorers": "Tom W x2, Pat", "Attendance": 86}];
+
+        let currentFilter = 'all';
+        let selectedSeason = '';
         let searchTerm = '';
-        let advancedFilters = {};
-        let RECORDS = {};
+        let records = {};
+        let currentStreak = null;
+        let streakInfoCache = {};
+        let attendanceType = ''; // 'highest' or 'lowest'
+        let attendanceVenue = 'all'; // 'all', 'home', or 'away'
         
-        // Load data from CSV using PapaParse
-        async function loadData() {
-            try {
-                Papa.parse(CSV_URL, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        MATCHES_DATA = results.data.map(row => {
-                            return {
-                                Season: row.Season || '',
-                                Date: row.Date || '',
-                                Competition: row.Competition || '',
-                                'Home/Away': row['Home/Away'] || '',
-                                Opposition: row.Opposition || '',
-                                'Goals For': parseInt(row['Goals For']) || 0,
-                                'Goals Against': parseInt(row['Goals Against']) || 0,
-                                Result: row.Result || '',
-                                'HT Goals For': row['HT Goals For'] ? parseInt(row['HT Goals For']) : null,
-                                'HT Goals Against': row['HT Goals Against'] ? parseInt(row['HT Goals Against']) : null,
-                                Attendance: row.Attendance ? parseInt(row.Attendance) : null,
-                                'West Scorers': row['West Scorers'] || '',
-                                'Opposition Scorers': row['Opposition Scorers'] || '',
-                                'Extra Time': row['Extra Time'] || '',
-                                'FT Score (if ET)': row['FT Score (if ET)'] || '',
-                                Penalties: row.Penalties || '',
-                                Notes: row.Notes || ''
-                            };
-                        });
-                        
-                        document.getElementById('loadingIndicator').style.display = 'none';
-                        document.getElementById('mainContent').style.display = 'block';
-                        
-                        calculateRecords();
-                        populateSummary();
-                        populateFilterDropdowns();
-                        renderMatches();
-                    },
-                    error: function(error) {
-                        document.getElementById('loadingIndicator').innerHTML = 
-                            '<div style="color: #ef4444;">Error loading data: ' + error.message + '<br><br>Please refresh the page to try again.</div>';
-                        console.error('Error loading CSV:', error);
-                    }
-                });
-            } catch (error) {
-                document.getElementById('loadingIndicator').innerHTML = 
-                    '<div style="color: #ef4444;">Error loading data. Please refresh the page.</div>';
-                console.error('Error loading CSV:', error);
-            }
+        function toggleTheme() {
+            document.body.classList.toggle('retro-mode');
         }
         
-        // Parse date function
+        function showAttendanceFilter(type) {
+            attendanceType = type;
+            const selectId = type === 'highest' ? 'highestAttendanceSelect' : 'lowestAttendanceSelect';
+            const select = document.getElementById(selectId);
+            select.style.display = 'inline-block';
+            
+            // Hide the other select if visible
+            const otherSelectId = type === 'highest' ? 'lowestAttendanceSelect' : 'highestAttendanceSelect';
+            document.getElementById(otherSelectId).style.display = 'none';
+            
+            // Set initial filter
+            attendanceVenue = select.value;
+            currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayCurrentStreak();
+            renderMatches();
+            
+            setTimeout(() => {
+                const resultsHeader = document.querySelector('.results-header');
+                const yOffset = -20;
+                const y = resultsHeader.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }, 100);
+        }
+        
+        function filterByAttendance(type) {
+            const selectId = type === 'highest' ? 'highestAttendanceSelect' : 'lowestAttendanceSelect';
+            const select = document.getElementById(selectId);
+            attendanceVenue = select.value;
+            attendanceType = type;
+            currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
+            renderMatches();
+        }
+        
         function parseDate(dateStr) {
-            const match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/);
+            const match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
             if (!match) return null;
             const months = {
                 'January': 0, 'February': 1, 'March': 2, 'April': 3,
                 'May': 4, 'June': 5, 'July': 6, 'August': 7,
                 'September': 8, 'October': 9, 'November': 10, 'December': 11
             };
-            return new Date(parseInt(match[3]), months[match[2]], parseInt(match[1]));
+            const day = parseInt(match[1]);
+            const month = months[match[2]];
+            const year = parseInt(match[3]);
+            return new Date(year, month, day);
         }
         
-        // Calculate records
-        function calculateRecords() {
-            RECORDS = {
-                biggestWin: null,
-                biggestDefeat: null,
-                highestAttendance: null,
-                highestHomeAttendance: null,
-                highestAwayAttendance: null,
-                lowestAttendance: null,
-                lowestHomeAttendance: null,
-                lowestAwayAttendance: null,
-                highestScoring: null,
-                winStreak: 0,
-                unbeatenStreak: 0,
-                lossStreak: 0
-            };
+        function calculateCurrentStreak() {
+            if (MATCHES_DATA.length === 0) return null;
             
-            let maxWinMargin = -1;
-            let maxDefeatMargin = -1;
-            let maxAttendance = -1;
-            let maxHomeAttendance = -1;
-            let maxAwayAttendance = -1;
-            let minAttendance = Infinity;
-            let minHomeAttendance = Infinity;
-            let minAwayAttendance = Infinity;
-            let maxTotalGoals = -1;
-            
-            MATCHES_DATA.forEach(match => {
-                const margin = match['Goals For'] - match['Goals Against'];
-                
-                if (match.Result === 'W' && margin > maxWinMargin) {
-                    maxWinMargin = margin;
-                    RECORDS.biggestWin = match;
-                }
-                if (match.Result === 'L' && Math.abs(margin) > maxDefeatMargin) {
-                    maxDefeatMargin = Math.abs(margin);
-                    RECORDS.biggestDefeat = match;
-                }
-                if (match.Attendance && match.Attendance > maxAttendance) {
-                    maxAttendance = match.Attendance;
-                    RECORDS.highestAttendance = match;
-                }
-                if (match.Attendance && match['Home/Away'] === 'H' && match.Attendance > maxHomeAttendance) {
-                    maxHomeAttendance = match.Attendance;
-                    RECORDS.highestHomeAttendance = match;
-                }
-                if (match.Attendance && match['Home/Away'] === 'A' && match.Attendance > maxAwayAttendance) {
-                    maxAwayAttendance = match.Attendance;
-                    RECORDS.highestAwayAttendance = match;
-                }
-                if (match.Attendance && match.Attendance < minAttendance && match.Attendance > 0) {
-                    minAttendance = match.Attendance;
-                    RECORDS.lowestAttendance = match;
-                }
-                if (match.Attendance && match['Home/Away'] === 'H' && match.Attendance < minHomeAttendance && match.Attendance > 0) {
-                    minHomeAttendance = match.Attendance;
-                    RECORDS.lowestHomeAttendance = match;
-                }
-                if (match.Attendance && match['Home/Away'] === 'A' && match.Attendance < minAwayAttendance && match.Attendance > 0) {
-                    minAwayAttendance = match.Attendance;
-                    RECORDS.lowestAwayAttendance = match;
-                }
-                
-                const totalGoals = match['Goals For'] + match['Goals Against'];
-                if (totalGoals > maxTotalGoals) {
-                    maxTotalGoals = totalGoals;
-                    RECORDS.highestScoring = match;
-                }
+            // Sort matches chronologically
+            const sortedMatches = [...MATCHES_DATA].sort((a, b) => {
+                return parseDate(a.Date) - parseDate(b.Date);
             });
             
-            RECORDS.winStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W').length;
-            RECORDS.unbeatenStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W' || m.Result === 'D').length;
-            RECORDS.lossStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'L').length;
-        }
-        
-        function findLongestStreak(matches, condition) {
-            let longest = [];
-            let current = [];
+            const latestMatch = sortedMatches[sortedMatches.length - 1];
+            let streakType = '';
+            let streakCount = 0;
+            let currentResult = latestMatch.Result;
             
-            matches.forEach(match => {
-                if (condition(match)) {
-                    current.push(match);
-                    if (current.length > longest.length) {
-                        longest = [...current];
-                    }
+            // Determine streak type
+            if (currentResult === 'W') {
+                streakType = 'won';
+            } else if (currentResult === 'L') {
+                streakType = 'lost';
+            } else if (currentResult === 'D') {
+                streakType = 'drawn';
+            }
+            
+            // Count streak
+            for (let i = sortedMatches.length - 1; i >= 0; i--) {
+                if (sortedMatches[i].Result === currentResult) {
+                    streakCount++;
                 } else {
-                    current = [];
+                    break;
                 }
-            });
+            }
             
-            return longest;
+            // Find longest streak of same type in history
+            let longestStreak = 0;
+            let longestStreakStart = null;
+            let longestStreakEnd = null;
+            let tempStreakCount = 0;
+            let tempStreakStart = null;
+            
+            for (let i = 0; i < sortedMatches.length; i++) {
+                if (sortedMatches[i].Result === currentResult) {
+                    if (tempStreakCount === 0) {
+                        tempStreakStart = sortedMatches[i].Date;
+                    }
+                    tempStreakCount++;
+                } else {
+                    if (tempStreakCount > longestStreak) {
+                        longestStreak = tempStreakCount;
+                        longestStreakStart = tempStreakStart;
+                        longestStreakEnd = sortedMatches[i - 1].Date;
+                    }
+                    tempStreakCount = 0;
+                    tempStreakStart = null;
+                }
+            }
+            
+            // Check if final streak is longest
+            if (tempStreakCount > longestStreak) {
+                longestStreak = tempStreakCount;
+                longestStreakStart = tempStreakStart;
+                longestStreakEnd = sortedMatches[sortedMatches.length - 1].Date;
+            }
+            
+            return {
+                type: streakType,
+                count: streakCount,
+                longestCount: longestStreak,
+                longestStart: longestStreakStart,
+                longestEnd: longestStreakEnd
+            };
         }
         
-        function populateSummary() {
-            if (RECORDS.biggestWin) {
-                document.getElementById('summaryBiggestWin').textContent = 
-                    `${RECORDS.biggestWin['Goals For']}-${RECORDS.biggestWin['Goals Against']} vs ${RECORDS.biggestWin.Opposition}`;
+        function displayCurrentStreak() {
+            const streak = calculateCurrentStreak();
+            if (!streak) {
+                document.getElementById('streakBox').style.display = 'none';
+                return;
             }
-            if (RECORDS.biggestDefeat) {
-                document.getElementById('summaryBiggestDefeat').textContent = 
-                    `${RECORDS.biggestDefeat['Goals For']}-${RECORDS.biggestDefeat['Goals Against']} vs ${RECORDS.biggestDefeat.Opposition}`;
+            
+            const streakBox = document.getElementById('streakBox');
+            const streakValue = document.getElementById('streakValue');
+            const streakContext = document.getElementById('streakContext');
+            const streakLabel = document.querySelector('.streak-label');
+            
+            streakBox.style.display = 'block';
+            streakLabel.textContent = 'Current Streak';
+            
+            const gameWord = streak.count === 1 ? 'game' : 'games';
+            streakValue.textContent = `${streak.type.toUpperCase()} ${streak.count} ${gameWord}`;
+            
+            if (streak.count === streak.longestCount) {
+                streakContext.textContent = `This is the longest ${streak.type} streak in club history!`;
+            } else {
+                streakContext.textContent = `Longest ${streak.type} streak: ${streak.longestCount} games (${streak.longestStart} to ${streak.longestEnd})`;
             }
-            if (RECORDS.highestAttendance) {
-                document.getElementById('summaryHighestAttendance').textContent = 
-                    `${RECORDS.highestAttendance.Attendance} (${RECORDS.highestAttendance.Opposition})`;
-            }
-            if (RECORDS.highestHomeAttendance) {
-                document.getElementById('summaryHighestAttendanceHome').textContent = 
-                    `${RECORDS.highestHomeAttendance.Attendance} (${RECORDS.highestHomeAttendance.Opposition})`;
-            }
-            if (RECORDS.highestAwayAttendance) {
-                document.getElementById('summaryHighestAttendanceAway').textContent = 
-                    `${RECORDS.highestAwayAttendance.Attendance} (${RECORDS.highestAwayAttendance.Opposition})`;
-            }
-            if (RECORDS.highestScoring) {
-                const total = RECORDS.highestScoring['Goals For'] + RECORDS.highestScoring['Goals Against'];
-                document.getElementById('summaryHighScoring').textContent = 
-                    `${total} goals (${RECORDS.highestScoring['Goals For']}-${RECORDS.highestScoring['Goals Against']})`;
-            }
-            document.getElementById('summaryWinStreak').textContent = `${RECORDS.winStreak} matches`;
-            document.getElementById('summaryUnbeatenStreak').textContent = `${RECORDS.unbeatenStreak} matches`;
-            document.getElementById('summaryLossStreak').textContent = `${RECORDS.lossStreak} matches`;
         }
         
-        // Populate filter dropdowns
-        function populateFilterDropdowns() {
-            const seasons = [...new Set(MATCHES_DATA.map(m => m.Season))].sort().reverse();
-            const competitions = [...new Set(MATCHES_DATA.map(m => m.Competition))].sort();
-            const oppositions = [...new Set(MATCHES_DATA.map(m => m.Opposition))].sort();
+        function calculateRecords() {
+            records.biggestWin = MATCHES_DATA.filter(m => m.Result === 'W')
+                .sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']))
+                .slice(0, 20);
             
-            const seasonSelect = document.getElementById('filterSeason');
-            seasons.forEach(season => {
-                const option = document.createElement('option');
-                option.value = season;
-                option.textContent = season;
-                seasonSelect.appendChild(option);
-            });
+            records.biggestLoss = MATCHES_DATA.filter(m => m.Result === 'L')
+                .sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']))
+                .slice(0, 20);
             
-            const compSelect = document.getElementById('filterCompetition');
-            competitions.forEach(comp => {
-                const option = document.createElement('option');
-                option.value = comp;
-                option.textContent = comp;
-                compSelect.appendChild(option);
-            });
+            records.highestScore = [...MATCHES_DATA]
+                .sort((a, b) => b['Goals For'] - a['Goals For'])
+                .slice(0, 20);
             
-            const oppSelect = document.getElementById('filterOpposition');
-            oppositions.forEach(opp => {
-                const option = document.createElement('option');
-                option.value = opp;
-                option.textContent = opp;
-                oppSelect.appendChild(option);
-            });
+            records.mostGoalsConceded = [...MATCHES_DATA]
+                .sort((a, b) => b['Goals Against'] - a['Goals Against'])
+                .slice(0, 20);
+            
+            records.highestAttendance = [...MATCHES_DATA]
+                .filter(m => m.Attendance)
+                .sort((a, b) => b.Attendance - a.Attendance)
+                .slice(0, 20);
+            
+            records.lowestAttendance = [...MATCHES_DATA]
+                .filter(m => m.Attendance)
+                .sort((a, b) => a.Attendance - b.Attendance)
+                .slice(0, 20);
+            
+            records.cleanSheets = MATCHES_DATA.filter(m => m['Goals Against'] === 0).length;
+            records.failedToScore = MATCHES_DATA.filter(m => m['Goals For'] === 0).length;
+            
+            // Calculate streak records
+            records.longestWinStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W');
+            records.longestDrawStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'D');
+            records.longestLossStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'L');
+            records.longestUnbeatenStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W' || m.Result === 'D');
+            records.longestWinlessStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'L' || m.Result === 'D');
         }
         
         function getMatchTags(match) {
             const tags = [];
             
-            if (RECORDS.biggestWin && match.Date === RECORDS.biggestWin.Date && 
-                match.Opposition === RECORDS.biggestWin.Opposition) {
-                tags.push('Biggest Win');
+            // Gold awards
+            if (match.Opposition === 'Maine Road' && match.Result === 'W') {
+                tags.push({ text: '🏆 M21 IS OURS', isSilver: false, clickDate: null });
             }
-            if (RECORDS.biggestDefeat && match.Date === RECORDS.biggestDefeat.Date && 
-                match.Opposition === RECORDS.biggestDefeat.Opposition) {
-                tags.push('Biggest Defeat');
+            
+            if (records.biggestWin.length > 0 && match === records.biggestWin[0] && match.Result === 'W') {
+                const margin = match['Goals For'] - match['Goals Against'];
+                tags.push({ text: `BIGGEST WIN (${margin} goals)`, isSilver: false, clickDate: null });
             }
-            if (RECORDS.highestAttendance && match.Date === RECORDS.highestAttendance.Date && 
-                match.Opposition === RECORDS.highestAttendance.Opposition) {
-                tags.push('Highest Attendance');
+            
+            if (records.biggestLoss.length > 0 && match === records.biggestLoss[0] && match.Result === 'L') {
+                const margin = match['Goals Against'] - match['Goals For'];
+                tags.push({ text: `BIGGEST LOSS (${margin} goals)`, isSilver: false, clickDate: null });
             }
-            if (RECORDS.highestScoring && match.Date === RECORDS.highestScoring.Date && 
-                match.Opposition === RECORDS.highestScoring.Opposition) {
-                tags.push('Highest Scoring');
+            
+            if (records.highestScore.length > 0 && match === records.highestScore[0]) {
+                tags.push({ text: `MOST GOALS SCORED (${match['Goals For']})`, isSilver: false, clickDate: null });
+            }
+            
+            if (records.mostGoalsConceded.length > 0 && match === records.mostGoalsConceded[0]) {
+                tags.push({ text: `MOST GOALS CONCEDED (${match['Goals Against']})`, isSilver: false, clickDate: null });
+            }
+            
+            if (records.highestAttendance.length > 0 && match === records.highestAttendance[0]) {
+                tags.push({ text: `HIGHEST ATTENDANCE (${match.Attendance})`, isSilver: false, clickDate: null });
+            }
+            
+            if (records.lowestAttendance.length > 0 && match === records.lowestAttendance[0]) {
+                tags.push({ text: `LOWEST ATTENDANCE (${match.Attendance})`, isSilver: false, clickDate: null });
+            }
+            
+            // Silver awards (second place)
+            if (records.biggestWin.length > 1 && match === records.biggestWin[1] && match.Result === 'W') {
+                const margin = match['Goals For'] - match['Goals Against'];
+                const topMatch = records.biggestWin[0];
+                tags.push({ text: `Biggest win since ${topMatch.Date}`, isSilver: true, clickDate: topMatch.Date });
+            }
+            
+            if (records.highestAttendance.length > 1 && match === records.highestAttendance[1]) {
+                const topMatch = records.highestAttendance[0];
+                tags.push({ text: `Highest attendance since ${topMatch.Date}`, isSilver: true, clickDate: topMatch.Date });
             }
             
             return tags;
         }
         
-        // Filter matches
-        function filterMatches() {
-            let filtered = [...MATCHES_DATA];
+        function scrollToMatchByDate(date) {
+            // Find the match card with this date
+            const matchCards = document.querySelectorAll('.match-card');
+            for (const card of matchCards) {
+                const dateElement = card.querySelector('.match-date');
+                if (dateElement && dateElement.textContent === date) {
+                    card.style.border = '3px solid #ffd700';
+                    card.style.backgroundColor = '#fffbf0';
+                    
+                    setTimeout(() => {
+                        const yOffset = -100;
+                        const y = card.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({top: y, behavior: 'smooth'});
+                        
+                        // Remove highlight after 3 seconds
+                        setTimeout(() => {
+                            card.style.border = '';
+                            card.style.backgroundColor = '';
+                        }, 3000);
+                    }, 100);
+                    break;
+                }
+            }
+        }
+        
+        function populateSummary() {
+            const totalMatches = MATCHES_DATA.length;
+            const wins = MATCHES_DATA.filter(m => m.Result === 'W').length;
+            const draws = MATCHES_DATA.filter(m => m.Result === 'D').length;
+            const losses = MATCHES_DATA.filter(m => m.Result === 'L').length;
+            const goalsFor = MATCHES_DATA.reduce((sum, m) => sum + (m['Goals For'] || 0), 0);
+            const goalsAgainst = MATCHES_DATA.reduce((sum, m) => sum + (m['Goals Against'] || 0), 0);
             
-            // Search filter
+            const biggestWin = records.biggestWin[0];
+            const biggestLoss = records.biggestLoss[0];
+            
+            const summaryData = [
+                { label: 'Total Matches', value: totalMatches, filter: 'all' },
+                { label: 'Wins', value: wins, filter: 'wins' },
+                { label: 'Draws', value: draws, filter: 'draws' },
+                { label: 'Losses', value: losses, filter: 'losses' },
+                { label: 'Goals For', value: goalsFor, filter: null },
+                { label: 'Goals Against', value: goalsAgainst, filter: null },
+                { label: 'Biggest Win', value: biggestWin ? `${biggestWin['Goals For']}-${biggestWin['Goals Against']} vs ${biggestWin.Opposition} (${biggestWin.Date})` : 'N/A', filter: 'biggest-wins' },
+                { label: 'Biggest Loss', value: biggestLoss ? `${biggestLoss['Goals For']}-${biggestLoss['Goals Against']} vs ${biggestLoss.Opposition} (${biggestLoss.Date})` : 'N/A', filter: 'biggest-losses' },
+                { label: 'Longest Win Streak', value: records.longestWinStreak.length > 0 ? `${records.longestWinStreak.length} games (${records.longestWinStreak[0].Date} to ${records.longestWinStreak[records.longestWinStreak.length - 1].Date})` : 'N/A', filter: 'win-streak' },
+                { label: 'Longest Unbeaten', value: records.longestUnbeatenStreak.length > 0 ? `${records.longestUnbeatenStreak.length} games (${records.longestUnbeatenStreak[0].Date} to ${records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date})` : 'N/A', filter: 'unbeaten-streak' },
+                { label: 'Longest Loss Streak', value: records.longestLossStreak.length > 0 ? `${records.longestLossStreak.length} games (${records.longestLossStreak[0].Date} to ${records.longestLossStreak[records.longestLossStreak.length - 1].Date})` : 'N/A', filter: 'loss-streak' },
+                { label: 'Longest Winless', value: records.longestWinlessStreak.length > 0 ? `${records.longestWinlessStreak.length} games (${records.longestWinlessStreak[0].Date} to ${records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date})` : 'N/A', filter: 'winless-streak' }
+            ];
+            
+            const grid = document.getElementById('summaryGrid');
+            grid.innerHTML = summaryData.map(item => `
+                <div class="summary-item" ${item.filter ? `onclick="setFilter('${item.filter}')"` : ''} style="${item.filter ? 'cursor: pointer;' : 'cursor: default;'}">
+                    <div class="summary-label">${item.label}</div>
+                    <div class="summary-value">${item.value}</div>
+                </div>
+            `).join('');
+        }
+        
+        function populateSeasonFilter() {
+            const seasons = [...new Set(MATCHES_DATA.map(m => {
+                const match = m.Date.match(/(\d{4})/);
+                return match ? match[1] : null;
+            }).filter(Boolean))].sort((a, b) => b - a);
+            
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '<option value="">Select Season...</option>' +
+                seasons.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        
+        function showSeasonFilter() {
+            document.getElementById('seasonSelect').style.display = 'inline-block';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        }
+        
+        function filterBySeason() {
+            selectedSeason = document.getElementById('seasonSelect').value;
+            if (selectedSeason) {
+                currentFilter = 'season';
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                renderMatches();
+                
+                // Smooth scroll to results
+                document.getElementById('resultCount').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        function findLongestStreak(matches, condition) {
+            const sorted = [...matches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
+            
+            let maxStreak = [];
+            let currentStreak = [];
+            
+            for (const match of sorted) {
+                if (condition(match)) {
+                    currentStreak.push(match);
+                    if (currentStreak.length > maxStreak.length) {
+                        maxStreak = [...currentStreak];
+                    }
+                } else {
+                    currentStreak = [];
+                }
+            }
+            
+            return maxStreak;
+        }
+        
+        function filterMatches() {
+            let filtered = [...MATCHES_DATA].sort((a, b) => parseDate(b.Date) - parseDate(a.Date));
+            
             if (searchTerm) {
                 filtered = filtered.filter(m => 
-                    m.Opposition.toLowerCase().includes(searchTerm.toLowerCase())
+                    m.Opposition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    m.Competition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    m.Date?.toLowerCase().includes(searchTerm.toLowerCase())
                 );
             }
             
-            // Advanced filters
-            if (advancedFilters.season) {
-                filtered = filtered.filter(m => m.Season === advancedFilters.season);
-            }
-            if (advancedFilters.competition) {
-                filtered = filtered.filter(m => m.Competition === advancedFilters.competition);
-            }
-            if (advancedFilters.opposition) {
-                filtered = filtered.filter(m => m.Opposition === advancedFilters.opposition);
-            }
-            if (advancedFilters.result) {
-                filtered = filtered.filter(m => m.Result === advancedFilters.result);
-            }
-            if (advancedFilters.venue) {
-                filtered = filtered.filter(m => m['Home/Away'] === advancedFilters.venue);
-            }
-            if (advancedFilters.goalsForMin !== undefined) {
-                filtered = filtered.filter(m => m['Goals For'] >= advancedFilters.goalsForMin);
-            }
-            if (advancedFilters.goalsForMax !== undefined) {
-                filtered = filtered.filter(m => m['Goals For'] <= advancedFilters.goalsForMax);
-            }
-            if (advancedFilters.goalsAgainstMin !== undefined) {
-                filtered = filtered.filter(m => m['Goals Against'] >= advancedFilters.goalsAgainstMin);
-            }
-            if (advancedFilters.goalsAgainstMax !== undefined) {
-                filtered = filtered.filter(m => m['Goals Against'] <= advancedFilters.goalsAgainstMax);
-            }
-            if (advancedFilters.attendanceMin !== undefined) {
-                filtered = filtered.filter(m => m.Attendance && m.Attendance >= advancedFilters.attendanceMin);
-            }
-            if (advancedFilters.attendanceMax !== undefined) {
-                filtered = filtered.filter(m => m.Attendance && m.Attendance <= advancedFilters.attendanceMax);
-            }
-            if (advancedFilters.dateFrom) {
-                filtered = filtered.filter(m => {
-                    const matchDate = parseDate(m.Date);
-                    return matchDate && matchDate >= advancedFilters.dateFrom;
-                });
-            }
-            if (advancedFilters.dateTo) {
-                filtered = filtered.filter(m => {
-                    const matchDate = parseDate(m.Date);
-                    return matchDate && matchDate <= advancedFilters.dateTo;
-                });
-            }
-            
-            // Quick filters
-            if (currentQuickFilter === 'league') {
-                filtered = filtered.filter(m => !m.Competition.toLowerCase().includes('cup') && 
-                                                !m.Competition.toLowerCase().includes('trophy') &&
-                                                !m.Competition.toLowerCase().includes('vase'));
-            } else if (currentQuickFilter === 'cup') {
-                filtered = filtered.filter(m => m.Competition.toLowerCase().includes('cup') ||
-                                                m.Competition.toLowerCase().includes('trophy') ||
-                                                m.Competition.toLowerCase().includes('vase'));
-            } else if (currentQuickFilter === 'away-wins') {
-                filtered = filtered.filter(m => m.Result === 'W' && m['Home/Away'] === 'A');
-            } else if (currentQuickFilter === 'clean-sheets') {
-                filtered = filtered.filter(m => m['Goals Against'] === 0);
-            } else if (currentQuickFilter === 'failed-to-score') {
-                filtered = filtered.filter(m => m['Goals For'] === 0);
-            } else if (currentQuickFilter === 'comebacks') {
+            if (currentFilter === 'wins') {
+                filtered = filtered.filter(m => m.Result === 'W');
+            } else if (currentFilter === 'draws') {
+                filtered = filtered.filter(m => m.Result === 'D');
+            } else if (currentFilter === 'losses') {
+                filtered = filtered.filter(m => m.Result === 'L');
+            } else if (currentFilter === 'home-games') {
+                filtered = filtered.filter(m => m['Home/Away'] === 'H');
+            } else if (currentFilter === 'away-games') {
+                filtered = filtered.filter(m => m['Home/Away'] === 'A');
+            } else if (currentFilter === 'comebacks') {
                 filtered = filtered.filter(m => 
                     m.Result === 'W' && 
-                    m['HT Goals For'] != null &&
+                    m['HT Goals For'] != null && 
                     m['HT Goals For'] < m['HT Goals Against']
                 );
-            } else if (currentQuickFilter === 'threw-away') {
+            } else if (currentFilter === 'capitulations') {
                 filtered = filtered.filter(m => 
                     m.Result === 'L' && 
-                    m['HT Goals For'] != null &&
+                    m['HT Goals For'] != null && 
                     m['HT Goals For'] > m['HT Goals Against']
                 );
-            } else if (currentQuickFilter === '0-0-draws') {
-                filtered = filtered.filter(m => 
-                    m.Result === 'D' && m['Goals For'] === 0 && m['Goals Against'] === 0
-                );
-            } else if (currentQuickFilter === 'biggest-win') {
-                filtered = RECORDS.biggestWin ? [RECORDS.biggestWin] : [];
-            } else if (currentQuickFilter === 'biggest-defeat') {
-                filtered = RECORDS.biggestDefeat ? [RECORDS.biggestDefeat] : [];
-            } else if (currentQuickFilter === 'highest-attendance') {
-                filtered = RECORDS.highestAttendance ? [RECORDS.highestAttendance] : [];
-            } else if (currentQuickFilter === 'highest-attendance-home') {
-                filtered = RECORDS.highestHomeAttendance ? [RECORDS.highestHomeAttendance] : [];
-            } else if (currentQuickFilter === 'highest-attendance-away') {
-                filtered = RECORDS.highestAwayAttendance ? [RECORDS.highestAwayAttendance] : [];
-            } else if (currentQuickFilter === 'lowest-attendance') {
-                filtered = RECORDS.lowestAttendance ? [RECORDS.lowestAttendance] : [];
-            } else if (currentQuickFilter === 'high-scoring') {
-                filtered = RECORDS.highestScoring ? [RECORDS.highestScoring] : [];
-            } else if (currentQuickFilter === 'win-streak') {
+            } else if (currentFilter === 'scoreless-draws') {
+                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] === 0);
+            } else if (currentFilter === 'high-scoring-draws') {
+                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3);
+            } else if (currentFilter === 'season' && selectedSeason) {
+                filtered = filtered.filter(m => m.Date.includes(selectedSeason));
+            } else if (currentFilter === 'biggest-wins') {
+                filtered = records.biggestWin;
+            } else if (currentFilter === 'biggest-losses') {
+                filtered = records.biggestLoss;
+            } else if (currentFilter === 'most-goals-scored') {
+                filtered = [...MATCHES_DATA]
+                    .sort((a, b) => b['Goals For'] - a['Goals For'])
+                    .slice(0, 20);
+            } else if (currentFilter === 'most-goals-conceded') {
+                filtered = [...MATCHES_DATA]
+                    .sort((a, b) => b['Goals Against'] - a['Goals Against'])
+                    .slice(0, 20);
+            } else if (currentFilter === 'highest-attendance') {
+                let matches = [...MATCHES_DATA].filter(m => m.Attendance);
+                if (attendanceVenue === 'home') {
+                    matches = matches.filter(m => m['Home/Away'] === 'H');
+                } else if (attendanceVenue === 'away') {
+                    matches = matches.filter(m => m['Home/Away'] === 'A');
+                }
+                filtered = matches.sort((a, b) => b.Attendance - a.Attendance).slice(0, 20);
+            } else if (currentFilter === 'lowest-attendance') {
+                let matches = [...MATCHES_DATA].filter(m => m.Attendance);
+                if (attendanceVenue === 'home') {
+                    matches = matches.filter(m => m['Home/Away'] === 'H');
+                } else if (attendanceVenue === 'away') {
+                    matches = matches.filter(m => m['Home/Away'] === 'A');
+                }
+                filtered = matches.sort((a, b) => a.Attendance - b.Attendance).slice(0, 20);
+            } else if (currentFilter === 'win-streak') {
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'W');
-            } else if (currentQuickFilter === 'draw-streak') {
+            } else if (currentFilter === 'draw-streak') {
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'D');
-            } else if (currentQuickFilter === 'loss-streak') {
+            } else if (currentFilter === 'loss-streak') {
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'L');
-            } else if (currentQuickFilter === 'unbeaten-streak') {
+            } else if (currentFilter === 'unbeaten-streak') {
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'W' || m.Result === 'D');
-            } else if (currentQuickFilter === 'winless-streak') {
+            } else if (currentFilter === 'winless-streak') {
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'L' || m.Result === 'D');
-            } else if (currentQuickFilter === 'on-this-day') {
+            } else if (currentFilter === 'on-this-day') {
                 const today = new Date();
                 filtered = filtered.filter(m => {
-                    const matchDate = parseDate(m.Date);
-                    return matchDate && matchDate.getMonth() === today.getMonth() && 
-                           matchDate.getDate() === today.getDate();
+                    const match = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
+                    if (!match) return false;
+                    const months = {
+                        'January': 1, 'February': 2, 'March': 3, 'April': 4,
+                        'May': 5, 'June': 6, 'July': 7, 'August': 8,
+                        'September': 9, 'October': 10, 'November': 11, 'December': 12
+                    };
+                    const day = parseInt(match[1]);
+                    const month = months[match[2]];
+                    return month === today.getMonth() + 1 && day === today.getDate();
                 });
-            } else if (currentQuickFilter === 'recent') {
+            } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
-                filtered = filtered.slice(-count).reverse();
-                return filtered; // Skip sorting for recent
+                filtered = filtered.slice(0, count);
             }
-            
-            // Sort matches
-            const sortBy = document.getElementById('sortBy').value;
-            filtered.sort((a, b) => {
-                switch(sortBy) {
-                    case 'date-asc':
-                        return parseDate(a.Date) - parseDate(b.Date);
-                    case 'date-desc':
-                        return parseDate(b.Date) - parseDate(a.Date);
-                    case 'opposition-asc':
-                        return a.Opposition.localeCompare(b.Opposition);
-                    case 'opposition-desc':
-                        return b.Opposition.localeCompare(a.Opposition);
-                    case 'attendance-desc':
-                        return (b.Attendance || 0) - (a.Attendance || 0);
-                    case 'attendance-asc':
-                        return (a.Attendance || 0) - (b.Attendance || 0);
-                    case 'goals-for-desc':
-                        return b['Goals For'] - a['Goals For'];
-                    case 'goals-against-desc':
-                        return b['Goals Against'] - a['Goals Against'];
-                    default:
-                        return parseDate(b.Date) - parseDate(a.Date);
-                }
-            });
             
             return filtered;
         }
         
         function updateStats(matches) {
-            document.getElementById('statMatches').textContent = matches.length;
-            document.getElementById('statWins').textContent = matches.filter(m => m.Result === 'W').length;
-            document.getElementById('statDraws').textContent = matches.filter(m => m.Result === 'D').length;
-            document.getElementById('statLosses').textContent = matches.filter(m => m.Result === 'L').length;
-            document.getElementById('statGoalsFor').textContent = matches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
-            document.getElementById('statGoalsAgainst').textContent = matches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+            const statsBar = document.querySelector('.stats-bar');
+            if (['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games'].includes(currentFilter)) {
+                statsBar.style.display = 'grid';
+                document.getElementById('statMatches').textContent = matches.length;
+                document.getElementById('statWins').textContent = matches.filter(m => m.Result === 'W').length;
+                document.getElementById('statDraws').textContent = matches.filter(m => m.Result === 'D').length;
+                document.getElementById('statLosses').textContent = matches.filter(m => m.Result === 'L').length;
+                document.getElementById('statGoalsFor').textContent = matches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
+                document.getElementById('statGoalsAgainst').textContent = matches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+            } else {
+                statsBar.style.display = 'none';
+            }
         }
         
         function renderMatches() {
             const filtered = filterMatches();
             updateStats(filtered);
             
-            document.getElementById('resultCount').textContent = 
-                `${filtered.length} ${filtered.length === 1 ? 'match' : 'matches'} found`;
+            const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
+            if (streakFilters.includes(currentFilter)) {
+                const type = currentFilter.replace('-streak', '').replace('-', ' ');
+                document.getElementById('resultCount').textContent = 
+                    `Longest ${type} streak: ${filtered.length} matches`;
+            } else if (selectedSeason && currentFilter === 'season') {
+                document.getElementById('resultCount').textContent = 
+                    `${filtered.length} matches in ${selectedSeason}`;
+            } else {
+                document.getElementById('resultCount').textContent = 
+                    `${filtered.length} ${filtered.length === 1 ? 'match' : 'matches'} found`;
+            }
             
             const matchList = document.getElementById('matchList');
             matchList.innerHTML = filtered.map(match => {
@@ -1261,7 +1376,11 @@
                 
                 const tags = getMatchTags(match);
                 const tagsHtml = tags.length > 0 ? 
-                    '<div class="match-tags">' + tags.map(t => `<span class="record-tag">⭐ ${t}</span>`).join('') + '</div>' : '';
+                    '<div class="match-tags">' + tags.map(t => {
+                        const className = t.isSilver ? 'record-tag silver' : 'record-tag';
+                        const clickHandler = t.clickDate ? `onclick="scrollToMatchByDate('${t.clickDate}')" style="cursor: pointer;"` : '';
+                        return `<span class="${className}" ${clickHandler}>${t.text}</span>`;
+                    }).join('') + '</div>' : '';
                 
                 return `
                     <div class="match-card">
@@ -1277,7 +1396,6 @@
                         </div>
                         <div class="match-details">
                             <strong>Competition:</strong> ${match.Competition}
-                            ${match.Season ? ` | <strong>Season:</strong> ${match.Season}` : ''}
                             ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
                             ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${htHomeScore}-${htAwayScore}` : ''}
                         </div>
@@ -1291,145 +1409,74 @@
             }).join('');
         }
         
-        function setQuickFilter(filter) {
-            currentQuickFilter = filter;
+        function setFilter(filter) {
+            currentFilter = filter;
+            selectedSeason = '';
+            document.getElementById('seasonSelect').value = '';
+            document.getElementById('seasonSelect').style.display = 'none';
+            
+            // Hide attendance dropdowns when switching to other filters
+            document.getElementById('highestAttendanceSelect').style.display = 'none';
+            document.getElementById('lowestAttendanceSelect').style.display = 'none';
+            
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            applyFilters();
-        }
-        
-        function applyAdvancedFilters() {
-            advancedFilters = {};
             
-            const season = document.getElementById('filterSeason').value;
-            const competition = document.getElementById('filterCompetition').value;
-            const opposition = document.getElementById('filterOpposition').value;
-            const result = document.getElementById('filterResult').value;
-            const venue = document.getElementById('filterVenue').value;
-            const goalsForMin = document.getElementById('filterGoalsForMin').value;
-            const goalsForMax = document.getElementById('filterGoalsForMax').value;
-            const goalsAgainstMin = document.getElementById('filterGoalsAgainstMin').value;
-            const goalsAgainstMax = document.getElementById('filterGoalsAgainstMax').value;
-            const attendanceMin = document.getElementById('filterAttendanceMin').value;
-            const attendanceMax = document.getElementById('filterAttendanceMax').value;
-            const dateFrom = document.getElementById('filterDateFrom').value;
-            const dateTo = document.getElementById('filterDateTo').value;
+            // Show streak info for streak filters
+            const streakBox = document.getElementById('streakBox');
+            const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             
-            if (season) advancedFilters.season = season;
-            if (competition) advancedFilters.competition = competition;
-            if (opposition) advancedFilters.opposition = opposition;
-            if (result) advancedFilters.result = result;
-            if (venue) advancedFilters.venue = venue;
-            if (goalsForMin) advancedFilters.goalsForMin = parseInt(goalsForMin);
-            if (goalsForMax) advancedFilters.goalsForMax = parseInt(goalsForMax);
-            if (goalsAgainstMin) advancedFilters.goalsAgainstMin = parseInt(goalsAgainstMin);
-            if (goalsAgainstMax) advancedFilters.goalsAgainstMax = parseInt(goalsAgainstMax);
-            if (attendanceMin) advancedFilters.attendanceMin = parseInt(attendanceMin);
-            if (attendanceMax) advancedFilters.attendanceMax = parseInt(attendanceMax);
-            if (dateFrom) advancedFilters.dateFrom = new Date(dateFrom);
-            if (dateTo) advancedFilters.dateTo = new Date(dateTo);
-            
-            currentQuickFilter = 'all';
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.filter-btn').classList.add('active');
-            
-            updateActiveFilterTags();
-            applyFilters();
-        }
-        
-        function clearAdvancedFilters() {
-            advancedFilters = {};
-            document.getElementById('filterSeason').value = '';
-            document.getElementById('filterCompetition').value = '';
-            document.getElementById('filterOpposition').value = '';
-            document.getElementById('filterResult').value = '';
-            document.getElementById('filterVenue').value = '';
-            document.getElementById('filterGoalsForMin').value = '';
-            document.getElementById('filterGoalsForMax').value = '';
-            document.getElementById('filterGoalsAgainstMin').value = '';
-            document.getElementById('filterGoalsAgainstMax').value = '';
-            document.getElementById('filterAttendanceMin').value = '';
-            document.getElementById('filterAttendanceMax').value = '';
-            document.getElementById('filterDateFrom').value = '';
-            document.getElementById('filterDateTo').value = '';
-            updateActiveFilterTags();
-            applyFilters();
-        }
-        
-        function updateActiveFilterTags() {
-            const container = document.getElementById('activeFilters');
-            container.innerHTML = '';
-            
-            const filterLabels = {
-                season: 'Season',
-                competition: 'Competition',
-                opposition: 'Opposition',
-                result: 'Result',
-                venue: 'Venue',
-                goalsForMin: 'Goals For ≥',
-                goalsForMax: 'Goals For ≤',
-                goalsAgainstMin: 'Goals Against ≥',
-                goalsAgainstMax: 'Goals Against ≤',
-                attendanceMin: 'Attendance ≥',
-                attendanceMax: 'Attendance ≤',
-                dateFrom: 'From',
-                dateTo: 'To'
-            };
-            
-            Object.keys(advancedFilters).forEach(key => {
-                const tag = document.createElement('div');
-                tag.className = 'filter-tag';
-                
-                let value = advancedFilters[key];
-                if (value instanceof Date) {
-                    value = value.toLocaleDateString();
+            if (streakFilters.includes(filter)) {
+                renderMatches(); // Render first to get filtered matches
+                const matches = filterMatches();
+                if (matches.length > 0) {
+                    const streakValue = document.getElementById('streakValue');
+                    const streakContext = document.getElementById('streakContext');
+                    const streakLabel = document.querySelector('.streak-label');
+                    
+                    const startDate = matches[0].Date;
+                    const endDate = matches[matches.length - 1].Date;
+                    
+                    let streakType = '';
+                    if (filter === 'win-streak') streakType = 'WIN';
+                    else if (filter === 'draw-streak') streakType = 'DRAW';
+                    else if (filter === 'loss-streak') streakType = 'LOSS';
+                    else if (filter === 'unbeaten-streak') streakType = 'UNBEATEN';
+                    else if (filter === 'winless-streak') streakType = 'WINLESS';
+                    
+                    const gameWord = matches.length === 1 ? 'game' : 'games';
+                    streakLabel.textContent = `Longest ${streakType} Streak`;
+                    streakValue.textContent = `${matches.length} ${gameWord}`;
+                    streakContext.textContent = `${startDate} to ${endDate}`;
+                    
+                    streakBox.style.display = 'block';
+                } else {
+                    streakBox.style.display = 'none';
                 }
-                
-                tag.innerHTML = `
-                    ${filterLabels[key]}: ${value}
-                    <button onclick="removeFilter('${key}')">×</button>
-                `;
-                container.appendChild(tag);
-            });
-        }
-        
-        function removeFilter(key) {
-            delete advancedFilters[key];
-            
-            // Clear the corresponding input
-            const inputMap = {
-                season: 'filterSeason',
-                competition: 'filterCompetition',
-                opposition: 'filterOpposition',
-                result: 'filterResult',
-                venue: 'filterVenue',
-                goalsForMin: 'filterGoalsForMin',
-                goalsForMax: 'filterGoalsForMax',
-                goalsAgainstMin: 'filterGoalsAgainstMin',
-                goalsAgainstMax: 'filterGoalsAgainstMax',
-                attendanceMin: 'filterAttendanceMin',
-                attendanceMax: 'filterAttendanceMax',
-                dateFrom: 'filterDateFrom',
-                dateTo: 'filterDateTo'
-            };
-            
-            if (inputMap[key]) {
-                document.getElementById(inputMap[key]).value = '';
+            } else {
+                // Show current streak for non-streak filters
+                displayCurrentStreak();
+                renderMatches();
             }
             
-            updateActiveFilterTags();
-            applyFilters();
+            // Smooth scroll to results with less offset
+            setTimeout(() => {
+                const resultsHeader = document.querySelector('.results-header');
+                const yOffset = -20;
+                const y = resultsHeader.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }, 100);
         }
         
         function showRandomMatch() {
-            if (MATCHES_DATA.length === 0) return;
-            
             const randomIndex = Math.floor(Math.random() * MATCHES_DATA.length);
             const match = MATCHES_DATA[randomIndex];
             
-            currentQuickFilter = 'random';
-            advancedFilters = {};
-            updateActiveFilterTags();
+            currentFilter = 'random';
+            selectedSeason = '';
+            document.getElementById('seasonSelect').value = '';
+            document.getElementById('seasonSelect').style.display = 'none';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             
             updateStats([match]);
             document.getElementById('resultCount').textContent = '🎲 Random Match';
@@ -1450,7 +1497,11 @@
             
             const tags = getMatchTags(match);
             const tagsHtml = tags.length > 0 ? 
-                '<div class="match-tags">' + tags.map(t => `<span class="record-tag">⭐ ${t}</span>`).join('') + '</div>' : '';
+                '<div class="match-tags">' + tags.map(t => {
+                    const className = t.isSilver ? 'record-tag silver' : 'record-tag';
+                    const clickHandler = t.clickDate ? `onclick="scrollToMatchByDate('${t.clickDate}')" style="cursor: pointer;"` : '';
+                    return `<span class="${className}" ${clickHandler}>${t.text}</span>`;
+                }).join('') + '</div>' : '';
             
             matchList.innerHTML = `
                 <div class="match-card">
@@ -1466,7 +1517,6 @@
                     </div>
                     <div class="match-details">
                         <strong>Competition:</strong> ${match.Competition}
-                        ${match.Season ? ` | <strong>Season:</strong> ${match.Season}` : ''}
                         ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
                         ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${htHomeScore}-${htAwayScore}` : ''}
                     </div>
@@ -1477,19 +1527,27 @@
                     ` : ''}
                 </div>
             `;
-        }
-        
-        function applyFilters() {
-            renderMatches();
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                const resultsHeader = document.querySelector('.results-header');
+                const yOffset = -20;
+                const y = resultsHeader.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }, 100);
         }
         
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
-            applyFilters();
+            renderMatches();
         });
         
-        // Initialize - load data from CSV
-        loadData();
+        // Initialize
+        calculateRecords();
+        populateSummary();
+        populateSeasonFilter();
+        displayCurrentStreak();
+        renderMatches();
     </script>
 </body>
 </html>
