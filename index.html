@@ -963,6 +963,12 @@
                 populateSeasonFilter();
                 displayCurrentStreak();
                 renderMatches();
+                
+                // Set initial sort button text
+                const sortButton = document.getElementById('sortToggle');
+                if (sortButton) {
+                    sortButton.textContent = '📅 Newest First';
+                }
             } catch (error) {
                 console.error('Error fetching match data:', error);
                 document.getElementById('resultCount').textContent = 'Error loading match data';
@@ -1034,8 +1040,10 @@
         
         function toggleSortOrder() {
             sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-            const button = event.target;
-            button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
+            const button = document.getElementById('sortToggle');
+            if (button) {
+                button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
+            }
             renderMatches();
         }
         
@@ -1334,6 +1342,9 @@
             let filtered = [...MATCHES_DATA].sort((a, b) => {
                 const dateA = parseDate(a.Date);
                 const dateB = parseDate(b.Date);
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return 1;
+                if (!dateB) return -1;
                 return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
             });
             
@@ -1438,13 +1449,13 @@
                     const match = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
                     if (!match) return false;
                     const months = {
-                        'January': 1, 'February': 2, 'March': 3, 'April': 4,
-                        'May': 5, 'June': 6, 'July': 7, 'August': 8,
-                        'September': 9, 'October': 10, 'November': 11, 'December': 12
+                        'January': 0, 'February': 1, 'March': 2, 'April': 3,
+                        'May': 4, 'June': 5, 'July': 6, 'August': 7,
+                        'September': 8, 'October': 9, 'November': 10, 'December': 11
                     };
                     const day = parseInt(match[1]);
                     const month = months[match[2]];
-                    return month === today.getMonth() + 1 && day === today.getDate();
+                    return month === today.getMonth() && day === today.getDate();
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
