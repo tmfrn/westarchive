@@ -720,20 +720,6 @@
             color: #cddc39;
         }
         
-        .retro-mode .changelog-section {
-            background: #2d5016 !important;
-            border-top: 4px solid #8bc34a !important;
-        }
-        
-        .retro-mode .changelog-section h3 {
-            color: #8bc34a !important;
-            text-shadow: 2px 2px #000;
-        }
-        
-        .retro-mode .changelog-section ul {
-            color: #cddc39 !important;
-        }
-        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
@@ -893,24 +879,6 @@
         
         <div class="matches">
             <div id="matchList"></div>
-        </div>
-        
-        <div class="changelog-section" style="background: #f9fafb; padding: 40px; border-top: 2px solid #e5e7eb; margin-top: 40px;">
-            <div style="max-width: 1400px; margin: 0 auto;">
-                <h3 style="color: #374151; font-size: 1.2em; margin-bottom: 20px; font-weight: 700;">Recent Updates - Saturday 14th December 2024</h3>
-                <ul style="color: #6b7280; line-height: 1.8; list-style-position: inside;">
-                    <li>Dynamic data loading from Google Sheets - updates automatically</li>
-                    <li>Added sort toggle for match lists (newest/oldest first)</li>
-                    <li>Season filter now uses football seasons (e.g., 2024/25) instead of calendar years</li>
-                    <li>Added support for neutral venue matches</li>
-                    <li>Added notes field to match details where available</li>
-                    <li>Changed "Club Records" to "Database Records"</li>
-                    <li>Updated streak terminology (Win/Loss Streak, Winless Streak)</li>
-                    <li>Added comprehensive streak information with date ranges to database records</li>
-                    <li>Added 16-bit retro soccer theme toggle</li>
-                    <li>Enhanced attendance filters with home/away breakdown</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -1339,15 +1307,9 @@
         }
         
         function filterMatches() {
-            let filtered = [...MATCHES_DATA].sort((a, b) => {
-                const dateA = parseDate(a.Date);
-                const dateB = parseDate(b.Date);
-                if (!dateA && !dateB) return 0;
-                if (!dateA) return 1;
-                if (!dateB) return -1;
-                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-            });
+            let filtered = [...MATCHES_DATA];
             
+            // Apply search filter first
             if (searchTerm) {
                 filtered = filtered.filter(m => 
                     m.Opposition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1459,7 +1421,27 @@
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
-                filtered = filtered.slice(0, count);
+                // Sort by date desc (newest first) regardless of sort toggle
+                filtered = filtered.sort((a, b) => {
+                    const dateA = parseDate(a.Date);
+                    const dateB = parseDate(b.Date);
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    return dateB - dateA; // Always newest first for recent
+                }).slice(0, count);
+            }
+            
+            // Apply date sorting for non-recent filters
+            if (currentFilter !== 'recent') {
+                filtered = filtered.sort((a, b) => {
+                    const dateA = parseDate(a.Date);
+                    const dateB = parseDate(b.Date);
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+                });
             }
             
             return filtered;
@@ -1506,14 +1488,31 @@
                                  match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
                                  '<span class="badge away">AWAY</span>';
                 
-                const homeTeam = match['Home/Away'] === 'H' ? 'West Didsbury & Chorlton' : match.Opposition;
-                const awayTeam = match['Home/Away'] === 'A' ? 'West Didsbury & Chorlton' : match.Opposition;
+                // For display purposes:
+                // - Home games (H): West vs Opposition
+                // - Away games (A): Opposition vs West
+                // - Neutral games (N): West vs Opposition (like home)
                 
-                const homeScore = match['Home/Away'] === 'H' ? match['Goals For'] : match['Goals Against'];
-                const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
+                let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
+                let displayHtHomeScore, displayHtAwayScore;
                 
-                const htHomeScore = match['Home/Away'] === 'H' ? match['HT Goals For'] : match['HT Goals Against'];
-                const htAwayScore = match['Home/Away'] === 'A' ? match['HT Goals For'] : match['HT Goals Against'];
+                if (match['Home/Away'] === 'A') {
+                    // Away game: Opposition listed first
+                    displayHomeTeam = match.Opposition;
+                    displayAwayTeam = 'West Didsbury & Chorlton';
+                    displayHomeScore = match['Goals Against'];
+                    displayAwayScore = match['Goals For'];
+                    displayHtHomeScore = match['HT Goals Against'];
+                    displayHtAwayScore = match['HT Goals For'];
+                } else {
+                    // Home or Neutral: West listed first
+                    displayHomeTeam = 'West Didsbury & Chorlton';
+                    displayAwayTeam = match.Opposition;
+                    displayHomeScore = match['Goals For'];
+                    displayAwayScore = match['Goals Against'];
+                    displayHtHomeScore = match['HT Goals For'];
+                    displayHtAwayScore = match['HT Goals Against'];
+                }
                 
                 const tags = getMatchTags(match);
                 const tagsHtml = tags.length > 0 ? 
@@ -1531,14 +1530,14 @@
                             <span>${resultBadge}${venueBadge}</span>
                         </div>
                         <div class="match-fixture">
-                            ${homeTeam}
-                            <span class="match-score">${homeScore} - ${awayScore}</span>
-                            ${awayTeam}
+                            ${displayHomeTeam}
+                            <span class="match-score">${displayHomeScore} - ${displayAwayScore}</span>
+                            ${displayAwayTeam}
                         </div>
                         <div class="match-details">
                             <strong>Competition:</strong> ${match.Competition}
                             ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
-                            ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${htHomeScore}-${htAwayScore}` : ''}
+                            ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                         </div>
                         ${match['West Scorers'] ? `
                             <div class="scorers">
@@ -1627,13 +1626,33 @@
             updateStats([match]);
             document.getElementById('resultCount').textContent = '🎲 Random Match';
             
+            // For display purposes:
+            // - Home games (H): West vs Opposition
+            // - Away games (A): Opposition vs West
+            // - Neutral games (N): West vs Opposition (like home)
+            
+            let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
+            let displayHtHomeScore, displayHtAwayScore;
+            
+            if (match['Home/Away'] === 'A') {
+                // Away game: Opposition listed first
+                displayHomeTeam = match.Opposition;
+                displayAwayTeam = 'West Didsbury & Chorlton';
+                displayHomeScore = match['Goals Against'];
+                displayAwayScore = match['Goals For'];
+                displayHtHomeScore = match['HT Goals Against'];
+                displayHtAwayScore = match['HT Goals For'];
+            } else {
+                // Home or Neutral: West listed first
+                displayHomeTeam = 'West Didsbury & Chorlton';
+                displayAwayTeam = match.Opposition;
+                displayHomeScore = match['Goals For'];
+                displayAwayScore = match['Goals Against'];
+                displayHtHomeScore = match['HT Goals For'];
+                displayHtAwayScore = match['HT Goals Against'];
+            }
+            
             const matchList = document.getElementById('matchList');
-            const homeTeam = match['Home/Away'] === 'H' ? 'West Didsbury & Chorlton' : match.Opposition;
-            const awayTeam = match['Home/Away'] === 'A' ? 'West Didsbury & Chorlton' : match.Opposition;
-            const homeScore = match['Home/Away'] === 'H' ? match['Goals For'] : match['Goals Against'];
-            const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
-            const htHomeScore = match['Home/Away'] === 'H' ? match['HT Goals For'] : match['HT Goals Against'];
-            const htAwayScore = match['Home/Away'] === 'A' ? match['HT Goals For'] : match['HT Goals Against'];
             
             const resultBadge = match.Result === 'W' ? '<span class="badge win">WIN</span>' :
                               match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
@@ -1658,14 +1677,14 @@
                         <span>${resultBadge}${venueBadge}</span>
                     </div>
                     <div class="match-fixture">
-                        ${homeTeam}
-                        <span class="match-score">${homeScore} - ${awayScore}</span>
-                        ${awayTeam}
+                        ${displayHomeTeam}
+                        <span class="match-score">${displayHomeScore} - ${displayAwayScore}</span>
+                        ${displayAwayTeam}
                     </div>
                     <div class="match-details">
                         <strong>Competition:</strong> ${match.Competition}
                         ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
-                        ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${htHomeScore}-${htAwayScore}` : ''}
+                        ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                     </div>
                     ${match['West Scorers'] ? `
                         <div class="scorers">
