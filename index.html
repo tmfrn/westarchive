@@ -1022,8 +1022,15 @@
         }
         
         function parseDate(dateStr) {
+            if (!dateStr) {
+                console.warn('parseDate called with empty dateStr');
+                return null;
+            }
             const match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-            if (!match) return null;
+            if (!match) {
+                console.warn('Failed to parse date:', dateStr);
+                return null;
+            }
             const months = {
                 'January': 0, 'February': 1, 'March': 2, 'April': 3,
                 'May': 4, 'June': 5, 'July': 6, 'August': 7,
@@ -1032,7 +1039,14 @@
             const day = parseInt(match[1]);
             const month = months[match[2]];
             const year = parseInt(match[3]);
-            return new Date(year, month, day);
+            
+            if (month === undefined) {
+                console.warn('Could not find month for:', match[2]);
+                return null;
+            }
+            
+            const dateObj = new Date(year, month, day);
+            return dateObj;
         }
         
         function calculateCurrentStreak() {
@@ -1246,31 +1260,13 @@
             
             console.log('populateSeasonFilter called with', MATCHES_DATA.length, 'matches');
             
+            // Use the Season column directly from the CSV
             MATCHES_DATA.forEach(m => {
-                const dateMatch = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-                if (!dateMatch) {
-                    console.log('Failed to parse date:', m.Date);
-                    return;
+                if (m.Season && m.Season.trim()) {
+                    seasons.add(m.Season.trim());
+                } else {
+                    console.log('Match missing Season column:', m.Date);
                 }
-                
-                const months = {
-                    'January': 0, 'February': 1, 'March': 2, 'April': 3,
-                    'May': 4, 'June': 5, 'July': 6, 'August': 7,
-                    'September': 8, 'October': 9, 'November': 10, 'December': 11
-                };
-                
-                const month = months[dateMatch[2]];
-                const year = parseInt(dateMatch[3]);
-                
-                // Football season runs from August to May
-                let season;
-                if (month >= 7) { // August onwards
-                    season = `${year}/${String(year + 1).slice(-2)}`;
-                } else { // Before August
-                    season = `${year - 1}/${String(year).slice(-2)}`;
-                }
-                
-                seasons.add(season);
             });
             
             console.log('Found seasons:', Array.from(seasons));
@@ -1364,28 +1360,7 @@
             } else if (currentFilter === 'high-scoring-draws') {
                 filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3);
             } else if (currentFilter === 'season' && selectedSeason) {
-                filtered = filtered.filter(m => {
-                    const dateMatch = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-                    if (!dateMatch) return false;
-                    
-                    const months = {
-                        'January': 0, 'February': 1, 'March': 2, 'April': 3,
-                        'May': 4, 'June': 5, 'July': 6, 'August': 7,
-                        'September': 8, 'October': 9, 'November': 10, 'December': 11
-                    };
-                    
-                    const month = months[dateMatch[2]];
-                    const year = parseInt(dateMatch[3]);
-                    
-                    let season;
-                    if (month >= 7) {
-                        season = `${year}/${String(year + 1).slice(-2)}`;
-                    } else {
-                        season = `${year - 1}/${String(year).slice(-2)}`;
-                    }
-                    
-                    return season === selectedSeason;
-                });
+                filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             } else if (currentFilter === 'biggest-wins') {
                 filtered = records.biggestWin;
             } else if (currentFilter === 'biggest-losses') {
@@ -1440,40 +1415,59 @@
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
-                console.log('Recent filter: requesting', count, 'matches');
+                console.log('=== RECENT FILTER START ===');
+                console.log('Requesting', count, 'matches');
+                console.log('Data has', filtered.length, 'matches total');
                 
-                // Sort by date desc (newest first) regardless of sort toggle
+                // Sort by date desc (newest first)
                 filtered = filtered.sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
+                    
                     if (!dateA && !dateB) return 0;
-                    if (!dateA) return 1;
-                    if (!dateB) return -1;
-                    return dateB - dateA; // Always newest first for recent
+                    if (!dateA) return 1;   // Nulls go to end
+                    if (!dateB) return -1;  // Nulls go to end
+                    
+                    // NEWEST FIRST = larger timestamp first
+                    return dateB.getTime() - dateA.getTime();
                 });
                 
-                console.log('After sort, first match:', filtered[0]?.Date);
-                console.log('After sort, last match:', filtered[filtered.length - 1]?.Date);
+                console.log('After sort:');
+                console.log('  First (should be newest):', filtered[0]?.Date, parseDate(filtered[0]?.Date));
+                console.log('  Second:', filtered[1]?.Date, parseDate(filtered[1]?.Date));
+                console.log('  Last (should be oldest):', filtered[filtered.length - 1]?.Date);
                 
                 filtered = filtered.slice(0, count);
-                console.log('Recent filter result count:', filtered.length);
-                console.log('First result:', filtered[0]?.Date);
-                console.log('Last result:', filtered[filtered.length - 1]?.Date);
+                
+                console.log('Result - showing these', filtered.length, 'matches:');
+                filtered.forEach((m, i) => console.log(`  ${i + 1}. ${m.Date}`));
+                console.log('=== RECENT FILTER END ===');
+                
+                // Return early - don't apply general sorting
+                return filtered;
             }
             
             // Apply date sorting for non-recent filters
             if (currentFilter !== 'recent') {
-                console.log('Applying sort order:', sortOrder);
+                console.log('Applying general date sort, order:', sortOrder);
                 filtered = filtered.sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
+                    
                     if (!dateA && !dateB) return 0;
-                    if (!dateA) return 1;
-                    if (!dateB) return -1;
-                    const result = sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-                    return result;
+                    if (!dateA) return 1;   // Nulls to end
+                    if (!dateB) return -1;  // Nulls to end
+                    
+                    if (sortOrder === 'desc') {
+                        // Newest first
+                        return dateB.getTime() - dateA.getTime();
+                    } else {
+                        // Oldest first
+                        return dateA.getTime() - dateB.getTime();
+                    }
                 });
-                console.log('After final sort, first match:', filtered[0]?.Date);
+                console.log('After sort, first match:', filtered[0]?.Date);
+                console.log('After sort, last match:', filtered[filtered.length - 1]?.Date);
             }
             
             return filtered;
