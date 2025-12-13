@@ -768,7 +768,7 @@
             </div>
             
             <div class="filter-section">
-                <div class="filter-section-label">Quick Filters</div>
+                <div class="filter-section-label">Quick Picks</div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" onclick="setFilter('all')">All Matches</button>
                     <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
@@ -925,6 +925,10 @@
                     MATCHES_DATA.push(match);
                 }
                 
+                console.log('Loaded matches:', MATCHES_DATA.length);
+                console.log('First match date:', MATCHES_DATA[0]?.Date);
+                console.log('Last match date:', MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
+                
                 // Initialize after data is loaded
                 calculateRecords();
                 populateSummary();
@@ -1008,9 +1012,11 @@
         
         function toggleSortOrder() {
             sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+            console.log('Sort order toggled to:', sortOrder);
             const button = document.getElementById('sortToggle');
             if (button) {
                 button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
+                console.log('Button text updated to:', button.textContent);
             }
             renderMatches();
         }
@@ -1238,9 +1244,14 @@
         function populateSeasonFilter() {
             const seasons = new Set();
             
+            console.log('populateSeasonFilter called with', MATCHES_DATA.length, 'matches');
+            
             MATCHES_DATA.forEach(m => {
                 const dateMatch = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-                if (!dateMatch) return;
+                if (!dateMatch) {
+                    console.log('Failed to parse date:', m.Date);
+                    return;
+                }
                 
                 const months = {
                     'January': 0, 'February': 1, 'March': 2, 'April': 3,
@@ -1262,11 +1273,15 @@
                 seasons.add(season);
             });
             
+            console.log('Found seasons:', Array.from(seasons));
+            
             const sortedSeasons = Array.from(seasons).sort().reverse();
             
             const select = document.getElementById('seasonSelect');
             select.innerHTML = '<option value="">Select Season...</option>' +
                 sortedSeasons.map(s => `<option value="${s}">${s}</option>`).join('');
+                
+            console.log('Season select populated with', sortedSeasons.length, 'seasons');
         }
         
         function showSeasonFilter() {
@@ -1309,6 +1324,9 @@
         function filterMatches() {
             let filtered = [...MATCHES_DATA];
             
+            console.log('filterMatches called, currentFilter:', currentFilter, 'sortOrder:', sortOrder);
+            console.log('Initial filtered count:', filtered.length);
+            
             // Apply search filter first
             if (searchTerm) {
                 filtered = filtered.filter(m => 
@@ -1316,6 +1334,7 @@
                     m.Competition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     m.Date?.toLowerCase().includes(searchTerm.toLowerCase())
                 );
+                console.log('After search filter:', filtered.length);
             }
             
             if (currentFilter === 'wins') {
@@ -1421,6 +1440,8 @@
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
+                console.log('Recent filter: requesting', count, 'matches');
+                
                 // Sort by date desc (newest first) regardless of sort toggle
                 filtered = filtered.sort((a, b) => {
                     const dateA = parseDate(a.Date);
@@ -1429,19 +1450,30 @@
                     if (!dateA) return 1;
                     if (!dateB) return -1;
                     return dateB - dateA; // Always newest first for recent
-                }).slice(0, count);
+                });
+                
+                console.log('After sort, first match:', filtered[0]?.Date);
+                console.log('After sort, last match:', filtered[filtered.length - 1]?.Date);
+                
+                filtered = filtered.slice(0, count);
+                console.log('Recent filter result count:', filtered.length);
+                console.log('First result:', filtered[0]?.Date);
+                console.log('Last result:', filtered[filtered.length - 1]?.Date);
             }
             
             // Apply date sorting for non-recent filters
             if (currentFilter !== 'recent') {
+                console.log('Applying sort order:', sortOrder);
                 filtered = filtered.sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
                     if (!dateA && !dateB) return 0;
                     if (!dateA) return 1;
                     if (!dateB) return -1;
-                    return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+                    const result = sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+                    return result;
                 });
+                console.log('After final sort, first match:', filtered[0]?.Date);
             }
             
             return filtered;
@@ -1536,12 +1568,17 @@
                         </div>
                         <div class="match-details">
                             <strong>Competition:</strong> ${match.Competition}
-                            ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
+                            ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
                             ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                         </div>
                         ${match['West Scorers'] ? `
                             <div class="scorers">
                                 <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                            </div>
+                        ` : ''}
+                        ${match['Opposition Scorers'] ? `
+                            <div class="scorers">
+                                <strong>⚽ Opposition Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
                             </div>
                         ` : ''}
                         ${match.Notes ? `
@@ -1683,12 +1720,17 @@
                     </div>
                     <div class="match-details">
                         <strong>Competition:</strong> ${match.Competition}
-                        ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}` : ''}
+                        ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
                         ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                     </div>
                     ${match['West Scorers'] ? `
                         <div class="scorers">
                             <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                        </div>
+                    ` : ''}
+                    ${match['Opposition Scorers'] ? `
+                        <div class="scorers">
+                            <strong>⚽ Opposition Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
                         </div>
                     ` : ''}
                     ${match.Notes ? `
