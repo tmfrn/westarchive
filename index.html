@@ -1048,27 +1048,49 @@
                 console.warn('parseDate called with empty dateStr');
                 return null;
             }
-            const match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-            if (!match) {
-                console.warn('Failed to parse date:', dateStr);
-                return null;
-            }
-            const months = {
-                'January': 0, 'February': 1, 'March': 2, 'April': 3,
-                'May': 4, 'June': 5, 'July': 6, 'August': 7,
-                'September': 8, 'October': 9, 'November': 10, 'December': 11
-            };
-            const day = parseInt(match[1]);
-            const month = months[match[2]];
-            const year = parseInt(match[3]);
             
-            if (month === undefined) {
-                console.warn('Could not find month for:', match[2]);
-                return null;
+            // Handle DD/MM/YYYY format (UK format - day FIRST, month SECOND)
+            // Example: "14/12/2024" = 14th December 2024
+            let match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (match) {
+                const day = parseInt(match[1]);      // First number is DAY
+                const month = parseInt(match[2]) - 1; // Second number is MONTH (subtract 1 for JS)
+                const year = parseInt(match[3]);      // Third number is YEAR
+                
+                const dateObj = new Date(year, month, day);
+                
+                // Validate the date is real
+                if (dateObj.getDate() !== day || dateObj.getMonth() !== month || dateObj.getFullYear() !== year) {
+                    console.warn('Invalid date components:', dateStr, '-> day:', day, 'month:', month + 1, 'year:', year);
+                    return null;
+                }
+                
+                return dateObj;
             }
             
-            const dateObj = new Date(year, month, day);
-            return dateObj;
+            // Fallback: try "12th December 2024" format
+            match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
+            if (match) {
+                const months = {
+                    'January': 0, 'February': 1, 'March': 2, 'April': 3,
+                    'May': 4, 'June': 5, 'July': 6, 'August': 7,
+                    'September': 8, 'October': 9, 'November': 10, 'December': 11
+                };
+                const day = parseInt(match[1]);
+                const month = months[match[2]];
+                const year = parseInt(match[3]);
+                
+                if (month === undefined) {
+                    console.warn('Could not find month for:', match[2]);
+                    return null;
+                }
+                
+                const dateObj = new Date(year, month, day);
+                return dateObj;
+            }
+            
+            console.warn('Failed to parse date:', dateStr);
+            return null;
         }
         
         function calculateCurrentStreak() {
@@ -1423,17 +1445,14 @@
                 filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'L' || m.Result === 'D');
             } else if (currentFilter === 'on-this-day') {
                 const today = new Date();
+                const todayDay = today.getDate();
+                const todayMonth = today.getMonth(); // 0-indexed
+                
                 filtered = filtered.filter(m => {
-                    const match = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
-                    if (!match) return false;
-                    const months = {
-                        'January': 0, 'February': 1, 'March': 2, 'April': 3,
-                        'May': 4, 'June': 5, 'July': 6, 'August': 7,
-                        'September': 8, 'October': 9, 'November': 10, 'December': 11
-                    };
-                    const day = parseInt(match[1]);
-                    const month = months[match[2]];
-                    return month === today.getMonth() && day === today.getDate();
+                    const matchDate = parseDate(m.Date);
+                    if (!matchDate) return false;
+                    
+                    return matchDate.getDate() === todayDay && matchDate.getMonth() === todayMonth;
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
