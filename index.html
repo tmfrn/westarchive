@@ -637,6 +637,16 @@
             color: #fff;
         }
         
+        .badge.neutral {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .retro-mode .badge.neutral {
+            background: #9e9e9e;
+            color: #000;
+        }
+        
         .match-fixture {
             display: flex;
             align-items: center;
@@ -710,6 +720,20 @@
             color: #cddc39;
         }
         
+        .retro-mode .changelog-section {
+            background: #2d5016 !important;
+            border-top: 4px solid #8bc34a !important;
+        }
+        
+        .retro-mode .changelog-section h3 {
+            color: #8bc34a !important;
+            text-shadow: 2px 2px #000;
+        }
+        
+        .retro-mode .changelog-section ul {
+            color: #cddc39 !important;
+        }
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
@@ -748,7 +772,7 @@
         </div>
         
         <div class="summary-box">
-            <h2>Club Records</h2>
+            <h2>Database Records</h2>
             <div class="summary-grid" id="summaryGrid"></div>
         </div>
         
@@ -835,7 +859,10 @@
         </div>
         
         <div class="results-header">
-            <div class="result-count" id="resultCount">Loading matches...</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <div class="result-count" id="resultCount">Loading matches...</div>
+                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Newest First</button>
+            </div>
             <div class="stats-bar" id="statsBar" style="display: none;">
                 <div class="stat-item">
                     <div class="stat-label">Matches</div>
@@ -867,6 +894,24 @@
         <div class="matches">
             <div id="matchList"></div>
         </div>
+        
+        <div class="changelog-section" style="background: #f9fafb; padding: 40px; border-top: 2px solid #e5e7eb; margin-top: 40px;">
+            <div style="max-width: 1400px; margin: 0 auto;">
+                <h3 style="color: #374151; font-size: 1.2em; margin-bottom: 20px; font-weight: 700;">Recent Updates - Saturday 14th December 2024</h3>
+                <ul style="color: #6b7280; line-height: 1.8; list-style-position: inside;">
+                    <li>Dynamic data loading from Google Sheets - updates automatically</li>
+                    <li>Added sort toggle for match lists (newest/oldest first)</li>
+                    <li>Season filter now uses football seasons (e.g., 2024/25) instead of calendar years</li>
+                    <li>Added support for neutral venue matches</li>
+                    <li>Added notes field to match details where available</li>
+                    <li>Changed "Club Records" to "Database Records"</li>
+                    <li>Updated streak terminology (Win/Loss Streak, Winless Streak)</li>
+                    <li>Added comprehensive streak information with date ranges to database records</li>
+                    <li>Added 16-bit retro soccer theme toggle</li>
+                    <li>Enhanced attendance filters with home/away breakdown</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -879,6 +924,7 @@
         let streakInfoCache = {};
         let attendanceType = ''; // 'highest' or 'lowest'
         let attendanceVenue = 'all'; // 'all', 'home', or 'away'
+        let sortOrder = 'desc'; // 'asc' or 'desc' for date sorting
         
         // Fetch data from Google Sheets CSV
         async function fetchMatchData() {
@@ -983,6 +1029,13 @@
             attendanceVenue = select.value;
             attendanceType = type;
             currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
+            renderMatches();
+        }
+        
+        function toggleSortOrder() {
+            sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+            const button = event.target;
+            button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
             renderMatches();
         }
         
@@ -1168,44 +1221,7 @@
                 tags.push({ text: `LOWEST ATTENDANCE (${match.Attendance})`, isSilver: false, clickDate: null });
             }
             
-            // Silver awards (second place)
-            if (records.biggestWin.length > 1 && match === records.biggestWin[1] && match.Result === 'W') {
-                const margin = match['Goals For'] - match['Goals Against'];
-                const topMatch = records.biggestWin[0];
-                tags.push({ text: `Biggest win since ${topMatch.Date}`, isSilver: true, clickDate: topMatch.Date });
-            }
-            
-            if (records.highestAttendance.length > 1 && match === records.highestAttendance[1]) {
-                const topMatch = records.highestAttendance[0];
-                tags.push({ text: `Highest attendance since ${topMatch.Date}`, isSilver: true, clickDate: topMatch.Date });
-            }
-            
             return tags;
-        }
-        
-        function scrollToMatchByDate(date) {
-            // Find the match card with this date
-            const matchCards = document.querySelectorAll('.match-card');
-            for (const card of matchCards) {
-                const dateElement = card.querySelector('.match-date');
-                if (dateElement && dateElement.textContent === date) {
-                    card.style.border = '3px solid #ffd700';
-                    card.style.backgroundColor = '#fffbf0';
-                    
-                    setTimeout(() => {
-                        const yOffset = -100;
-                        const y = card.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                        window.scrollTo({top: y, behavior: 'smooth'});
-                        
-                        // Remove highlight after 3 seconds
-                        setTimeout(() => {
-                            card.style.border = '';
-                            card.style.backgroundColor = '';
-                        }, 3000);
-                    }, 100);
-                    break;
-                }
-            }
         }
         
         function populateSummary() {
@@ -1231,7 +1247,7 @@
                 { label: 'Longest Win Streak', value: records.longestWinStreak.length > 0 ? `${records.longestWinStreak.length} games (${records.longestWinStreak[0].Date} to ${records.longestWinStreak[records.longestWinStreak.length - 1].Date})` : 'N/A', filter: 'win-streak' },
                 { label: 'Longest Unbeaten', value: records.longestUnbeatenStreak.length > 0 ? `${records.longestUnbeatenStreak.length} games (${records.longestUnbeatenStreak[0].Date} to ${records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date})` : 'N/A', filter: 'unbeaten-streak' },
                 { label: 'Longest Loss Streak', value: records.longestLossStreak.length > 0 ? `${records.longestLossStreak.length} games (${records.longestLossStreak[0].Date} to ${records.longestLossStreak[records.longestLossStreak.length - 1].Date})` : 'N/A', filter: 'loss-streak' },
-                { label: 'Longest Winless', value: records.longestWinlessStreak.length > 0 ? `${records.longestWinlessStreak.length} games (${records.longestWinlessStreak[0].Date} to ${records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date})` : 'N/A', filter: 'winless-streak' }
+                { label: 'Longest Winless Streak', value: records.longestWinlessStreak.length > 0 ? `${records.longestWinlessStreak.length} games (${records.longestWinlessStreak[0].Date} to ${records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date})` : 'N/A', filter: 'winless-streak' }
             ];
             
             const grid = document.getElementById('summaryGrid');
@@ -1244,14 +1260,37 @@
         }
         
         function populateSeasonFilter() {
-            const seasons = [...new Set(MATCHES_DATA.map(m => {
-                const match = m.Date.match(/(\d{4})/);
-                return match ? match[1] : null;
-            }).filter(Boolean))].sort((a, b) => b - a);
+            const seasons = new Set();
+            
+            MATCHES_DATA.forEach(m => {
+                const dateMatch = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
+                if (!dateMatch) return;
+                
+                const months = {
+                    'January': 0, 'February': 1, 'March': 2, 'April': 3,
+                    'May': 4, 'June': 5, 'July': 6, 'August': 7,
+                    'September': 8, 'October': 9, 'November': 10, 'December': 11
+                };
+                
+                const month = months[dateMatch[2]];
+                const year = parseInt(dateMatch[3]);
+                
+                // Football season runs from August to May
+                let season;
+                if (month >= 7) { // August onwards
+                    season = `${year}/${String(year + 1).slice(-2)}`;
+                } else { // Before August
+                    season = `${year - 1}/${String(year).slice(-2)}`;
+                }
+                
+                seasons.add(season);
+            });
+            
+            const sortedSeasons = Array.from(seasons).sort().reverse();
             
             const select = document.getElementById('seasonSelect');
             select.innerHTML = '<option value="">Select Season...</option>' +
-                seasons.map(s => `<option value="${s}">${s}</option>`).join('');
+                sortedSeasons.map(s => `<option value="${s}">${s}</option>`).join('');
         }
         
         function showSeasonFilter() {
@@ -1292,7 +1331,11 @@
         }
         
         function filterMatches() {
-            let filtered = [...MATCHES_DATA].sort((a, b) => parseDate(b.Date) - parseDate(a.Date));
+            let filtered = [...MATCHES_DATA].sort((a, b) => {
+                const dateA = parseDate(a.Date);
+                const dateB = parseDate(b.Date);
+                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+            });
             
             if (searchTerm) {
                 filtered = filtered.filter(m => 
@@ -1329,7 +1372,28 @@
             } else if (currentFilter === 'high-scoring-draws') {
                 filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3);
             } else if (currentFilter === 'season' && selectedSeason) {
-                filtered = filtered.filter(m => m.Date.includes(selectedSeason));
+                filtered = filtered.filter(m => {
+                    const dateMatch = m.Date.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
+                    if (!dateMatch) return false;
+                    
+                    const months = {
+                        'January': 0, 'February': 1, 'March': 2, 'April': 3,
+                        'May': 4, 'June': 5, 'July': 6, 'August': 7,
+                        'September': 8, 'October': 9, 'November': 10, 'December': 11
+                    };
+                    
+                    const month = months[dateMatch[2]];
+                    const year = parseInt(dateMatch[3]);
+                    
+                    let season;
+                    if (month >= 7) {
+                        season = `${year}/${String(year + 1).slice(-2)}`;
+                    } else {
+                        season = `${year - 1}/${String(year).slice(-2)}`;
+                    }
+                    
+                    return season === selectedSeason;
+                });
             } else if (currentFilter === 'biggest-wins') {
                 filtered = records.biggestWin;
             } else if (currentFilter === 'biggest-losses') {
@@ -1428,6 +1492,7 @@
                                   match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
                                   '<span class="badge draw">DRAW</span>';
                 const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
+                                 match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
                                  '<span class="badge away">AWAY</span>';
                 
                 const homeTeam = match['Home/Away'] === 'H' ? 'West Didsbury & Chorlton' : match.Opposition;
@@ -1467,6 +1532,11 @@
                         ${match['West Scorers'] ? `
                             <div class="scorers">
                                 <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                            </div>
+                        ` : ''}
+                        ${match.Notes ? `
+                            <div class="scorers">
+                                <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
                             </div>
                         ` : ''}
                     </div>
@@ -1558,6 +1628,7 @@
                               match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
                               '<span class="badge draw">DRAW</span>';
             const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
+                             match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
                              '<span class="badge away">AWAY</span>';
             
             const tags = getMatchTags(match);
@@ -1588,6 +1659,11 @@
                     ${match['West Scorers'] ? `
                         <div class="scorers">
                             <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                        </div>
+                    ` : ''}
+                    ${match.Notes ? `
+                        <div class="scorers">
+                            <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
                         </div>
                     ` : ''}
                 </div>
