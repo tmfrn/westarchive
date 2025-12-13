@@ -925,9 +925,31 @@
                     MATCHES_DATA.push(match);
                 }
                 
-                console.log('Loaded matches:', MATCHES_DATA.length);
-                console.log('First match date:', MATCHES_DATA[0]?.Date);
-                console.log('Last match date:', MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
+                console.log('=== DATA LOADED ===');
+                console.log('Total matches loaded:', MATCHES_DATA.length);
+                console.log('First 5 matches from CSV (as loaded):');
+                MATCHES_DATA.slice(0, 5).forEach((m, i) => {
+                    console.log(`  ${i + 1}. Date: "${m.Date}" | Opposition: ${m.Opposition}`);
+                });
+                console.log('Last 5 matches from CSV (as loaded):');
+                MATCHES_DATA.slice(-5).forEach((m, i) => {
+                    console.log(`  ${MATCHES_DATA.length - 4 + i}. Date: "${m.Date}" | Opposition: ${m.Opposition}`);
+                });
+                
+                // Test parseDate on first and last
+                console.log('Testing parseDate:');
+                const firstDate = parseDate(MATCHES_DATA[0]?.Date);
+                const lastDate = parseDate(MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
+                console.log('  First match date string:', MATCHES_DATA[0]?.Date);
+                console.log('  First match parsed:', firstDate);
+                console.log('  Last match date string:', MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
+                console.log('  Last match parsed:', lastDate);
+                
+                if (firstDate && lastDate) {
+                    console.log('  First is older than last?', firstDate < lastDate);
+                    console.log('  Time difference (days):', (lastDate - firstDate) / (1000 * 60 * 60 * 24));
+                }
+                console.log('===================');
                 
                 // Initialize after data is loaded
                 calculateRecords();
@@ -1415,33 +1437,60 @@
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
-                console.log('=== RECENT FILTER START ===');
-                console.log('Requesting', count, 'matches');
-                console.log('Data has', filtered.length, 'matches total');
+                console.log('');
+                console.log('========================================');
+                console.log('RECENT FILTER - DETAILED DEBUG');
+                console.log('========================================');
+                console.log('Requesting:', count, 'most recent matches');
+                console.log('Total matches available:', filtered.length);
                 
-                // Sort by date desc (newest first)
-                filtered = filtered.sort((a, b) => {
-                    const dateA = parseDate(a.Date);
-                    const dateB = parseDate(b.Date);
-                    
-                    if (!dateA && !dateB) return 0;
-                    if (!dateA) return 1;   // Nulls go to end
-                    if (!dateB) return -1;  // Nulls go to end
-                    
-                    // NEWEST FIRST = larger timestamp first
-                    return dateB.getTime() - dateA.getTime();
+                // Parse all dates and store with original match
+                const matchesWithDates = filtered.map(m => ({
+                    match: m,
+                    date: parseDate(m.Date),
+                    dateString: m.Date
+                }));
+                
+                console.log('Sample of date parsing:');
+                matchesWithDates.slice(0, 3).forEach((item, i) => {
+                    console.log(`  ${i + 1}. "${item.dateString}" => ${item.date}`);
                 });
                 
-                console.log('After sort:');
-                console.log('  First (should be newest):', filtered[0]?.Date, parseDate(filtered[0]?.Date));
-                console.log('  Second:', filtered[1]?.Date, parseDate(filtered[1]?.Date));
-                console.log('  Last (should be oldest):', filtered[filtered.length - 1]?.Date);
+                // Filter out any with null dates
+                const validMatches = matchesWithDates.filter(item => item.date !== null);
+                console.log('Matches with valid dates:', validMatches.length);
                 
-                filtered = filtered.slice(0, count);
+                if (validMatches.length === 0) {
+                    console.error('NO VALID DATES FOUND! All dates failed to parse!');
+                    return [];
+                }
                 
-                console.log('Result - showing these', filtered.length, 'matches:');
-                filtered.forEach((m, i) => console.log(`  ${i + 1}. ${m.Date}`));
-                console.log('=== RECENT FILTER END ===');
+                // Sort by date - NEWEST FIRST (largest timestamp first)
+                validMatches.sort((a, b) => {
+                    // b.date - a.date means newer dates come first
+                    return b.date.getTime() - a.date.getTime();
+                });
+                
+                console.log('After sorting (newest first):');
+                console.log('  1st match (newest):', validMatches[0].dateString, '=', validMatches[0].date);
+                console.log('  2nd match:', validMatches[1]?.dateString, '=', validMatches[1]?.date);
+                console.log('  3rd match:', validMatches[2]?.dateString, '=', validMatches[2]?.date);
+                console.log('  ...');
+                console.log('  Last match (oldest):', validMatches[validMatches.length - 1].dateString, '=', validMatches[validMatches.length - 1].date);
+                
+                // Take first N (which are the newest)
+                const recentMatches = validMatches.slice(0, count);
+                
+                console.log('');
+                console.log('RETURNING THESE', recentMatches.length, 'MATCHES:');
+                recentMatches.forEach((item, i) => {
+                    console.log(`  ${i + 1}. ${item.dateString} (${item.match.Opposition})`);
+                });
+                console.log('========================================');
+                console.log('');
+                
+                // Extract just the match objects
+                filtered = recentMatches.map(item => item.match);
                 
                 // Return early - don't apply general sorting
                 return filtered;
@@ -1449,25 +1498,43 @@
             
             // Apply date sorting for non-recent filters
             if (currentFilter !== 'recent') {
-                console.log('Applying general date sort, order:', sortOrder);
-                filtered = filtered.sort((a, b) => {
-                    const dateA = parseDate(a.Date);
-                    const dateB = parseDate(b.Date);
-                    
-                    if (!dateA && !dateB) return 0;
-                    if (!dateA) return 1;   // Nulls to end
-                    if (!dateB) return -1;  // Nulls to end
-                    
+                console.log('');
+                console.log('--- Applying date sort ---');
+                console.log('Sort order:', sortOrder, '(desc=newest first, asc=oldest first)');
+                console.log('Matches to sort:', filtered.length);
+                
+                // Parse dates and pair with matches
+                const matchesWithDates = filtered.map(m => ({
+                    match: m,
+                    date: parseDate(m.Date),
+                    dateString: m.Date
+                }));
+                
+                // Filter valid dates
+                const validMatches = matchesWithDates.filter(item => item.date !== null);
+                const invalidMatches = matchesWithDates.filter(item => item.date === null);
+                
+                console.log('Valid dates:', validMatches.length, 'Invalid dates:', invalidMatches.length);
+                
+                // Sort valid matches
+                validMatches.sort((a, b) => {
                     if (sortOrder === 'desc') {
-                        // Newest first
-                        return dateB.getTime() - dateA.getTime();
+                        // Newest first (larger timestamps first)
+                        return b.date.getTime() - a.date.getTime();
                     } else {
-                        // Oldest first
-                        return dateA.getTime() - dateB.getTime();
+                        // Oldest first (smaller timestamps first)
+                        return a.date.getTime() - b.date.getTime();
                     }
                 });
-                console.log('After sort, first match:', filtered[0]?.Date);
-                console.log('After sort, last match:', filtered[filtered.length - 1]?.Date);
+                
+                console.log('After sort:');
+                console.log('  First:', validMatches[0]?.dateString);
+                console.log('  Last:', validMatches[validMatches.length - 1]?.dateString);
+                console.log('--------------------------');
+                console.log('');
+                
+                // Combine: sorted valid matches + invalid at end
+                filtered = [...validMatches.map(item => item.match), ...invalidMatches.map(item => item.match)];
             }
             
             return filtered;
