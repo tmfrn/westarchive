@@ -771,11 +771,12 @@
                 <div class="filter-section-label">Quick Picks</div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" onclick="setFilter('all')">All Matches</button>
+                    <button class="filter-btn" onclick="clearAllFilters()" style="color: #6b7280;">🔄 Clear All</button>
                     <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
                     <button class="filter-btn" onclick="setFilter('on-this-day')">On This Day</button>
                     <button class="filter-btn" onclick="setFilter('recent')">
                         Recent
-                        <select id="recentCount" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
+                        <select id="recentCount" style="display:none;" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
                             <option>10</option>
                             <option>20</option>
                             <option>50</option>
@@ -1040,6 +1041,43 @@
                 button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
                 console.log('Button text updated to:', button.textContent);
             }
+            renderMatches();
+        }
+        
+        function clearAllFilters() {
+            // Reset all filters and state
+            currentFilter = 'all';
+            selectedSeason = '';
+            searchTerm = '';
+            sortOrder = 'desc';
+            attendanceVenue = 'all';
+            
+            // Clear search input
+            document.getElementById('searchInput').value = '';
+            
+            // Hide all dropdowns
+            document.getElementById('seasonSelect').style.display = 'none';
+            document.getElementById('seasonSelect').value = '';
+            document.getElementById('highestAttendanceSelect').style.display = 'none';
+            document.getElementById('lowestAttendanceSelect').style.display = 'none';
+            document.getElementById('recentCount').style.display = 'none';
+            
+            // Reset dropdown values
+            document.getElementById('highestAttendanceSelect').value = 'all';
+            document.getElementById('lowestAttendanceSelect').value = 'all';
+            document.getElementById('recentCount').value = '10';
+            
+            // Reset sort toggle text
+            const sortToggle = document.getElementById('sortToggle');
+            if (sortToggle) {
+                sortToggle.textContent = '📅 Newest First';
+            }
+            
+            // Reset active button state
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.filter-btn[onclick="setFilter(\'all\')"]').classList.add('active');
+            
+            // Re-render
             renderMatches();
         }
         
@@ -1334,6 +1372,7 @@
             if (selectedSeason) {
                 currentFilter = 'season';
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                updateClearAllButton();
                 renderMatches();
                 
                 // Smooth scroll to results
@@ -1572,6 +1611,20 @@
             } else {
                 statsBar.style.display = 'none';
             }
+            
+            // Show/hide sort toggle based on filter type
+            const sortToggle = document.getElementById('sortToggle');
+            const filtersWithoutSort = [
+                'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
+                'most-goals-scored', 'most-goals-conceded', 'win-streak', 'draw-streak', 
+                'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
+            ];
+            
+            if (filtersWithoutSort.includes(currentFilter)) {
+                sortToggle.style.display = 'none';
+            } else {
+                sortToggle.style.display = 'block';
+            }
         }
         
         function renderMatches() {
@@ -1579,10 +1632,24 @@
             updateStats(filtered);
             
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
+            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance'];
+            
             if (streakFilters.includes(currentFilter)) {
-                const type = currentFilter.replace('-streak', '').replace('-', ' ');
+                const type = currentFilter.replace('-streak', '').replace('-', ' ').toUpperCase();
                 document.getElementById('resultCount').textContent = 
                     `Longest ${type} streak: ${filtered.length} matches`;
+            } else if (recordFilters.includes(currentFilter)) {
+                // Show "Top X" for record filters
+                let recordType = '';
+                if (currentFilter === 'biggest-wins') recordType = 'Biggest Wins';
+                else if (currentFilter === 'biggest-losses') recordType = 'Biggest Losses';
+                else if (currentFilter === 'most-goals-scored') recordType = 'Most Goals Scored';
+                else if (currentFilter === 'most-goals-conceded') recordType = 'Most Goals Conceded';
+                else if (currentFilter === 'highest-attendance') recordType = 'Highest Attendance';
+                else if (currentFilter === 'lowest-attendance') recordType = 'Lowest Attendance';
+                
+                document.getElementById('resultCount').textContent = 
+                    `Top ${filtered.length} - ${recordType}`;
             } else if (selectedSeason && currentFilter === 'season') {
                 document.getElementById('resultCount').textContent = 
                     `${filtered.length} matches in ${selectedSeason}`;
@@ -1671,6 +1738,25 @@
             }).join('');
         }
         
+        function updateClearAllButton() {
+            const clearBtn = document.querySelector('.filter-btn[onclick="clearAllFilters()"]');
+            if (!clearBtn) return;
+            
+            const hasActiveFilters = currentFilter !== 'all' || searchTerm !== '' || selectedSeason !== '';
+            
+            if (hasActiveFilters) {
+                clearBtn.style.background = '#fee2e2';
+                clearBtn.style.color = '#991b1b';
+                clearBtn.style.borderColor = '#fca5a5';
+                clearBtn.style.fontWeight = '600';
+            } else {
+                clearBtn.style.background = '';
+                clearBtn.style.color = '#6b7280';
+                clearBtn.style.borderColor = '';
+                clearBtn.style.fontWeight = '';
+            }
+        }
+        
         function setFilter(filter) {
             currentFilter = filter;
             selectedSeason = '';
@@ -1681,8 +1767,18 @@
             document.getElementById('highestAttendanceSelect').style.display = 'none';
             document.getElementById('lowestAttendanceSelect').style.display = 'none';
             
+            // Hide recent dropdown unless on recent filter
+            const recentDropdown = document.getElementById('recentCount');
+            if (filter !== 'recent') {
+                recentDropdown.style.display = 'none';
+            } else {
+                recentDropdown.style.display = 'inline-block';
+            }
+            
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            updateClearAllButton();
             
             // Show streak info for streak filters
             const streakBox = document.getElementById('streakBox');
@@ -1832,6 +1928,7 @@
         
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
+            updateClearAllButton();
             renderMatches();
         });
         
