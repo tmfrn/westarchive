@@ -1441,11 +1441,20 @@
             } else if (currentFilter === 'scoreless-draws') {
                 filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] === 0);
             } else if (currentFilter === 'high-scoring-draws') {
-                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3);
+                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3)
+                    .sort((a, b) => b['Goals For'] - a['Goals For']);
             } else if (currentFilter === 'season' && selectedSeason) {
                 filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             } else if (currentFilter === 'biggest-wins') {
+                console.log('BIGGEST WINS FILTER');
+                console.log('records.biggestWin length:', records.biggestWin.length);
+                console.log('First 3 from records.biggestWin:');
+                records.biggestWin.slice(0, 3).forEach((m, i) => {
+                    const margin = m['Goals For'] - m['Goals Against'];
+                    console.log(`  ${i + 1}. ${m.Date} - ${m.Opposition} (${m['Goals For']}-${m['Goals Against']}, margin: ${margin})`);
+                });
                 filtered = records.biggestWin;
+                console.log('Assigned to filtered, length:', filtered.length);
             } else if (currentFilter === 'biggest-losses') {
                 filtered = records.biggestLoss;
             } else if (currentFilter === 'most-goals-scored') {
@@ -1554,8 +1563,19 @@
                 return filtered;
             }
             
-            // Apply date sorting for non-recent filters
-            if (currentFilter !== 'recent') {
+            // Apply date sorting ONLY for filters that don't have their own sorting logic
+            const skipDateSortFilters = [
+                'recent', 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
+                'most-goals-scored', 'most-goals-conceded', 'high-scoring-draws',
+                'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
+            ];
+            
+            console.log('');
+            console.log('=== CHECKING IF DATE SORT NEEDED ===');
+            console.log('Current filter:', currentFilter);
+            console.log('In skip list?', skipDateSortFilters.includes(currentFilter));
+            
+            if (!skipDateSortFilters.includes(currentFilter)) {
                 console.log('');
                 console.log('--- Applying date sort ---');
                 console.log('Sort order:', sortOrder, '(desc=newest first, asc=oldest first)');
@@ -1593,6 +1613,12 @@
                 
                 // Combine: sorted valid matches + invalid at end
                 filtered = [...validMatches.map(item => item.match), ...invalidMatches.map(item => item.match)];
+            } else {
+                console.log('SKIPPING date sort for this filter');
+                console.log('Filtered array length:', filtered.length);
+                if (filtered.length > 0) {
+                    console.log('First item in filtered:', filtered[0].Date, filtered[0].Opposition);
+                }
             }
             
             return filtered;
@@ -1632,7 +1658,7 @@
             updateStats(filtered);
             
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
-            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance'];
+            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance', 'high-scoring-draws'];
             
             if (streakFilters.includes(currentFilter)) {
                 const type = currentFilter.replace('-streak', '').replace('-', ' ').toUpperCase();
@@ -1647,9 +1673,12 @@
                 else if (currentFilter === 'most-goals-conceded') recordType = 'Most Goals Conceded';
                 else if (currentFilter === 'highest-attendance') recordType = 'Highest Attendance';
                 else if (currentFilter === 'lowest-attendance') recordType = 'Lowest Attendance';
+                else if (currentFilter === 'high-scoring-draws') recordType = 'High Scoring Draws';
                 
                 document.getElementById('resultCount').textContent = 
-                    `Top ${filtered.length} - ${recordType}`;
+                    currentFilter === 'high-scoring-draws' ? 
+                        `${filtered.length} High Scoring Draws (sorted by goals)` :
+                        `Top ${filtered.length} - ${recordType}`;
             } else if (selectedSeason && currentFilter === 'season') {
                 document.getElementById('resultCount').textContent = 
                     `${filtered.length} matches in ${selectedSeason}`;
