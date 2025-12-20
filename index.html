@@ -1149,10 +1149,13 @@
         function calculateCurrentStreak() {
             if (MATCHES_DATA.length === 0) return null;
             
-            // Sort matches chronologically
-            const sortedMatches = [...MATCHES_DATA].sort((a, b) => {
+            // Filter out abandoned matches and sort chronologically
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const sortedMatches = [...validMatches].sort((a, b) => {
                 return parseDate(a.Date) - parseDate(b.Date);
             });
+            
+            if (sortedMatches.length === 0) return null;
             
             const latestMatch = sortedMatches[sortedMatches.length - 1];
             let streakType = '';
@@ -1796,18 +1799,31 @@
                         <div class="match-details">
                             <strong>Competition:</strong> ${match.Competition}
                             ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
-                            ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
+                            ${match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                         </div>
-                        ${match['West Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                            </div>
-                        ` : ''}
-                        ${match['Opposition Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ Opposition Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                            </div>
-                        ` : ''}
+                        ${match['Home/Away'] === 'H' ? `
+                            ${match['West Scorers'] ? `
+                                <div class="scorers">
+                                    <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                                </div>
+                            ` : ''}
+                            ${match['Opposition Scorers'] ? `
+                                <div class="scorers">
+                                    <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
+                                </div>
+                            ` : ''}
+                        ` : `
+                            ${match['Opposition Scorers'] ? `
+                                <div class="scorers">
+                                    <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
+                                </div>
+                            ` : ''}
+                            ${match['West Scorers'] ? `
+                                <div class="scorers">
+                                    <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                                </div>
+                            ` : ''}
+                        `}
                         ${match.Notes ? `
                             <div class="scorers">
                                 <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
@@ -1993,18 +2009,31 @@
                     <div class="match-details">
                         <strong>Competition:</strong> ${match.Competition}
                         ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
-                        ${match['HT Goals For'] != null ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
+                        ${match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
                     </div>
-                    ${match['West Scorers'] ? `
-                        <div class="scorers">
-                            <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                        </div>
-                    ` : ''}
-                    ${match['Opposition Scorers'] ? `
-                        <div class="scorers">
-                            <strong>⚽ Opposition Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                        </div>
-                    ` : ''}
+                    ${match['Home/Away'] === 'H' ? `
+                        ${match['West Scorers'] ? `
+                            <div class="scorers">
+                                <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                            </div>
+                        ` : ''}
+                        ${match['Opposition Scorers'] ? `
+                            <div class="scorers">
+                                <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
+                            </div>
+                        ` : ''}
+                    ` : `
+                        ${match['Opposition Scorers'] ? `
+                            <div class="scorers">
+                                <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
+                            </div>
+                        ` : ''}
+                        ${match['West Scorers'] ? `
+                            <div class="scorers">
+                                <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
+                            </div>
+                        ` : ''}
+                    `}
                     ${match.Notes ? `
                         <div class="scorers">
                             <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
