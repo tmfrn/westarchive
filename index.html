@@ -617,6 +617,18 @@
             color: #000;
         }
         
+        .badge.abandoned {
+            background: #6b7280;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .retro-mode .badge.abandoned {
+            background: #757575;
+            color: #fff;
+            text-shadow: 2px 2px #000;
+        }
+        
         .badge.home {
             background: #dbeafe;
             color: #1e40af;
@@ -1231,41 +1243,44 @@
         }
         
         function calculateRecords() {
-            records.biggestWin = MATCHES_DATA.filter(m => m.Result === 'W')
+            // Filter out abandoned matches for all record calculations
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            
+            records.biggestWin = validMatches.filter(m => m.Result === 'W')
                 .sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']))
                 .slice(0, 20);
             
-            records.biggestLoss = MATCHES_DATA.filter(m => m.Result === 'L')
+            records.biggestLoss = validMatches.filter(m => m.Result === 'L')
                 .sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']))
                 .slice(0, 20);
             
-            records.highestScore = [...MATCHES_DATA]
+            records.highestScore = [...validMatches]
                 .sort((a, b) => b['Goals For'] - a['Goals For'])
                 .slice(0, 20);
             
-            records.mostGoalsConceded = [...MATCHES_DATA]
+            records.mostGoalsConceded = [...validMatches]
                 .sort((a, b) => b['Goals Against'] - a['Goals Against'])
                 .slice(0, 20);
             
-            records.highestAttendance = [...MATCHES_DATA]
+            records.highestAttendance = [...validMatches]
                 .filter(m => m.Attendance)
                 .sort((a, b) => b.Attendance - a.Attendance)
                 .slice(0, 20);
             
-            records.lowestAttendance = [...MATCHES_DATA]
+            records.lowestAttendance = [...validMatches]
                 .filter(m => m.Attendance)
                 .sort((a, b) => a.Attendance - b.Attendance)
                 .slice(0, 20);
             
-            records.cleanSheets = MATCHES_DATA.filter(m => m['Goals Against'] === 0).length;
-            records.failedToScore = MATCHES_DATA.filter(m => m['Goals For'] === 0).length;
+            records.cleanSheets = validMatches.filter(m => m['Goals Against'] === 0).length;
+            records.failedToScore = validMatches.filter(m => m['Goals For'] === 0).length;
             
-            // Calculate streak records
-            records.longestWinStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W');
-            records.longestDrawStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'D');
-            records.longestLossStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'L');
-            records.longestUnbeatenStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'W' || m.Result === 'D');
-            records.longestWinlessStreak = findLongestStreak(MATCHES_DATA, m => m.Result === 'L' || m.Result === 'D');
+            // Calculate streak records - only from valid matches
+            records.longestWinStreak = findLongestStreak(validMatches, m => m.Result === 'W');
+            records.longestDrawStreak = findLongestStreak(validMatches, m => m.Result === 'D');
+            records.longestLossStreak = findLongestStreak(validMatches, m => m.Result === 'L');
+            records.longestUnbeatenStreak = findLongestStreak(validMatches, m => m.Result === 'W' || m.Result === 'D');
+            records.longestWinlessStreak = findLongestStreak(validMatches, m => m.Result === 'L' || m.Result === 'D');
         }
         
         function getMatchTags(match) {
@@ -1420,31 +1435,33 @@
             }
             
             if (currentFilter === 'wins') {
-                filtered = filtered.filter(m => m.Result === 'W');
+                filtered = filtered.filter(m => m.Result === 'W' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'draws') {
-                filtered = filtered.filter(m => m.Result === 'D');
+                filtered = filtered.filter(m => m.Result === 'D' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'losses') {
-                filtered = filtered.filter(m => m.Result === 'L');
+                filtered = filtered.filter(m => m.Result === 'L' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'home-games') {
-                filtered = filtered.filter(m => m['Home/Away'] === 'H');
+                filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'away-games') {
-                filtered = filtered.filter(m => m['Home/Away'] === 'A');
+                filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'comebacks') {
                 filtered = filtered.filter(m => 
+                    m.Abandoned !== 'Y' &&
                     m.Result === 'W' && 
                     m['HT Goals For'] != null && 
                     m['HT Goals For'] < m['HT Goals Against']
                 );
             } else if (currentFilter === 'capitulations') {
                 filtered = filtered.filter(m => 
+                    m.Abandoned !== 'Y' &&
                     m.Result === 'L' && 
                     m['HT Goals For'] != null && 
                     m['HT Goals For'] > m['HT Goals Against']
                 );
             } else if (currentFilter === 'scoreless-draws') {
-                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] === 0);
+                filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] === 0);
             } else if (currentFilter === 'high-scoring-draws') {
-                filtered = filtered.filter(m => m.Result === 'D' && m['Goals For'] >= 3)
+                filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] >= 3)
                     .sort((a, b) => b['Goals For'] - a['Goals For']);
             } else if (currentFilter === 'season' && selectedSeason) {
                 filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
@@ -1462,10 +1479,12 @@
                 filtered = records.biggestLoss;
             } else if (currentFilter === 'most-goals-scored') {
                 filtered = [...MATCHES_DATA]
+                    .filter(m => m.Abandoned !== 'Y')
                     .sort((a, b) => b['Goals For'] - a['Goals For'])
                     .slice(0, 20);
             } else if (currentFilter === 'most-goals-conceded') {
                 filtered = [...MATCHES_DATA]
+                    .filter(m => m.Abandoned !== 'Y')
                     .sort((a, b) => b['Goals Against'] - a['Goals Against'])
                     .slice(0, 20);
             } else if (currentFilter === 'highest-attendance') {
@@ -1631,12 +1650,14 @@
             const statsBar = document.querySelector('.stats-bar');
             if (['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games'].includes(currentFilter)) {
                 statsBar.style.display = 'grid';
-                document.getElementById('statMatches').textContent = matches.length;
-                document.getElementById('statWins').textContent = matches.filter(m => m.Result === 'W').length;
-                document.getElementById('statDraws').textContent = matches.filter(m => m.Result === 'D').length;
-                document.getElementById('statLosses').textContent = matches.filter(m => m.Result === 'L').length;
-                document.getElementById('statGoalsFor').textContent = matches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
-                document.getElementById('statGoalsAgainst').textContent = matches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+                // Exclude abandoned matches from stats
+                const validMatches = matches.filter(m => m.Abandoned !== 'Y');
+                document.getElementById('statMatches').textContent = validMatches.length;
+                document.getElementById('statWins').textContent = validMatches.filter(m => m.Result === 'W').length;
+                document.getElementById('statDraws').textContent = validMatches.filter(m => m.Result === 'D').length;
+                document.getElementById('statLosses').textContent = validMatches.filter(m => m.Result === 'L').length;
+                document.getElementById('statGoalsFor').textContent = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
+                document.getElementById('statGoalsAgainst').textContent = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
             } else {
                 statsBar.style.display = 'none';
             }
@@ -1703,7 +1724,8 @@
             }
             
             matchList.innerHTML = filtered.map(match => {
-                const resultBadge = match.Result === 'W' ? '<span class="badge win">WIN</span>' :
+                const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
+                                  match.Result === 'W' ? '<span class="badge win">WIN</span>' :
                                   match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
                                   '<span class="badge draw">DRAW</span>';
                 const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
@@ -1714,11 +1736,26 @@
                 // - Home games (H): West vs Opposition
                 // - Away games (A): Opposition vs West
                 // - Neutral games (N): West vs Opposition (like home)
+                // - Abandoned (Y): Show A-A
                 
                 let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
                 let displayHtHomeScore, displayHtAwayScore;
                 
-                if (match['Home/Away'] === 'A') {
+                if (match.Abandoned === 'Y') {
+                    // Abandoned match: show A-A
+                    displayHomeScore = 'A';
+                    displayAwayScore = 'A';
+                    displayHtHomeScore = null;
+                    displayHtAwayScore = null;
+                    
+                    if (match['Home/Away'] === 'A') {
+                        displayHomeTeam = match.Opposition;
+                        displayAwayTeam = 'West Didsbury & Chorlton';
+                    } else {
+                        displayHomeTeam = 'West Didsbury & Chorlton';
+                        displayAwayTeam = match.Opposition;
+                    }
+                } else if (match['Home/Away'] === 'A') {
                     // Away game: Opposition listed first
                     displayHomeTeam = match.Opposition;
                     displayAwayTeam = 'West Didsbury & Chorlton';
@@ -1886,11 +1923,26 @@
             // - Home games (H): West vs Opposition
             // - Away games (A): Opposition vs West
             // - Neutral games (N): West vs Opposition (like home)
+            // - Abandoned (Y): Show A-A
             
             let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
             let displayHtHomeScore, displayHtAwayScore;
             
-            if (match['Home/Away'] === 'A') {
+            if (match.Abandoned === 'Y') {
+                // Abandoned match: show A-A
+                displayHomeScore = 'A';
+                displayAwayScore = 'A';
+                displayHtHomeScore = null;
+                displayHtAwayScore = null;
+                
+                if (match['Home/Away'] === 'A') {
+                    displayHomeTeam = match.Opposition;
+                    displayAwayTeam = 'West Didsbury & Chorlton';
+                } else {
+                    displayHomeTeam = 'West Didsbury & Chorlton';
+                    displayAwayTeam = match.Opposition;
+                }
+            } else if (match['Home/Away'] === 'A') {
                 // Away game: Opposition listed first
                 displayHomeTeam = match.Opposition;
                 displayAwayTeam = 'West Didsbury & Chorlton';
@@ -1910,7 +1962,8 @@
             
             const matchList = document.getElementById('matchList');
             
-            const resultBadge = match.Result === 'W' ? '<span class="badge win">WIN</span>' :
+            const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
+                              match.Result === 'W' ? '<span class="badge win">WIN</span>' :
                               match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
                               '<span class="badge draw">DRAW</span>';
             const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
