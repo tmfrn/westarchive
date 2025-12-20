@@ -741,7 +741,7 @@
     <div class="container">
         <div class="header">
             <div class="theme-toggle">
-                <button onclick="toggleTheme()">🎮 Toggle 16-bit Mode</button>
+                <button onclick="toggleTheme('retro')">🎮 16-bit Mode</button>
             </div>
             <div class="header-content">
                 <h1>West Didsbury & Chorlton FC</h1>
@@ -848,7 +848,7 @@
         <div class="results-header">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <div class="result-count" id="resultCount">Loading matches...</div>
-                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Newest First</button>
+                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Show Oldest First</button>
             </div>
             <div class="stats-bar" id="statsBar" style="display: none;">
                 <div class="stat-item">
@@ -959,10 +959,10 @@
                 displayCurrentStreak();
                 renderMatches();
                 
-                // Set initial sort button text
+                // Set initial sort button text (currently showing newest, so button offers oldest)
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) {
-                    sortButton.textContent = '📅 Newest First';
+                    sortButton.textContent = '📅 Show Oldest First';
                 }
             } catch (error) {
                 console.error('Error fetching match data:', error);
@@ -993,8 +993,10 @@
             return values;
         }
         
-        function toggleTheme() {
-            document.body.classList.toggle('retro-mode');
+        function toggleTheme(theme) {
+            if (theme === 'retro') {
+                document.body.classList.toggle('retro-mode');
+            }
         }
         
         function showAttendanceFilter(type) {
@@ -1038,7 +1040,8 @@
             console.log('Sort order toggled to:', sortOrder);
             const button = document.getElementById('sortToggle');
             if (button) {
-                button.textContent = sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First';
+                // Button shows what will happen when clicked NEXT time
+                button.textContent = sortOrder === 'desc' ? '📅 Show Oldest First' : '📅 Show Newest First';
                 console.log('Button text updated to:', button.textContent);
             }
             renderMatches();
@@ -1070,7 +1073,7 @@
             // Reset sort toggle text
             const sortToggle = document.getElementById('sortToggle');
             if (sortToggle) {
-                sortToggle.textContent = '📅 Newest First';
+                sortToggle.textContent = '📅 Show Oldest First';
             }
             
             // Reset active button state
@@ -1688,6 +1691,17 @@
             }
             
             const matchList = document.getElementById('matchList');
+            
+            // DEBUG: Show what we're about to render
+            if (recordFilters.includes(currentFilter)) {
+                console.log('=== RENDERING MATCHES ===');
+                console.log('About to render', filtered.length, 'matches');
+                console.log('First 5 matches to render:');
+                filtered.slice(0, 5).forEach((m, i) => {
+                    console.log(`  ${i + 1}. ${m.Date} - ${m.Opposition} - ${m['Goals For']}-${m['Goals Against']}`);
+                });
+            }
+            
             matchList.innerHTML = filtered.map(match => {
                 const resultBadge = match.Result === 'W' ? '<span class="badge win">WIN</span>' :
                                   match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
