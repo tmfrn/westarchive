@@ -101,7 +101,7 @@
         .h2h-stat.draws .h2h-stat-value { color: #92400e; }
         .h2h-stat.losses .h2h-stat-value { color: #991b1b; }
         .h2h-extra { display: grid; grid-template-columns: repeat(2, 1fr); border-bottom: 1px solid #e0e0e0; }
-        .h2h-extra-item { padding: 14px 20px; border-right: 1px solid #e0e0e0; font-size: 0.9em; }
+        .h2h-extra-item { padding: 14px 20px; border-right: 1px solid #e0e0e0; font-size: 0.9em; color: #000; }
         .h2h-extra-item:nth-child(even) { border-right: none; }
         .h2h-extra-item strong { color: #000; }
         .h2h-matches { padding: 20px 32px 32px; max-height: 400px; overflow-y: auto; }
@@ -128,155 +128,111 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-content">
-                <h1>West Didsbury &amp; Chorlton FC</h1>
-                <p>Men's Team Match Archive</p>
-            </div>
-        </div>
-
-        <div class="error-banner" id="errorBanner">
-            <span id="errorMessage">Error loading match data.</span>
-            <button onclick="fetchMatchData()">Retry</button>
-        </div>
-
-        <div class="streak-box" id="streakBox" style="display: none;">
-            <div class="streak-content">
-                <div class="streak-label">Current Streak</div>
-                <div class="streak-value" id="streakValue"></div>
-                <div class="streak-context" id="streakContext"></div>
-            </div>
-        </div>
-
-        <div class="summary-box">
-            <h2>Database Records</h2>
-            <div class="summary-grid" id="summaryGrid"></div>
-        </div>
-
-        <div class="controls">
-            <div class="search-bar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, season, or scorer...">
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-section-label">Quick Picks</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="setFilter('all', this)">All Matches</button>
-                    <button class="filter-btn" onclick="clearAllFilters()" style="color: #6b7280;">🔄 Clear All</button>
-                    <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
-                    <button class="filter-btn" onclick="setFilter('on-this-day', this)">On This Day</button>
-                    <button class="filter-btn" onclick="setFilter('recent', this)">
-                        Recent
-                        <select id="recentCount" style="display:none;" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
-                            <option>10</option><option>20</option><option>50</option>
-                        </select>
-                    </button>
-                    <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
-                    <select id="seasonSelect" class="filter-btn" style="display:none;" onchange="filterBySeason()"></select>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-section-label">Match Type</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('home-games', this)">Home Games</button>
-                    <button class="filter-btn" onclick="setFilter('away-games', this)">Away Games</button>
-                    <button class="filter-btn" onclick="setFilter('wins', this)">Wins</button>
-                    <button class="filter-btn" onclick="setFilter('draws', this)">Draws</button>
-                    <button class="filter-btn" onclick="setFilter('losses', this)">Losses</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-section-label">Records</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('biggest-wins', this)">Biggest Wins</button>
-                    <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Losses</button>
-                    <button class="filter-btn" onclick="showAttendanceFilter('highest')">
-                        Highest Attendance
-                        <select id="highestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('highest')">
-                            <option value="all">All</option><option value="home">Home</option><option value="away">Away</option>
-                        </select>
-                    </button>
-                    <button class="filter-btn" onclick="showAttendanceFilter('lowest')">
-                        Lowest Attendance
-                        <select id="lowestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('lowest')">
-                            <option value="all">All</option><option value="home">Home</option><option value="away">Away</option>
-                        </select>
-                    </button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-section-label">Streaks</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('win-streak', this)">Longest Win Streak</button>
-                    <button class="filter-btn" onclick="setFilter('draw-streak', this)">Longest Draw Streak</button>
-                    <button class="filter-btn" onclick="setFilter('loss-streak', this)">Longest Loss Streak</button>
-                    <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Longest Unbeaten</button>
-                    <button class="filter-btn" onclick="setFilter('winless-streak', this)">Longest Winless</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-section-label">Performance</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('most-goals-scored', this)">Most Goals Scored</button>
-                    <button class="filter-btn" onclick="setFilter('most-goals-conceded', this)">Most Goals Conceded</button>
-                    <button class="filter-btn" onclick="setFilter('scoreless-draws', this)">Scoreless Draws</button>
-                    <button class="filter-btn" onclick="setFilter('high-scoring-draws', this)">High Scoring Draws</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="results-header">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <div class="result-count" id="resultCount">Loading matches...</div>
-                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Show Oldest First</button>
-            </div>
-            <div class="stats-bar" id="statsBar" style="display: none;">
-                <div class="stat-item"><div class="stat-label">Matches</div><div class="stat-value" id="statMatches">0</div></div>
-                <div class="stat-item"><div class="stat-label">Wins</div><div class="stat-value" id="statWins">0</div></div>
-                <div class="stat-item"><div class="stat-label">Draws</div><div class="stat-value" id="statDraws">0</div></div>
-                <div class="stat-item"><div class="stat-label">Losses</div><div class="stat-value" id="statLosses">0</div></div>
-                <div class="stat-item"><div class="stat-label">Win %</div><div class="stat-value" id="statWinPct">0%</div></div>
-                <div class="stat-item"><div class="stat-label">Goals For</div><div class="stat-value" id="statGoalsFor">0</div></div>
-                <div class="stat-item"><div class="stat-label">Goals Against</div><div class="stat-value" id="statGoalsAgainst">0</div></div>
-                <div class="stat-item"><div class="stat-label">Goal Diff</div><div class="stat-value" id="statGD">0</div></div>
-            </div>
-        </div>
-
-        <div class="matches">
-            <div id="matchList"></div>
-        </div>
-    </div>
-
-    <!-- Head-to-head modal -->
-    <div class="h2h-overlay" id="h2hOverlay" onclick="if(event.target===this)closeH2H()">
-        <div class="h2h-modal">
-            <div class="h2h-header">
-                <h3 id="h2hTitle">vs Opposition</h3>
-                <button class="h2h-close" onclick="closeH2H()">✕</button>
-            </div>
-            <div class="h2h-stats" id="h2hStats"></div>
-            <div class="h2h-extra" id="h2hExtra"></div>
-            <div class="h2h-matches" id="h2hMatches"></div>
-        </div>
-    </div>
-
-    <script>
+        <script>
         let MATCHES_DATA = [];
         let currentFilter = 'all';
         let selectedSeason = '';
+        let selectedCompetition = '';
         let searchTerm = '';
         let records = {};
         let attendanceType = '';
         let attendanceVenue = 'all';
         let sortOrder = 'desc';
 
+        // Sorted index of non-abandoned matches for form guide lookups.
+        // Built once after data loads; avoids re-sorting on every card render.
         let chronologicalValidMatches = [];
+
+        // ===== COMPETITION NORMALISATION =====
+        const COMPETITION_GROUPS = {
+            premier: [
+                'North West Counties League Premier Division',
+                'Premier Division Play Offs Semi Finals'
+            ],
+            first: [
+                'North West Counties League First Division'
+            ],
+            firstsouth: [
+                'North West Counties League First Division South'
+            ],
+            facup: [
+                'F.A. Challenge Cup Extra Preliminary Round',
+                'F.A. Challenge Cup Extra Preliminary Round Replay',
+                'F.A. Challenge Cup Preliminary Round',
+                'F.A. Challenge Cup Preliminary Round Replay',
+                'F.A. Challenge Cup 1st Qualifying Round',
+                'F.A. Challenge Cup 2nd Qualifying Round',
+                'The Emirates F.A Cup Extra Preliminary Round',
+                'The Emirates F.A Cup Extra Preliminary Round Replay',
+                'The Emirates F.A Cup Preliminary Round',
+                'The Emirates F.A Cup 1st Qualifying Round'
+            ],
+            favase: [
+                'F.A. Carlsberg Vase 1st Qualifying Round',
+                'F.A. Carlsberg Vase 2nd Qualifying Round',
+                'F.A. Carlsberg Vase 1st Round',
+                'F.A. Carlsberg Vase 2nd Round',
+                'F.A. Carlsberg Vase 3rd Round',
+                'F.A. Carlsberg Vase 4th Round',
+                'F.A. Carlsberg Vase 5th Round',
+                'F.A. Carlsberg Vase Quarter Finals',
+                'The Isuzu FA Vase 2nd Round',
+                'The Isuzu FA Vase 3rd Round',
+                'The Isuzu FA Vase 4th Round',
+                'The Isuzu FA Vase 5th Round',
+                'The Isuzu FA Vase 6th Round'
+            ],
+            lcup: [
+                'League Challenge Cup 1st Round',
+                'League Challenge Cup 2nd Round',
+                'League Challenge Cup 2nd Round South',
+                'League Challenge Cup 3rd Round',
+                'League Challenge Cup Quarter Finals',
+                'The Macron Cup 2nd Round',
+                'The Macron Cup 3rd Round',
+                'The Macron Cup QF'
+            ],
+            lancs: [
+                'Lancashire Challenge Trophy 1st Round',
+                'Lancashire Challenge Trophy 2nd Round',
+                'Lancashire Challenge Trophy Quarter Finals',
+                'Lancashire Challenge Trophy Semi Finals',
+                'Lancashire Challenge Trophy Final'
+            ],
+            manc: [
+                'Manchester Premier Cup 1st Round',
+                'Manchester Premier Cup Quarter Finals',
+                'Manchester Premier Cup Semi Finals',
+                'Manchester Premier Cup QF'
+            ],
+            fdt: [
+                'First Division Trophy 2nd Round',
+                'First Division Trophy 3rd Round',
+                'First Division Trophy Quarter Finals',
+                'First Division Trophy Semi Finals',
+                'First Division Trophy Final'
+            ]
+        };
+
+        function setCompetitionFilter(key, btnElement) {
+            currentFilter = 'competition';
+            selectedCompetition = key;
+            selectedSeason = '';
+            document.getElementById('seasonSelect').value = '';
+            document.getElementById('seasonSelect').style.display = 'none';
+            document.getElementById('highestAttendanceSelect').style.display = 'none';
+            document.getElementById('lowestAttendanceSelect').style.display = 'none';
+            document.getElementById('recentCount').style.display = 'none';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+            updateClearAllButton();
+            displayCurrentStreak();
+            renderMatches();
+            setTimeout(() => {
+                const y = document.querySelector('.results-header').getBoundingClientRect().top + window.pageYOffset - 20;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }, 100);
+        }
 
         // ===== CSV PARSING =====
         function parseCSVLine(line) {
@@ -344,12 +300,16 @@
         }
 
         // ===== FORM GUIDE =====
+
+        // Build a sorted index of all non-abandoned matches. Called once after data loads.
         function buildFormIndex() {
             chronologicalValidMatches = MATCHES_DATA
                 .filter(m => m.Abandoned !== 'Y' && parseDate(m.Date))
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
         }
 
+        // Returns the last N results (W/D/L) strictly before this match date, oldest first.
+        // Abandoned matches are excluded from the form sequence.
         function getFormGuide(match, n) {
             const matchDate = parseDate(match.Date);
             if (!matchDate) return [];
@@ -360,6 +320,7 @@
             return before.slice(-n).map(m => m.Result);
         }
 
+        // Returns HTML for the form badge row for a given match.
         function renderFormBadges(match, n) {
             const form = getFormGuide(match, n);
             if (form.length === 0) {
@@ -375,6 +336,8 @@
             html += '<span class="form-badge-this">this game</span>';
             return html;
         }
+
+        // ===== END FORM GUIDE =====
 
         // ===== DATE PARSING =====
         function parseDate(dateStr) {
@@ -540,7 +503,7 @@
                 : 'Longest ' + streak.type + ' streak: ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
         }
 
-        // ===== MATCH CARD RENDERER =====
+        // ===== MATCH CARD RENDERER (shared) =====
         function renderMatchCard(match) {
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                 match.Result === 'W' ? '<span class="badge win">WIN</span>' :
@@ -583,10 +546,12 @@
                 ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes + '</span></div>'
                 : '';
 
+            // Form guide: last 5 results going in, oldest→newest, with direction labels
             const formHtml = match.Abandoned !== 'Y'
                 ? '<div class="form-guide"><span class="form-guide-label">Form going in:</span><div class="form-guide-badges">' + renderFormBadges(match, 5) + '</div></div>'
                 : '';
 
+            // Opposition name is clickable to open H2H modal
             const safeOpp = match.Opposition ? match.Opposition.replace(/'/g, "\\'") : '';
             const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
             const displayHome = homeTeam === match.Opposition ? oppLink : homeTeam;
@@ -629,6 +594,10 @@
             else if (currentFilter === 'scoreless-draws') filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] === 0);
             else if (currentFilter === 'high-scoring-draws') filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] >= 3).sort((a, b) => b['Goals For'] - a['Goals For']);
             else if (currentFilter === 'season' && selectedSeason) filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
+            else if (currentFilter === 'competition' && selectedCompetition) {
+                const group = COMPETITION_GROUPS[selectedCompetition] || [];
+                filtered = filtered.filter(m => group.includes(m.Competition));
+            }
             else if (currentFilter === 'biggest-wins') filtered = searchTerm ? records.biggestWin.filter(m => matchesSearch(m)) : records.biggestWin;
             else if (currentFilter === 'biggest-losses') filtered = searchTerm ? records.biggestLoss.filter(m => matchesSearch(m)) : records.biggestLoss;
             else if (currentFilter === 'most-goals-scored') filtered = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y').sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, 20);
@@ -676,7 +645,7 @@
         // ===== STATS BAR =====
         function updateStats(matches) {
             const statsBar = document.getElementById('statsBar');
-            const showFor = ['all','recent','on-this-day','season','home-games','away-games','wins','draws','losses'];
+            const showFor = ['all','recent','on-this-day','season','competition','home-games','away-games','wins','draws','losses'];
             if (showFor.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
                 const vm = matches.filter(m => m.Abandoned !== 'Y');
@@ -717,6 +686,9 @@
                     : 'Top ' + filtered.length + ' — ' + recordLabels[currentFilter];
             } else if (selectedSeason && currentFilter === 'season') {
                 document.getElementById('resultCount').textContent = filtered.length + ' matches in ' + selectedSeason;
+            } else if (currentFilter === 'competition' && selectedCompetition) {
+                const labels = { premier:'NWCFL Premier Division', first:'NWCFL First Division', firstsouth:'NWCFL First Division South', facup:'FA Cup', favase:'FA Vase', lcup:'League Challenge Cup', lancs:'Lancashire Challenge Trophy', manc:'Manchester Premier Cup', fdt:'First Division Trophy' };
+                document.getElementById('resultCount').textContent = filtered.length + ' matches — ' + (labels[selectedCompetition] || selectedCompetition);
             } else {
                 document.getElementById('resultCount').textContent = filtered.length + ' ' + (filtered.length === 1 ? 'match' : 'matches') + ' found';
             }
@@ -727,7 +699,7 @@
         function updateClearAllButton() {
             const btn = document.querySelector('.filter-btn[onclick="clearAllFilters()"]');
             if (!btn) return;
-            const active = currentFilter !== 'all' || searchTerm !== '' || selectedSeason !== '';
+            const active = currentFilter !== 'all' || searchTerm !== '' || selectedSeason !== '' || selectedCompetition !== '';
             btn.style.background = active ? '#fee2e2' : '';
             btn.style.color = active ? '#991b1b' : '#6b7280';
             btn.style.borderColor = active ? '#fca5a5' : '';
@@ -737,6 +709,7 @@
         function setFilter(filter, btnElement) {
             currentFilter = filter;
             selectedSeason = '';
+            selectedCompetition = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
             document.getElementById('highestAttendanceSelect').style.display = 'none';
@@ -744,7 +717,7 @@
             document.getElementById('recentCount').style.display = filter === 'recent' ? 'inline-block' : 'none';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             const target = btnElement || (typeof event !== 'undefined' && event && event.target ? event.target.closest('.filter-btn') : null);
-            if (target) target.classList.add('active');
+            if (target && target.classList.contains('filter-btn')) target.classList.add('active');
             updateClearAllButton();
 
             const streakFilters = ['win-streak','draw-streak','loss-streak','unbeaten-streak','winless-streak'];
@@ -771,7 +744,7 @@
         }
 
         function clearAllFilters() {
-            currentFilter = 'all'; selectedSeason = ''; searchTerm = ''; sortOrder = 'desc'; attendanceVenue = 'all';
+            currentFilter = 'all'; selectedSeason = ''; selectedCompetition = ''; searchTerm = ''; sortOrder = 'desc'; attendanceVenue = 'all';
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
             document.getElementById('seasonSelect').value = '';
@@ -797,6 +770,8 @@
 
         function showAttendanceFilter(type) {
             attendanceType = type;
+            selectedCompetition = '';
+            selectedSeason = '';
             const selectId = type === 'highest' ? 'highestAttendanceSelect' : 'lowestAttendanceSelect';
             const otherId = type === 'highest' ? 'lowestAttendanceSelect' : 'highestAttendanceSelect';
             const select = document.getElementById(selectId);
@@ -825,7 +800,7 @@
 
         function showRandomMatch() {
             const match = MATCHES_DATA[Math.floor(Math.random() * MATCHES_DATA.length)];
-            currentFilter = 'random'; selectedSeason = '';
+            currentFilter = 'random'; selectedSeason = ''; selectedCompetition = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -887,3 +862,4 @@
     </script>
 </body>
 </html>
+
