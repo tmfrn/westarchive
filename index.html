@@ -5,59 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>West Didsbury & Chorlton FC - Men's Team Match Archive</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; min-height: 100vh; padding: 0; color: #fff; }
-        .container { max-width: 1400px; margin: 0 auto; background: #fff; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); color: white; padding: 48px 40px; text-align: center; position: relative; overflow: hidden; }
-        .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px); pointer-events: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            padding: 0;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 48px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);
+            pointer-events: none;
+        }
+        
         .header-content { position: relative; z-index: 1; }
-        .header h1 { font-size: 2.8em; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.02em; }
+        
+        .header h1 {
+            font-size: 2.8em;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        
         .header p { font-size: 1.1em; opacity: 0.7; font-weight: 300; }
+
         .theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 10; }
-        .theme-toggle button { padding: 12px 24px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .theme-toggle button {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
         .theme-toggle button:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); }
-        .error-banner { display: none; padding: 20px 40px; background: #fee2e2; border-bottom: 2px solid #fca5a5; color: #991b1b; text-align: center; font-weight: 600; }
-        .error-banner button { margin-left: 16px; padding: 8px 20px; background: #991b1b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .error-banner {
+            display: none;
+            padding: 20px 40px;
+            background: #fee2e2;
+            border-bottom: 2px solid #fca5a5;
+            color: #991b1b;
+            text-align: center;
+            font-weight: 600;
+        }
+        .error-banner button {
+            margin-left: 16px;
+            padding: 8px 20px;
+            background: #991b1b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
         .error-banner button:hover { background: #7f1d1d; }
+
         .summary-box { padding: 48px 40px; background: #fafafa; border-bottom: 1px solid #e0e0e0; }
         .summary-box h2 { font-size: 1.6em; margin-bottom: 32px; color: #000; font-weight: 800; }
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .summary-item { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .summary-item {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
         .summary-item:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); border-color: #000; }
         .summary-label { font-size: 0.85em; font-weight: 600; color: #666; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
         .summary-value { font-size: 1.05em; font-weight: 600; color: #000; line-height: 1.4; }
-        .streak-box { padding: 32px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-bottom: 1px solid #e0e0e0; }
+
+        .streak-box {
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
         .streak-content { max-width: 800px; margin: 0 auto; text-align: center; }
         .streak-label { font-size: 0.9em; opacity: 0.9; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
         .streak-value { font-size: 2em; font-weight: 900; margin-bottom: 8px; }
         .streak-context { font-size: 0.95em; opacity: 0.85; }
+
         .controls { padding: 40px; background: white; border-bottom: 1px solid #e0e0e0; }
         .search-bar { margin-bottom: 32px; }
-        .search-input { width: 100%; padding: 16px 20px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 16px; transition: all 0.2s; background: #fafafa; }
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
         .search-input:focus { outline: none; border-color: #000; background: white; box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+
         .filter-section { margin-bottom: 24px; }
         .filter-section-label { font-size: 0.85em; font-weight: 700; color: #666; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
         .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .filter-btn { padding: 8px 16px; border: 2px solid #e0e0e0; background: white; border-radius: 24px; font-weight: 600; font-size: 0.85em; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); color: #000; }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #000;
+        }
         .filter-btn:hover { background: #fafafa; border-color: #bbb; transform: translateY(-1px); }
         .filter-btn select { margin-left: 8px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px; background: white; }
         .filter-btn.active { background: #000; color: white; border-color: #000; }
+
         .results-header { padding: 32px 40px; background: white; border-bottom: 1px solid #e0e0e0; }
         .result-count { font-size: 1.4em; font-weight: 700; color: #000; margin-bottom: 24px; }
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
         .stat-item { background: #fafafa; padding: 16px; border-radius: 12px; border: 1px solid #e0e0e0; }
         .stat-label { font-size: 0.75em; color: #666; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         .stat-value { font-size: 1.3em; font-weight: 700; color: #000; }
+
         .matches { padding: 32px 40px 64px; background: white; }
-        .match-card { background: white; border: 1px solid #e0e0e0; border-radius: 16px; padding: 24px; margin-bottom: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .match-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
         .match-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #000; }
+
         .match-tags { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .record-tag { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 6px 12px; border-radius: 20px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(255,215,0,0.3); }
+        .record-tag {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+        }
         .record-tag.silver { background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); box-shadow: 0 2px 8px rgba(192,192,192,0.3); }
         .record-tag.silver[onclick] { cursor: pointer; }
         .record-tag.silver[onclick]:hover { background: linear-gradient(135deg, #a8a8a8 0%, #d0d0d0 100%); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(192,192,192,0.5); }
+
         .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
         .match-date { font-size: 0.9em; color: #666; font-weight: 600; }
+
         .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 6px; }
         .badge.win { background: #dcfce7; color: #166534; }
         .badge.loss { background: #fee2e2; color: #991b1b; }
@@ -66,17 +192,44 @@
         .badge.home { background: #dbeafe; color: #1e40af; }
         .badge.away { background: #f3e8ff; color: #6b21a8; }
         .badge.neutral { background: #e5e7eb; color: #374151; }
+
         .match-fixture { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 1.1em; margin-bottom: 16px; color: #000; }
         .match-score { font-size: 1.3em; color: #000; padding: 0 20px; }
         .match-details { font-size: 0.9em; color: #666; line-height: 1.6; }
         .match-details strong { color: #000; }
+
         .scorers { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0; font-size: 0.9em; color: #444; }
         .scorers strong { color: #000; }
         .scorers-list { color: #666; }
-        .form-guide { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .form-guide-label { font-size: 0.75em; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+
+        .form-guide {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .form-guide-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
         .form-guide-badges { display: flex; align-items: center; gap: 3px; }
-        .form-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; font-size: 0.7em; font-weight: 800; }
+        .form-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 800;
+        }
         .form-badge.w { background: #dcfce7; color: #166534; }
         .form-badge.d { background: #fef3c7; color: #92400e; }
         .form-badge.l { background: #fee2e2; color: #991b1b; }
@@ -84,13 +237,50 @@
         .form-badge-arrow { font-size: 0.8em; color: #ccc; margin: 0 3px; }
         .form-badge-this { font-size: 0.7em; color: #aaa; font-style: italic; white-space: nowrap; }
         .form-guide-none { font-size: 0.8em; color: #bbb; font-style: italic; }
-        .h2h-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; overflow-y: auto; padding: 40px 20px; }
+
+        .h2h-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
         .h2h-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
-        .h2h-modal { background: #fff; border-radius: 20px; max-width: 700px; width: 100%; box-shadow: 0 24px 48px rgba(0,0,0,0.3); animation: h2hSlideIn 0.3s ease; }
+        .h2h-modal {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+            animation: h2hSlideIn 0.3s ease;
+        }
         @keyframes h2hSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .h2h-header { padding: 28px 32px; background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); color: white; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .h2h-header {
+            padding: 28px 32px;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .h2h-header h3 { font-size: 1.3em; font-weight: 800; }
-        .h2h-close { background: rgba(255,255,255,0.15); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2em; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
+        .h2h-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .h2h-close:hover { background: rgba(255,255,255,0.3); }
         .h2h-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #e0e0e0; }
         .h2h-stat { padding: 20px; text-align: center; border-right: 1px solid #e0e0e0; }
@@ -116,8 +306,10 @@
         .h2h-match-result.d { background: #d97706; }
         .h2h-match-result.l { background: #dc2626; }
         .h2h-match-result.a { background: #6b7280; }
+
         .opposition-link { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; transition: color 0.2s; }
         .opposition-link:hover { color: #4338ca; }
+
         @media (max-width: 768px) {
             .header h1 { font-size: 2em; }
             .summary-grid { grid-template-columns: 1fr; }
@@ -128,7 +320,158 @@
         }
     </style>
 </head>
-        <script>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>West Didsbury &amp; Chorlton FC</h1>
+                <p>Men's Team Match Archive</p>
+            </div>
+        </div>
+
+        <div class="error-banner" id="errorBanner">
+            <span id="errorMessage">Error loading match data.</span>
+            <button onclick="fetchMatchData()">Retry</button>
+        </div>
+
+        <div class="streak-box" id="streakBox" style="display: none;">
+            <div class="streak-content">
+                <div class="streak-label">Current Streak</div>
+                <div class="streak-value" id="streakValue"></div>
+                <div class="streak-context" id="streakContext"></div>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <h2>Database Records</h2>
+            <div class="summary-grid" id="summaryGrid"></div>
+        </div>
+
+        <div class="controls">
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, season, or scorer...">
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Quick Picks</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="setFilter('all', this)">All Matches</button>
+                    <button class="filter-btn" onclick="clearAllFilters()" style="color: #6b7280;">🔄 Clear All</button>
+                    <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
+                    <button class="filter-btn" onclick="setFilter('on-this-day', this)">On This Day</button>
+                    <button class="filter-btn" onclick="setFilter('recent', this)">
+                        Recent
+                        <select id="recentCount" style="display:none;" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
+                            <option>10</option><option>20</option><option>50</option>
+                        </select>
+                    </button>
+                    <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
+                    <select id="seasonSelect" class="filter-btn" style="display:none;" onchange="filterBySeason()"></select>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Match Type</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('home-games', this)">Home Games</button>
+                    <button class="filter-btn" onclick="setFilter('away-games', this)">Away Games</button>
+                    <button class="filter-btn" onclick="setFilter('wins', this)">Wins</button>
+                    <button class="filter-btn" onclick="setFilter('draws', this)">Draws</button>
+                    <button class="filter-btn" onclick="setFilter('losses', this)">Losses</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Competition</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setCompetitionFilter('premier', this)">NWCFL Premier Division</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('first', this)">NWCFL First Division</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('firstsouth', this)">NWCFL First Division South</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('facup', this)">FA Cup</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('favase', this)">FA Vase</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('lcup', this)">League Challenge Cup</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('lancs', this)">Lancashire Challenge Trophy</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('manc', this)">Manchester Premier Cup</button>
+                    <button class="filter-btn" onclick="setCompetitionFilter('fdt', this)">First Division Trophy</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Records</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('biggest-wins', this)">Biggest Wins</button>
+                    <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Losses</button>
+                    <button class="filter-btn" onclick="showAttendanceFilter('highest')">
+                        Highest Attendance
+                        <select id="highestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('highest')">
+                            <option value="all">All</option><option value="home">Home</option><option value="away">Away</option>
+                        </select>
+                    </button>
+                    <button class="filter-btn" onclick="showAttendanceFilter('lowest')">
+                        Lowest Attendance
+                        <select id="lowestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('lowest')">
+                            <option value="all">All</option><option value="home">Home</option><option value="away">Away</option>
+                        </select>
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Streaks</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('win-streak', this)">Longest Win Streak</button>
+                    <button class="filter-btn" onclick="setFilter('draw-streak', this)">Longest Draw Streak</button>
+                    <button class="filter-btn" onclick="setFilter('loss-streak', this)">Longest Loss Streak</button>
+                    <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Longest Unbeaten</button>
+                    <button class="filter-btn" onclick="setFilter('winless-streak', this)">Longest Winless</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-label">Performance</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn" onclick="setFilter('most-goals-scored', this)">Most Goals Scored</button>
+                    <button class="filter-btn" onclick="setFilter('most-goals-conceded', this)">Most Goals Conceded</button>
+                    <button class="filter-btn" onclick="setFilter('scoreless-draws', this)">Scoreless Draws</button>
+                    <button class="filter-btn" onclick="setFilter('high-scoring-draws', this)">High Scoring Draws</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <div class="result-count" id="resultCount">Loading matches...</div>
+                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Show Oldest First</button>
+            </div>
+            <div class="stats-bar" id="statsBar" style="display: none;">
+                <div class="stat-item"><div class="stat-label">Matches</div><div class="stat-value" id="statMatches">0</div></div>
+                <div class="stat-item"><div class="stat-label">Wins</div><div class="stat-value" id="statWins">0</div></div>
+                <div class="stat-item"><div class="stat-label">Draws</div><div class="stat-value" id="statDraws">0</div></div>
+                <div class="stat-item"><div class="stat-label">Losses</div><div class="stat-value" id="statLosses">0</div></div>
+                <div class="stat-item"><div class="stat-label">Win %</div><div class="stat-value" id="statWinPct">0%</div></div>
+                <div class="stat-item"><div class="stat-label">Goals For</div><div class="stat-value" id="statGoalsFor">0</div></div>
+                <div class="stat-item"><div class="stat-label">Goals Against</div><div class="stat-value" id="statGoalsAgainst">0</div></div>
+                <div class="stat-item"><div class="stat-label">Goal Diff</div><div class="stat-value" id="statGD">0</div></div>
+            </div>
+        </div>
+
+        <div class="matches">
+            <div id="matchList"></div>
+        </div>
+    </div>
+
+    <div class="h2h-overlay" id="h2hOverlay" onclick="if(event.target===this)closeH2H()">
+        <div class="h2h-modal">
+            <div class="h2h-header">
+                <h3 id="h2hTitle">vs Opposition</h3>
+                <button class="h2h-close" onclick="closeH2H()">✕</button>
+            </div>
+            <div class="h2h-stats" id="h2hStats"></div>
+            <div class="h2h-extra" id="h2hExtra"></div>
+            <div class="h2h-matches" id="h2hMatches"></div>
+        </div>
+    </div>
+    <script>
         let MATCHES_DATA = [];
         let currentFilter = 'all';
         let selectedSeason = '';
@@ -139,11 +482,8 @@
         let attendanceVenue = 'all';
         let sortOrder = 'desc';
 
-        // Sorted index of non-abandoned matches for form guide lookups.
-        // Built once after data loads; avoids re-sorting on every card render.
         let chronologicalValidMatches = [];
 
-        // ===== COMPETITION NORMALISATION =====
         const COMPETITION_GROUPS = {
             premier: [
                 'North West Counties League Premier Division',
@@ -234,7 +574,6 @@
             }, 100);
         }
 
-        // ===== CSV PARSING =====
         function parseCSVLine(line) {
             const values = [];
             let current = '';
@@ -256,7 +595,6 @@
             return values;
         }
 
-        // ===== DATA FETCH =====
         async function fetchMatchData() {
             const errorBanner = document.getElementById('errorBanner');
             errorBanner.style.display = 'none';
@@ -299,17 +637,12 @@
             }
         }
 
-        // ===== FORM GUIDE =====
-
-        // Build a sorted index of all non-abandoned matches. Called once after data loads.
         function buildFormIndex() {
             chronologicalValidMatches = MATCHES_DATA
                 .filter(m => m.Abandoned !== 'Y' && parseDate(m.Date))
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
         }
 
-        // Returns the last N results (W/D/L) strictly before this match date, oldest first.
-        // Abandoned matches are excluded from the form sequence.
         function getFormGuide(match, n) {
             const matchDate = parseDate(match.Date);
             if (!matchDate) return [];
@@ -320,7 +653,6 @@
             return before.slice(-n).map(m => m.Result);
         }
 
-        // Returns HTML for the form badge row for a given match.
         function renderFormBadges(match, n) {
             const form = getFormGuide(match, n);
             if (form.length === 0) {
@@ -337,9 +669,6 @@
             return html;
         }
 
-        // ===== END FORM GUIDE =====
-
-        // ===== DATE PARSING =====
         function parseDate(dateStr) {
             if (!dateStr) return null;
             let match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -359,7 +688,6 @@
             return null;
         }
 
-        // ===== RECORDS =====
         function calculateRecords() {
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             records.biggestWin = validMatches.filter(m => m.Result === 'W')
@@ -403,7 +731,6 @@
             return tags;
         }
 
-        // ===== SUMMARY =====
         function populateSummary() {
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             const total = validMatches.length;
@@ -439,7 +766,6 @@
             ).join('');
         }
 
-        // ===== SEASON FILTER =====
         function populateSeasonFilter() {
             const seasons = new Set();
             MATCHES_DATA.forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
@@ -464,7 +790,6 @@
             }
         }
 
-        // ===== STREAK DISPLAY =====
         function calculateCurrentStreak() {
             if (MATCHES_DATA.length === 0) return null;
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
@@ -503,7 +828,6 @@
                 : 'Longest ' + streak.type + ' streak: ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
         }
 
-        // ===== MATCH CARD RENDERER (shared) =====
         function renderMatchCard(match) {
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                 match.Result === 'W' ? '<span class="badge win">WIN</span>' :
@@ -546,12 +870,10 @@
                 ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes + '</span></div>'
                 : '';
 
-            // Form guide: last 5 results going in, oldest→newest, with direction labels
             const formHtml = match.Abandoned !== 'Y'
                 ? '<div class="form-guide"><span class="form-guide-label">Form going in:</span><div class="form-guide-badges">' + renderFormBadges(match, 5) + '</div></div>'
                 : '';
 
-            // Opposition name is clickable to open H2H modal
             const safeOpp = match.Opposition ? match.Opposition.replace(/'/g, "\\'") : '';
             const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
             const displayHome = homeTeam === match.Opposition ? oppLink : homeTeam;
@@ -569,7 +891,6 @@
             '</div>';
         }
 
-        // ===== FILTERING =====
         function matchesSearch(m) {
             if (!searchTerm) return true;
             const t = searchTerm.toLowerCase();
@@ -642,7 +963,6 @@
             return filtered;
         }
 
-        // ===== STATS BAR =====
         function updateStats(matches) {
             const statsBar = document.getElementById('statsBar');
             const showFor = ['all','recent','on-this-day','season','competition','home-games','away-games','wins','draws','losses'];
@@ -671,7 +991,6 @@
             document.getElementById('sortToggle').style.display = noSort.includes(currentFilter) ? 'none' : 'block';
         }
 
-        // ===== RENDER =====
         function renderMatches() {
             const filtered = filterMatches();
             updateStats(filtered);
@@ -695,7 +1014,6 @@
             document.getElementById('matchList').innerHTML = filtered.map(m => renderMatchCard(m)).join('');
         }
 
-        // ===== UI CONTROLS =====
         function updateClearAllButton() {
             const btn = document.querySelector('.filter-btn[onclick="clearAllFilters()"]');
             if (!btn) return;
@@ -813,7 +1131,6 @@
             }, 100);
         }
 
-        // ===== HEAD-TO-HEAD =====
         function showH2H(opposition) {
             const all = MATCHES_DATA.filter(m => m.Opposition === opposition);
             const valid = all.filter(m => m.Abandoned !== 'Y');
@@ -862,4 +1179,3 @@
     </script>
 </body>
 </html>
-
