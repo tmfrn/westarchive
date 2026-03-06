@@ -19,19 +19,11 @@
             color: #fff;
         }
         
-        body.retro-mode {
-            font-family: 'Courier New', monospace;
-        }
-        
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: #fff;
             min-height: 100vh;
-        }
-        
-        .retro-mode .container {
-            background: #2d5016;
         }
         
         .header {
@@ -41,11 +33,6 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-        
-        .retro-mode .header {
-            background: #1a3a0d;
-            border-bottom: 4px solid #8bc34a;
         }
         
         .header::before {
@@ -66,17 +53,6 @@
             pointer-events: none;
         }
         
-        .retro-mode .header::before {
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 20px,
-                    rgba(139,195,74,0.1) 20px,
-                    rgba(139,195,74,0.1) 21px
-                );
-        }
-        
         .header-content {
             position: relative;
             z-index: 1;
@@ -89,21 +65,10 @@
             letter-spacing: -0.02em;
         }
         
-        .retro-mode .header h1 {
-            color: #8bc34a;
-            text-shadow: 2px 2px #000;
-            letter-spacing: 0.05em;
-        }
-        
         .header p {
             font-size: 1.1em;
             opacity: 0.7;
             font-weight: 300;
-        }
-        
-        .retro-mode .header p {
-            color: #cddc39;
-            opacity: 1;
         }
         
         .theme-toggle {
@@ -129,11 +94,31 @@
             border-color: rgba(255,255,255,0.5);
         }
         
-        .retro-mode .theme-toggle button {
-            background: #1a3a0d;
-            border-color: #8bc34a;
-            color: #8bc34a;
-            font-family: 'Courier New', monospace;
+        /* Error banner */
+        .error-banner {
+            display: none;
+            padding: 20px 40px;
+            background: #fee2e2;
+            border-bottom: 2px solid #fca5a5;
+            color: #991b1b;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .error-banner button {
+            margin-left: 16px;
+            padding: 8px 20px;
+            background: #991b1b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .error-banner button:hover {
+            background: #7f1d1d;
         }
         
         .summary-box {
@@ -142,21 +127,11 @@
             border-bottom: 1px solid #e0e0e0;
         }
         
-        .retro-mode .summary-box {
-            background: #3d6b1f;
-            border-bottom: 4px solid #000;
-        }
-        
         .summary-box h2 {
             font-size: 1.6em;
             margin-bottom: 32px;
             color: #000;
             font-weight: 800;
-        }
-        
-        .retro-mode .summary-box h2 {
-            color: #cddc39;
-            text-shadow: 2px 2px #000;
         }
         
         .summary-grid {
@@ -175,22 +150,10 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
-        .retro-mode .summary-item {
-            background: #2d5016;
-            border: 3px solid #000;
-            border-radius: 0;
-            box-shadow: 4px 4px 0 #000;
-        }
-        
         .summary-item:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
             border-color: #000;
-        }
-        
-        .retro-mode .summary-item:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #000;
         }
         
         .summary-label {
@@ -202,10 +165,6 @@
             letter-spacing: 0.05em;
         }
         
-        .retro-mode .summary-label {
-            color: #8bc34a;
-        }
-        
         .summary-value {
             font-size: 1.05em;
             font-weight: 600;
@@ -213,23 +172,11 @@
             line-height: 1.4;
         }
         
-        .retro-mode .summary-value {
-            color: #fff;
-            text-shadow: 1px 1px #000;
-        }
-        
         .streak-box {
             padding: 32px 40px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .retro-mode .streak-box {
-            background: #1a3a0d;
-            border: 4px solid #8bc34a;
-            border-left: 0;
-            border-right: 0;
         }
         
         .streak-content {
@@ -247,19 +194,10 @@
             letter-spacing: 0.1em;
         }
         
-        .retro-mode .streak-label {
-            color: #cddc39;
-        }
-        
         .streak-value {
             font-size: 2em;
             font-weight: 900;
             margin-bottom: 8px;
-        }
-        
-        .retro-mode .streak-value {
-            color: #8bc34a;
-            text-shadow: 3px 3px #000;
         }
         
         .streak-context {
@@ -267,19 +205,10 @@
             opacity: 0.85;
         }
         
-        .retro-mode .streak-context {
-            color: #fff;
-        }
-        
         .controls {
             padding: 40px;
             background: white;
             border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .retro-mode .controls {
-            background: #3d6b1f;
-            border-bottom: 4px solid #000;
         }
         
         .search-bar {
@@ -296,25 +225,11 @@
             background: #fafafa;
         }
         
-        .retro-mode .search-input {
-            background: #2d5016;
-            border: 3px solid #000;
-            border-radius: 0;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-        }
-        
         .search-input:focus {
             outline: none;
             border-color: #000;
             background: white;
             box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
-        }
-        
-        .retro-mode .search-input:focus {
-            background: #1a3a0d;
-            border-color: #8bc34a;
-            box-shadow: 0 0 0 4px rgba(139,195,74,0.2);
         }
         
         .filter-section {
@@ -328,10 +243,6 @@
             margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-        }
-        
-        .retro-mode .filter-section-label {
-            color: #8bc34a;
         }
         
         .filter-buttons {
@@ -352,23 +263,10 @@
             color: #000;
         }
         
-        .retro-mode .filter-btn {
-            background: #2d5016;
-            border: 2px solid #000;
-            border-radius: 0;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-        }
-        
         .filter-btn:hover {
             background: #fafafa;
             border-color: #bbb;
             transform: translateY(-1px);
-        }
-        
-        .retro-mode .filter-btn:hover {
-            background: #1a3a0d;
-            border-color: #8bc34a;
         }
         
         .filter-btn select {
@@ -379,27 +277,11 @@
             background: white;
         }
         
-        .retro-mode .filter-btn select {
-            background: #1a3a0d;
-            border: 2px solid #000;
-            border-radius: 0;
-            color: #8bc34a;
-            font-family: 'Courier New', monospace;
-        }
-        
         .filter-btn.active {
             background: #000;
             color: white;
             border-color: #000;
         }
-        
-        .retro-mode .filter-btn.active {
-            background: #8bc34a;
-            color: #000;
-            border-color: #000;
-        }
-        
-
         
         .results-header {
             padding: 32px 40px;
@@ -407,21 +289,11 @@
             border-bottom: 1px solid #e0e0e0;
         }
         
-        .retro-mode .results-header {
-            background: #3d6b1f;
-            border-bottom: 4px solid #000;
-        }
-        
         .result-count {
             font-size: 1.4em;
             font-weight: 700;
             color: #000;
             margin-bottom: 24px;
-        }
-        
-        .retro-mode .result-count {
-            color: #cddc39;
-            text-shadow: 2px 2px #000;
         }
         
         .stats-bar {
@@ -437,12 +309,6 @@
             border: 1px solid #e0e0e0;
         }
         
-        .retro-mode .stat-item {
-            background: #2d5016;
-            border: 3px solid #000;
-            border-radius: 0;
-        }
-        
         .stat-label {
             font-size: 0.75em;
             color: #666;
@@ -452,28 +318,15 @@
             letter-spacing: 0.05em;
         }
         
-        .retro-mode .stat-label {
-            color: #8bc34a;
-        }
-        
         .stat-value {
             font-size: 1.3em;
             font-weight: 700;
             color: #000;
         }
         
-        .retro-mode .stat-value {
-            color: #fff;
-            text-shadow: 1px 1px #000;
-        }
-        
         .matches {
             padding: 32px 40px 64px;
             background: white;
-        }
-        
-        .retro-mode .matches {
-            background: #3d6b1f;
         }
         
         .match-card {
@@ -486,22 +339,10 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
-        .retro-mode .match-card {
-            background: #2d5016;
-            border: 3px solid #000;
-            border-radius: 0;
-            box-shadow: 4px 4px 0 #000;
-        }
-        
         .match-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.1);
             border-color: #000;
-        }
-        
-        .retro-mode .match-card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #000;
         }
         
         .match-tags {
@@ -538,20 +379,6 @@
             box-shadow: 0 4px 12px rgba(192,192,192,0.5);
         }
         
-        .retro-mode .record-tag {
-            border-radius: 0;
-            border: 2px solid #000;
-            background: #ffd700;
-        }
-        
-        .retro-mode .record-tag.silver {
-            background: #c0c0c0;
-        }
-        
-        .retro-mode .record-tag.silver[onclick]:hover {
-            background: #a8a8a8;
-        }
-        
         .match-header {
             display: flex;
             justify-content: space-between;
@@ -567,10 +394,6 @@
             font-weight: 600;
         }
         
-        .retro-mode .match-date {
-            color: #8bc34a;
-        }
-        
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -582,19 +405,9 @@
             margin-left: 6px;
         }
         
-        .retro-mode .badge {
-            border-radius: 0;
-            border: 2px solid #000;
-        }
-        
         .badge.win {
             background: #dcfce7;
             color: #166534;
-        }
-        
-        .retro-mode .badge.win {
-            background: #8bc34a;
-            color: #000;
         }
         
         .badge.loss {
@@ -602,19 +415,9 @@
             color: #991b1b;
         }
         
-        .retro-mode .badge.loss {
-            background: #ff5252;
-            color: #000;
-        }
-        
         .badge.draw {
             background: #fef3c7;
             color: #92400e;
-        }
-        
-        .retro-mode .badge.draw {
-            background: #cddc39;
-            color: #000;
         }
         
         .badge.abandoned {
@@ -623,20 +426,9 @@
             font-weight: 700;
         }
         
-        .retro-mode .badge.abandoned {
-            background: #757575;
-            color: #fff;
-            text-shadow: 2px 2px #000;
-        }
-        
         .badge.home {
             background: #dbeafe;
             color: #1e40af;
-        }
-        
-        .retro-mode .badge.home {
-            background: #2196f3;
-            color: #000;
         }
         
         .badge.away {
@@ -644,19 +436,9 @@
             color: #6b21a8;
         }
         
-        .retro-mode .badge.away {
-            background: #9c27b0;
-            color: #fff;
-        }
-        
         .badge.neutral {
             background: #e5e7eb;
             color: #374151;
-        }
-        
-        .retro-mode .badge.neutral {
-            background: #9e9e9e;
-            color: #000;
         }
         
         .match-fixture {
@@ -669,20 +451,10 @@
             color: #000;
         }
         
-        .retro-mode .match-fixture {
-            color: #fff;
-            text-shadow: 1px 1px #000;
-        }
-        
         .match-score {
             font-size: 1.3em;
             color: #000;
             padding: 0 20px;
-        }
-        
-        .retro-mode .match-score {
-            color: #8bc34a;
-            text-shadow: 2px 2px #000;
         }
         
         .match-details {
@@ -691,16 +463,8 @@
             line-height: 1.6;
         }
         
-        .retro-mode .match-details {
-            color: #cddc39;
-        }
-        
         .match-details strong {
             color: #000;
-        }
-        
-        .retro-mode .match-details strong {
-            color: #fff;
         }
         
         .scorers {
@@ -711,25 +475,216 @@
             color: #444;
         }
         
-        .retro-mode .scorers {
-            border-top: 2px solid #000;
-            color: #fff;
-        }
-        
         .scorers strong {
             color: #000;
-        }
-        
-        .retro-mode .scorers strong {
-            color: #8bc34a;
         }
         
         .scorers-list {
             color: #666;
         }
         
-        .retro-mode .scorers-list {
-            color: #cddc39;
+        /* Head-to-head modal */
+        .h2h-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        
+        .h2h-overlay.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        .h2h-modal {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+            animation: h2hSlideIn 0.3s ease;
+        }
+        
+        @keyframes h2hSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .h2h-header {
+            padding: 28px 32px;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .h2h-header h3 {
+            font-size: 1.3em;
+            font-weight: 800;
+        }
+        
+        .h2h-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .h2h-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .h2h-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .h2h-stat {
+            padding: 20px;
+            text-align: center;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .h2h-stat:last-child {
+            border-right: none;
+        }
+        
+        .h2h-stat-value {
+            font-size: 2em;
+            font-weight: 900;
+            color: #000;
+        }
+        
+        .h2h-stat-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+        
+        .h2h-stat.wins .h2h-stat-value { color: #166534; }
+        .h2h-stat.draws .h2h-stat-value { color: #92400e; }
+        .h2h-stat.losses .h2h-stat-value { color: #991b1b; }
+        
+        .h2h-extra {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .h2h-extra-item {
+            padding: 14px 20px;
+            border-right: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        
+        .h2h-extra-item:nth-child(even) {
+            border-right: none;
+        }
+        
+        .h2h-extra-item strong {
+            color: #000;
+        }
+        
+        .h2h-matches {
+            padding: 20px 32px 32px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .h2h-matches h4 {
+            font-size: 0.85em;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+        
+        .h2h-match-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+        
+        .h2h-match-row:last-child {
+            border-bottom: none;
+        }
+        
+        .h2h-match-date {
+            color: #666;
+            min-width: 100px;
+        }
+        
+        .h2h-match-score {
+            font-weight: 800;
+            color: #000;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .h2h-match-comp {
+            color: #999;
+            font-size: 0.85em;
+            text-align: right;
+            flex: 1;
+            margin-left: 12px;
+        }
+        
+        .h2h-match-result {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: white;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .h2h-match-result.w { background: #16a34a; }
+        .h2h-match-result.d { background: #d97706; }
+        .h2h-match-result.l { background: #dc2626; }
+        .h2h-match-result.a { background: #6b7280; }
+        
+        .opposition-link {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            transition: color 0.2s;
+        }
+        
+        .opposition-link:hover {
+            color: #4338ca;
         }
         
         @media (max-width: 768px) {
@@ -746,19 +701,35 @@
                 gap: 8px;
                 text-align: center;
             }
+            
+            .h2h-overlay {
+                padding: 20px 10px;
+            }
+            
+            .h2h-extra {
+                grid-template-columns: 1fr;
+            }
+            
+            .h2h-extra-item {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="theme-toggle">
-                <button onclick="toggleTheme('retro')">🎮 16-bit Mode</button>
-            </div>
             <div class="header-content">
                 <h1>West Didsbury & Chorlton FC</h1>
                 <p>Men's Team Match Archive</p>
             </div>
+        </div>
+        
+        <!-- FIX #2: Error banner with retry button -->
+        <div class="error-banner" id="errorBanner">
+            <span id="errorMessage">Error loading match data.</span>
+            <button onclick="fetchMatchData()">Retry</button>
         </div>
         
         <div class="streak-box" id="streakBox" style="display: none;">
@@ -776,17 +747,18 @@
         
         <div class="controls">
             <div class="search-bar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, or season...">
+                <!-- FIX #7: Updated placeholder to mention season -->
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, season, or scorer...">
             </div>
             
             <div class="filter-section">
                 <div class="filter-section-label">Quick Picks</div>
                 <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="setFilter('all')">All Matches</button>
+                    <button class="filter-btn active" onclick="setFilter('all', this)">All Matches</button>
                     <button class="filter-btn" onclick="clearAllFilters()" style="color: #6b7280;">🔄 Clear All</button>
                     <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
-                    <button class="filter-btn" onclick="setFilter('on-this-day')">On This Day</button>
-                    <button class="filter-btn" onclick="setFilter('recent')">
+                    <button class="filter-btn" onclick="setFilter('on-this-day', this)">On This Day</button>
+                    <button class="filter-btn" onclick="setFilter('recent', this)">
                         Recent
                         <select id="recentCount" style="display:none;" onclick="event.stopPropagation()" onchange="if(currentFilter==='recent') renderMatches()">
                             <option>10</option>
@@ -802,19 +774,19 @@
             <div class="filter-section">
                 <div class="filter-section-label">Match Type</div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('home-games')">Home Games</button>
-                    <button class="filter-btn" onclick="setFilter('away-games')">Away Games</button>
-                    <button class="filter-btn" onclick="setFilter('wins')">Wins</button>
-                    <button class="filter-btn" onclick="setFilter('draws')">Draws</button>
-                    <button class="filter-btn" onclick="setFilter('losses')">Losses</button>
+                    <button class="filter-btn" onclick="setFilter('home-games', this)">Home Games</button>
+                    <button class="filter-btn" onclick="setFilter('away-games', this)">Away Games</button>
+                    <button class="filter-btn" onclick="setFilter('wins', this)">Wins</button>
+                    <button class="filter-btn" onclick="setFilter('draws', this)">Draws</button>
+                    <button class="filter-btn" onclick="setFilter('losses', this)">Losses</button>
                 </div>
             </div>
             
             <div class="filter-section">
                 <div class="filter-section-label">Records</div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('biggest-wins')">Biggest Wins</button>
-                    <button class="filter-btn" onclick="setFilter('biggest-losses')">Biggest Losses</button>
+                    <button class="filter-btn" onclick="setFilter('biggest-wins', this)">Biggest Wins</button>
+                    <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Losses</button>
                     <button class="filter-btn" onclick="showAttendanceFilter('highest')">
                         Highest Attendance
                         <select id="highestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('highest')">
@@ -834,25 +806,24 @@
                 </div>
             </div>
             
-            
             <div class="filter-section">
                 <div class="filter-section-label">Streaks</div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('win-streak')">Longest Win Streak</button>
-                    <button class="filter-btn" onclick="setFilter('draw-streak')">Longest Draw Streak</button>
-                    <button class="filter-btn" onclick="setFilter('loss-streak')">Longest Loss Streak</button>
-                    <button class="filter-btn" onclick="setFilter('unbeaten-streak')">Longest Unbeaten</button>
-                    <button class="filter-btn" onclick="setFilter('winless-streak')">Longest Winless</button>
+                    <button class="filter-btn" onclick="setFilter('win-streak', this)">Longest Win Streak</button>
+                    <button class="filter-btn" onclick="setFilter('draw-streak', this)">Longest Draw Streak</button>
+                    <button class="filter-btn" onclick="setFilter('loss-streak', this)">Longest Loss Streak</button>
+                    <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Longest Unbeaten</button>
+                    <button class="filter-btn" onclick="setFilter('winless-streak', this)">Longest Winless</button>
                 </div>
             </div>
             
             <div class="filter-section">
                 <div class="filter-section-label">Performance</div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="setFilter('most-goals-scored')">Most Goals Scored</button>
-                    <button class="filter-btn" onclick="setFilter('most-goals-conceded')">Most Goals Conceded</button>
-                    <button class="filter-btn" onclick="setFilter('scoreless-draws')">Scoreless Draws</button>
-                    <button class="filter-btn" onclick="setFilter('high-scoring-draws')">High Scoring Draws</button>
+                    <button class="filter-btn" onclick="setFilter('most-goals-scored', this)">Most Goals Scored</button>
+                    <button class="filter-btn" onclick="setFilter('most-goals-conceded', this)">Most Goals Conceded</button>
+                    <button class="filter-btn" onclick="setFilter('scoreless-draws', this)">Scoreless Draws</button>
+                    <button class="filter-btn" onclick="setFilter('high-scoring-draws', this)">High Scoring Draws</button>
                 </div>
             </div>
         </div>
@@ -880,6 +851,10 @@
                     <div class="stat-value" id="statLosses">0</div>
                 </div>
                 <div class="stat-item">
+                    <div class="stat-label">Win %</div>
+                    <div class="stat-value" id="statWinPct">0%</div>
+                </div>
+                <div class="stat-item">
                     <div class="stat-label">Goals For</div>
                     <div class="stat-value" id="statGoalsFor">0</div>
                 </div>
@@ -887,11 +862,28 @@
                     <div class="stat-label">Goals Against</div>
                     <div class="stat-value" id="statGoalsAgainst">0</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-label">Goal Diff</div>
+                    <div class="stat-value" id="statGD">0</div>
+                </div>
             </div>
         </div>
         
         <div class="matches">
             <div id="matchList"></div>
+        </div>
+    </div>
+    
+    <!-- Head-to-head modal -->
+    <div class="h2h-overlay" id="h2hOverlay" onclick="if(event.target===this)closeH2H()">
+        <div class="h2h-modal">
+            <div class="h2h-header">
+                <h3 id="h2hTitle">vs Opposition</h3>
+                <button class="h2h-close" onclick="closeH2H()">✕</button>
+            </div>
+            <div class="h2h-stats" id="h2hStats"></div>
+            <div class="h2h-extra" id="h2hExtra"></div>
+            <div class="h2h-matches" id="h2hMatches"></div>
         </div>
     </div>
 
@@ -903,19 +895,66 @@
         let records = {};
         let currentStreak = null;
         let streakInfoCache = {};
-        let attendanceType = ''; // 'highest' or 'lowest'
-        let attendanceVenue = 'all'; // 'all', 'home', or 'away'
-        let sortOrder = 'desc'; // 'asc' or 'desc' for date sorting
+        let attendanceType = '';
+        let attendanceVenue = 'all';
+        let sortOrder = 'desc';
         
-        // Fetch data from Google Sheets CSV
+        // FIX #1: Proper CSV parser used for BOTH headers and data
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+                        // Escaped quote inside quoted field
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else if (char === '\r') {
+                    // Skip carriage returns
+                    continue;
+                } else {
+                    current += char;
+                }
+            }
+            
+            values.push(current.trim());
+            return values;
+        }
+        
+        // FIX #2: Robust fetch with error banner and retry
         async function fetchMatchData() {
+            const errorBanner = document.getElementById('errorBanner');
+            errorBanner.style.display = 'none';
+            document.getElementById('resultCount').textContent = 'Loading matches...';
+            
             try {
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?output=csv');
+                
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+                
                 const csvText = await response.text();
                 
-                // Parse CSV
-                const lines = csvText.split('\n');
-                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                // Validate we got actual CSV data
+                if (!csvText || csvText.length < 50 || csvText.includes('<!DOCTYPE') || csvText.includes('<html')) {
+                    throw new Error('Invalid data received (not CSV)');
+                }
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                // FIX #1: Use parseCSVLine for headers too
+                const headers = parseCSVLine(lines[0]);
                 
                 MATCHES_DATA = [];
                 for (let i = 1; i < lines.length; i++) {
@@ -925,9 +964,8 @@
                     const match = {};
                     
                     headers.forEach((header, index) => {
-                        let value = values[index];
+                        let value = values[index] || '';
                         
-                        // Convert numeric fields
                         if (['Goals For', 'Goals Against', 'HT Goals For', 'HT Goals Against', 'Attendance'].includes(header)) {
                             value = value && value.trim() !== '' ? parseInt(value) : null;
                         }
@@ -938,32 +976,6 @@
                     MATCHES_DATA.push(match);
                 }
                 
-                console.log('=== DATA LOADED ===');
-                console.log('Total matches loaded:', MATCHES_DATA.length);
-                console.log('First 5 matches from CSV (as loaded):');
-                MATCHES_DATA.slice(0, 5).forEach((m, i) => {
-                    console.log(`  ${i + 1}. Date: "${m.Date}" | Opposition: ${m.Opposition}`);
-                });
-                console.log('Last 5 matches from CSV (as loaded):');
-                MATCHES_DATA.slice(-5).forEach((m, i) => {
-                    console.log(`  ${MATCHES_DATA.length - 4 + i}. Date: "${m.Date}" | Opposition: ${m.Opposition}`);
-                });
-                
-                // Test parseDate on first and last
-                console.log('Testing parseDate:');
-                const firstDate = parseDate(MATCHES_DATA[0]?.Date);
-                const lastDate = parseDate(MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
-                console.log('  First match date string:', MATCHES_DATA[0]?.Date);
-                console.log('  First match parsed:', firstDate);
-                console.log('  Last match date string:', MATCHES_DATA[MATCHES_DATA.length - 1]?.Date);
-                console.log('  Last match parsed:', lastDate);
-                
-                if (firstDate && lastDate) {
-                    console.log('  First is older than last?', firstDate < lastDate);
-                    console.log('  Time difference (days):', (lastDate - firstDate) / (1000 * 60 * 60 * 24));
-                }
-                console.log('===================');
-                
                 // Initialize after data is loaded
                 calculateRecords();
                 populateSummary();
@@ -971,43 +983,16 @@
                 displayCurrentStreak();
                 renderMatches();
                 
-                // Set initial sort button text (currently showing newest, so button offers oldest)
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) {
                     sortButton.textContent = '📅 Show Oldest First';
                 }
             } catch (error) {
                 console.error('Error fetching match data:', error);
-                document.getElementById('resultCount').textContent = 'Error loading match data';
-            }
-        }
-        
-        // Parse CSV line handling quoted values with commas
-        function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim().replace(/^"|"$/g, ''));
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            
-            values.push(current.trim().replace(/^"|"$/g, ''));
-            return values;
-        }
-        
-        function toggleTheme(theme) {
-            if (theme === 'retro') {
-                document.body.classList.toggle('retro-mode');
+                document.getElementById('resultCount').textContent = 'Failed to load match data';
+                document.getElementById('errorMessage').textContent = 
+                    'Error loading match data: ' + error.message;
+                errorBanner.style.display = 'block';
             }
         }
         
@@ -1017,15 +1002,15 @@
             const select = document.getElementById(selectId);
             select.style.display = 'inline-block';
             
-            // Hide the other select if visible
             const otherSelectId = type === 'highest' ? 'lowestAttendanceSelect' : 'highestAttendanceSelect';
             document.getElementById(otherSelectId).style.display = 'none';
             
-            // Set initial filter
             attendanceVenue = select.value;
             currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // FIX #6: Safe button targeting - find the closest button from the event
+            const clickedBtn = event.target.closest('.filter-btn');
+            if (clickedBtn) clickedBtn.classList.add('active');
             
             displayCurrentStreak();
             renderMatches();
@@ -1049,79 +1034,65 @@
         
         function toggleSortOrder() {
             sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-            console.log('Sort order toggled to:', sortOrder);
             const button = document.getElementById('sortToggle');
             if (button) {
-                // Button shows what will happen when clicked NEXT time
                 button.textContent = sortOrder === 'desc' ? '📅 Show Oldest First' : '📅 Show Newest First';
-                console.log('Button text updated to:', button.textContent);
             }
             renderMatches();
         }
         
         function clearAllFilters() {
-            // Reset all filters and state
             currentFilter = 'all';
             selectedSeason = '';
             searchTerm = '';
             sortOrder = 'desc';
             attendanceVenue = 'all';
             
-            // Clear search input
             document.getElementById('searchInput').value = '';
             
-            // Hide all dropdowns
             document.getElementById('seasonSelect').style.display = 'none';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('highestAttendanceSelect').style.display = 'none';
             document.getElementById('lowestAttendanceSelect').style.display = 'none';
             document.getElementById('recentCount').style.display = 'none';
             
-            // Reset dropdown values
             document.getElementById('highestAttendanceSelect').value = 'all';
             document.getElementById('lowestAttendanceSelect').value = 'all';
             document.getElementById('recentCount').value = '10';
             
-            // Reset sort toggle text
             const sortToggle = document.getElementById('sortToggle');
             if (sortToggle) {
                 sortToggle.textContent = '📅 Show Oldest First';
             }
             
-            // Reset active button state
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.filter-btn[onclick="setFilter(\'all\')"]').classList.add('active');
+            document.querySelector('.filter-btn[onclick="setFilter(\'all\', this)"]').classList.add('active');
             
-            // Re-render
+            updateClearAllButton();
+            displayCurrentStreak();
             renderMatches();
         }
         
         function parseDate(dateStr) {
-            if (!dateStr) {
-                console.warn('parseDate called with empty dateStr');
-                return null;
-            }
+            if (!dateStr) return null;
             
-            // Handle DD/MM/YYYY format (UK format - day FIRST, month SECOND)
-            // Example: "14/12/2024" = 14th December 2024
+            // Handle DD/MM/YYYY format (UK format)
             let match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
             if (match) {
-                const day = parseInt(match[1]);      // First number is DAY
-                const month = parseInt(match[2]) - 1; // Second number is MONTH (subtract 1 for JS)
-                const year = parseInt(match[3]);      // Third number is YEAR
+                const day = parseInt(match[1]);
+                const month = parseInt(match[2]) - 1;
+                const year = parseInt(match[3]);
                 
                 const dateObj = new Date(year, month, day);
                 
-                // Validate the date is real
                 if (dateObj.getDate() !== day || dateObj.getMonth() !== month || dateObj.getFullYear() !== year) {
-                    console.warn('Invalid date components:', dateStr, '-> day:', day, 'month:', month + 1, 'year:', year);
                     return null;
                 }
                 
                 return dateObj;
             }
             
-            // Fallback: try "12th December 2024" format
+            // Fallback: "12th December 2024" format
             match = dateStr.match(/(\d{1,2})(?:st|nd|rd|th)\s+(\w+)\s+(\d{4})/);
             if (match) {
                 const months = {
@@ -1133,23 +1104,18 @@
                 const month = months[match[2]];
                 const year = parseInt(match[3]);
                 
-                if (month === undefined) {
-                    console.warn('Could not find month for:', match[2]);
-                    return null;
-                }
+                if (month === undefined) return null;
                 
-                const dateObj = new Date(year, month, day);
-                return dateObj;
+                return new Date(year, month, day);
             }
             
-            console.warn('Failed to parse date:', dateStr);
             return null;
         }
         
         function calculateCurrentStreak() {
             if (MATCHES_DATA.length === 0) return null;
             
-            // Filter out abandoned matches and sort chronologically
+            // Filter out abandoned matches
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             const sortedMatches = [...validMatches].sort((a, b) => {
                 return parseDate(a.Date) - parseDate(b.Date);
@@ -1162,16 +1128,10 @@
             let streakCount = 0;
             let currentResult = latestMatch.Result;
             
-            // Determine streak type
-            if (currentResult === 'W') {
-                streakType = 'won';
-            } else if (currentResult === 'L') {
-                streakType = 'lost';
-            } else if (currentResult === 'D') {
-                streakType = 'drawn';
-            }
+            if (currentResult === 'W') streakType = 'won';
+            else if (currentResult === 'L') streakType = 'lost';
+            else if (currentResult === 'D') streakType = 'drawn';
             
-            // Count streak
             for (let i = sortedMatches.length - 1; i >= 0; i--) {
                 if (sortedMatches[i].Result === currentResult) {
                     streakCount++;
@@ -1204,7 +1164,6 @@
                 }
             }
             
-            // Check if final streak is longest
             if (tempStreakCount > longestStreak) {
                 longestStreak = tempStreakCount;
                 longestStreakStart = tempStreakStart;
@@ -1236,17 +1195,17 @@
             streakLabel.textContent = 'Current Streak';
             
             const gameWord = streak.count === 1 ? 'game' : 'games';
-            streakValue.textContent = `${streak.type.toUpperCase()} ${streak.count} ${gameWord}`;
+            streakValue.textContent = streak.type.toUpperCase() + ' ' + streak.count + ' ' + gameWord;
             
             if (streak.count === streak.longestCount) {
-                streakContext.textContent = `This is the longest ${streak.type} streak in club history!`;
+                streakContext.textContent = 'This is the longest ' + streak.type + ' streak in club history!';
             } else {
-                streakContext.textContent = `Longest ${streak.type} streak: ${streak.longestCount} games (${streak.longestStart} to ${streak.longestEnd})`;
+                streakContext.textContent = 'Longest ' + streak.type + ' streak: ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
             }
         }
         
         function calculateRecords() {
-            // Filter out abandoned matches for all record calculations
+            // FIX #4: Filter out abandoned matches for ALL record calculations
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             
             records.biggestWin = validMatches.filter(m => m.Result === 'W')
@@ -1278,7 +1237,7 @@
             records.cleanSheets = validMatches.filter(m => m['Goals Against'] === 0).length;
             records.failedToScore = validMatches.filter(m => m['Goals For'] === 0).length;
             
-            // Calculate streak records - only from valid matches
+            // FIX #5: Streak calculations use validMatches (excluding abandoned)
             records.longestWinStreak = findLongestStreak(validMatches, m => m.Result === 'W');
             records.longestDrawStreak = findLongestStreak(validMatches, m => m.Result === 'D');
             records.longestLossStreak = findLongestStreak(validMatches, m => m.Result === 'L');
@@ -1289,98 +1248,92 @@
         function getMatchTags(match) {
             const tags = [];
             
-            // Gold awards
             if (match.Opposition === 'Maine Road' && match.Result === 'W') {
                 tags.push({ text: '🏆 M21 IS OURS', isSilver: false, clickDate: null });
             }
             
             if (records.biggestWin.length > 0 && match === records.biggestWin[0] && match.Result === 'W') {
                 const margin = match['Goals For'] - match['Goals Against'];
-                tags.push({ text: `BIGGEST WIN (${margin} goals)`, isSilver: false, clickDate: null });
+                tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false, clickDate: null });
             }
             
             if (records.biggestLoss.length > 0 && match === records.biggestLoss[0] && match.Result === 'L') {
                 const margin = match['Goals Against'] - match['Goals For'];
-                tags.push({ text: `BIGGEST LOSS (${margin} goals)`, isSilver: false, clickDate: null });
+                tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false, clickDate: null });
             }
             
             if (records.highestScore.length > 0 && match === records.highestScore[0]) {
-                tags.push({ text: `MOST GOALS SCORED (${match['Goals For']})`, isSilver: false, clickDate: null });
+                tags.push({ text: 'MOST GOALS SCORED (' + match['Goals For'] + ')', isSilver: false, clickDate: null });
             }
             
             if (records.mostGoalsConceded.length > 0 && match === records.mostGoalsConceded[0]) {
-                tags.push({ text: `MOST GOALS CONCEDED (${match['Goals Against']})`, isSilver: false, clickDate: null });
+                tags.push({ text: 'MOST GOALS CONCEDED (' + match['Goals Against'] + ')', isSilver: false, clickDate: null });
             }
             
             if (records.highestAttendance.length > 0 && match === records.highestAttendance[0]) {
-                tags.push({ text: `HIGHEST ATTENDANCE (${match.Attendance})`, isSilver: false, clickDate: null });
+                tags.push({ text: 'HIGHEST ATTENDANCE (' + match.Attendance + ')', isSilver: false, clickDate: null });
             }
             
             if (records.lowestAttendance.length > 0 && match === records.lowestAttendance[0]) {
-                tags.push({ text: `LOWEST ATTENDANCE (${match.Attendance})`, isSilver: false, clickDate: null });
+                tags.push({ text: 'LOWEST ATTENDANCE (' + match.Attendance + ')', isSilver: false, clickDate: null });
             }
             
             return tags;
         }
         
         function populateSummary() {
-            const totalMatches = MATCHES_DATA.length;
-            const wins = MATCHES_DATA.filter(m => m.Result === 'W').length;
-            const draws = MATCHES_DATA.filter(m => m.Result === 'D').length;
-            const losses = MATCHES_DATA.filter(m => m.Result === 'L').length;
-            const goalsFor = MATCHES_DATA.reduce((sum, m) => sum + (m['Goals For'] || 0), 0);
-            const goalsAgainst = MATCHES_DATA.reduce((sum, m) => sum + (m['Goals Against'] || 0), 0);
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const totalMatches = validMatches.length;
+            const abandonedCount = MATCHES_DATA.length - totalMatches;
+            const wins = validMatches.filter(m => m.Result === 'W').length;
+            const draws = validMatches.filter(m => m.Result === 'D').length;
+            const losses = validMatches.filter(m => m.Result === 'L').length;
+            const goalsFor = validMatches.reduce((sum, m) => sum + (m['Goals For'] || 0), 0);
+            const goalsAgainst = validMatches.reduce((sum, m) => sum + (m['Goals Against'] || 0), 0);
+            const gd = goalsFor - goalsAgainst;
+            const winPct = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
             
             const biggestWin = records.biggestWin[0];
             const biggestLoss = records.biggestLoss[0];
             
             const summaryData = [
-                { label: 'Total Matches', value: totalMatches, filter: 'all' },
+                { label: 'Total Matches', value: totalMatches + (abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : ''), filter: 'all' },
                 { label: 'Wins', value: wins, filter: 'wins' },
                 { label: 'Draws', value: draws, filter: 'draws' },
                 { label: 'Losses', value: losses, filter: 'losses' },
-                { label: 'Goals For', value: goalsFor, filter: null },
-                { label: 'Goals Against', value: goalsAgainst, filter: null },
-                { label: 'Biggest Win', value: biggestWin ? `${biggestWin['Goals For']}-${biggestWin['Goals Against']} vs ${biggestWin.Opposition} (${biggestWin.Date})` : 'N/A', filter: 'biggest-wins' },
-                { label: 'Biggest Loss', value: biggestLoss ? `${biggestLoss['Goals For']}-${biggestLoss['Goals Against']} vs ${biggestLoss.Opposition} (${biggestLoss.Date})` : 'N/A', filter: 'biggest-losses' },
-                { label: 'Longest Win Streak', value: records.longestWinStreak.length > 0 ? `${records.longestWinStreak.length} games (${records.longestWinStreak[0].Date} to ${records.longestWinStreak[records.longestWinStreak.length - 1].Date})` : 'N/A', filter: 'win-streak' },
-                { label: 'Longest Unbeaten', value: records.longestUnbeatenStreak.length > 0 ? `${records.longestUnbeatenStreak.length} games (${records.longestUnbeatenStreak[0].Date} to ${records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date})` : 'N/A', filter: 'unbeaten-streak' },
-                { label: 'Longest Loss Streak', value: records.longestLossStreak.length > 0 ? `${records.longestLossStreak.length} games (${records.longestLossStreak[0].Date} to ${records.longestLossStreak[records.longestLossStreak.length - 1].Date})` : 'N/A', filter: 'loss-streak' },
-                { label: 'Longest Winless Streak', value: records.longestWinlessStreak.length > 0 ? `${records.longestWinlessStreak.length} games (${records.longestWinlessStreak[0].Date} to ${records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date})` : 'N/A', filter: 'winless-streak' }
+                { label: 'Win Rate', value: winPct + '%', filter: null },
+                { label: 'Goal Difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
+                { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '-' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + biggestWin.Date + ')' : 'N/A', filter: 'biggest-wins' },
+                { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '-' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + biggestLoss.Date + ')' : 'N/A', filter: 'biggest-losses' },
+                { label: 'Longest Win Streak', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + records.longestWinStreak[0].Date + ' to ' + records.longestWinStreak[records.longestWinStreak.length - 1].Date + ')' : 'N/A', filter: 'win-streak' },
+                { label: 'Longest Unbeaten', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + records.longestUnbeatenStreak[0].Date + ' to ' + records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date + ')' : 'N/A', filter: 'unbeaten-streak' },
+                { label: 'Longest Loss Streak', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + records.longestLossStreak[0].Date + ' to ' + records.longestLossStreak[records.longestLossStreak.length - 1].Date + ')' : 'N/A', filter: 'loss-streak' },
+                { label: 'Longest Winless Streak', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + records.longestWinlessStreak[0].Date + ' to ' + records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date + ')' : 'N/A', filter: 'winless-streak' }
             ];
             
             const grid = document.getElementById('summaryGrid');
-            grid.innerHTML = summaryData.map(item => `
-                <div class="summary-item" ${item.filter ? `onclick="setFilter('${item.filter}')"` : ''} style="${item.filter ? 'cursor: pointer;' : 'cursor: default;'}">
-                    <div class="summary-label">${item.label}</div>
-                    <div class="summary-value">${item.value}</div>
-                </div>
-            `).join('');
+            grid.innerHTML = summaryData.map(item => 
+                '<div class="summary-item" ' + (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '') + ' style="' + (item.filter ? 'cursor: pointer;' : 'cursor: default;') + '">' +
+                    '<div class="summary-label">' + item.label + '</div>' +
+                    '<div class="summary-value">' + item.value + '</div>' +
+                '</div>'
+            ).join('');
         }
         
         function populateSeasonFilter() {
             const seasons = new Set();
             
-            console.log('populateSeasonFilter called with', MATCHES_DATA.length, 'matches');
-            
-            // Use the Season column directly from the CSV
             MATCHES_DATA.forEach(m => {
                 if (m.Season && m.Season.trim()) {
                     seasons.add(m.Season.trim());
-                } else {
-                    console.log('Match missing Season column:', m.Date);
                 }
             });
-            
-            console.log('Found seasons:', Array.from(seasons));
             
             const sortedSeasons = Array.from(seasons).sort().reverse();
             
             const select = document.getElementById('seasonSelect');
             select.innerHTML = '<option value="">Select Season...</option>' +
-                sortedSeasons.map(s => `<option value="${s}">${s}</option>`).join('');
-                
-            console.log('Season select populated with', sortedSeasons.length, 'seasons');
+                sortedSeasons.map(s => '<option value="' + s + '">' + s + '</option>').join('');
         }
         
         function showSeasonFilter() {
@@ -1396,7 +1349,6 @@
                 updateClearAllButton();
                 renderMatches();
                 
-                // Smooth scroll to results
                 document.getElementById('resultCount').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
@@ -1405,36 +1357,134 @@
             const sorted = [...matches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
             
             let maxStreak = [];
-            let currentStreak = [];
+            let currentStreakArr = [];
             
             for (const match of sorted) {
                 if (condition(match)) {
-                    currentStreak.push(match);
-                    if (currentStreak.length > maxStreak.length) {
-                        maxStreak = [...currentStreak];
+                    currentStreakArr.push(match);
+                    if (currentStreakArr.length > maxStreak.length) {
+                        maxStreak = [...currentStreakArr];
                     }
                 } else {
-                    currentStreak = [];
+                    currentStreakArr = [];
                 }
             }
             
             return maxStreak;
         }
         
+        // FIX #3: Shared match card renderer - single source of truth
+        function renderMatchCard(match) {
+            const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
+                              match.Result === 'W' ? '<span class="badge win">WIN</span>' :
+                              match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
+                              '<span class="badge draw">DRAW</span>';
+            const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
+                             match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
+                             '<span class="badge away">AWAY</span>';
+            
+            let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
+            let displayHtHomeScore, displayHtAwayScore;
+            
+            if (match.Abandoned === 'Y') {
+                displayHomeScore = 'A';
+                displayAwayScore = 'A';
+                displayHtHomeScore = null;
+                displayHtAwayScore = null;
+                
+                if (match['Home/Away'] === 'A') {
+                    displayHomeTeam = match.Opposition;
+                    displayAwayTeam = 'West Didsbury & Chorlton';
+                } else {
+                    displayHomeTeam = 'West Didsbury & Chorlton';
+                    displayAwayTeam = match.Opposition;
+                }
+            } else if (match['Home/Away'] === 'A') {
+                displayHomeTeam = match.Opposition;
+                displayAwayTeam = 'West Didsbury & Chorlton';
+                displayHomeScore = match['Goals Against'];
+                displayAwayScore = match['Goals For'];
+                displayHtHomeScore = match['HT Goals Against'];
+                displayHtAwayScore = match['HT Goals For'];
+            } else {
+                displayHomeTeam = 'West Didsbury & Chorlton';
+                displayAwayTeam = match.Opposition;
+                displayHomeScore = match['Goals For'];
+                displayAwayScore = match['Goals Against'];
+                displayHtHomeScore = match['HT Goals For'];
+                displayHtAwayScore = match['HT Goals Against'];
+            }
+            
+            const tags = getMatchTags(match);
+            const tagsHtml = tags.length > 0 ? 
+                '<div class="match-tags">' + tags.map(t => {
+                    const className = t.isSilver ? 'record-tag silver' : 'record-tag';
+                    const clickHandler = t.clickDate ? ' onclick="scrollToMatchByDate(\'' + t.clickDate + '\')" style="cursor: pointer;"' : '';
+                    return '<span class="' + className + '"' + clickHandler + '>' + t.text + '</span>';
+                }).join('') + '</div>' : '';
+            
+            // Scorer display: home team scorers first for home games, opposition first for away
+            let scorersHtml = '';
+            if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
+                if (match['West Scorers']) {
+                    scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + match['West Scorers'] + '</span></div>';
+                }
+                if (match['Opposition Scorers']) {
+                    scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + match['Opposition Scorers'] + '</span></div>';
+                }
+            } else {
+                if (match['Opposition Scorers']) {
+                    scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + match['Opposition Scorers'] + '</span></div>';
+                }
+                if (match['West Scorers']) {
+                    scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + match['West Scorers'] + '</span></div>';
+                }
+            }
+            
+            const notesHtml = match.Notes ? 
+                '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes + '</span></div>' : '';
+            
+            // Make opposition name clickable for H2H
+            const safeOpp = match.Opposition.replace(/'/g, "\\'");
+            const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
+            const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
+            const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
+            
+            return '<div class="match-card">' +
+                tagsHtml +
+                '<div class="match-header">' +
+                    '<span class="match-date">' + match.Date + '</span>' +
+                    '<span>' + resultBadge + venueBadge + '</span>' +
+                '</div>' +
+                '<div class="match-fixture">' +
+                    displayHome +
+                    '<span class="match-score">' + displayHomeScore + ' - ' + displayAwayScore + '</span>' +
+                    displayAway +
+                '</div>' +
+                '<div class="match-details">' +
+                    '<strong>Competition:</strong> ' + match.Competition +
+                    (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
+                    (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
+                '</div>' +
+                scorersHtml +
+                notesHtml +
+            '</div>';
+        }
+        
         function filterMatches() {
             let filtered = [...MATCHES_DATA];
             
-            console.log('filterMatches called, currentFilter:', currentFilter, 'sortOrder:', sortOrder);
-            console.log('Initial filtered count:', filtered.length);
-            
-            // Apply search filter first
+            // FIX #7: Search also checks Season and scorers
             if (searchTerm) {
+                const term = searchTerm.toLowerCase();
                 filtered = filtered.filter(m => 
-                    m.Opposition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    m.Competition?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    m.Date?.toLowerCase().includes(searchTerm.toLowerCase())
+                    (m.Opposition && m.Opposition.toLowerCase().includes(term)) ||
+                    (m.Competition && m.Competition.toLowerCase().includes(term)) ||
+                    (m.Date && m.Date.toLowerCase().includes(term)) ||
+                    (m.Season && m.Season.toLowerCase().includes(term)) ||
+                    (m['West Scorers'] && m['West Scorers'].toLowerCase().includes(term)) ||
+                    (m['Opposition Scorers'] && m['Opposition Scorers'].toLowerCase().includes(term))
                 );
-                console.log('After search filter:', filtered.length);
             }
             
             if (currentFilter === 'wins') {
@@ -1469,17 +1519,10 @@
             } else if (currentFilter === 'season' && selectedSeason) {
                 filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             } else if (currentFilter === 'biggest-wins') {
-                console.log('BIGGEST WINS FILTER');
-                console.log('records.biggestWin length:', records.biggestWin.length);
-                console.log('First 3 from records.biggestWin:');
-                records.biggestWin.slice(0, 3).forEach((m, i) => {
-                    const margin = m['Goals For'] - m['Goals Against'];
-                    console.log(`  ${i + 1}. ${m.Date} - ${m.Opposition} (${m['Goals For']}-${m['Goals Against']}, margin: ${margin})`);
-                });
-                filtered = records.biggestWin;
-                console.log('Assigned to filtered, length:', filtered.length);
+                // FIX #5: Apply search term to pre-calculated records too
+                filtered = searchTerm ? records.biggestWin.filter(m => matchesSearch(m)) : records.biggestWin;
             } else if (currentFilter === 'biggest-losses') {
-                filtered = records.biggestLoss;
+                filtered = searchTerm ? records.biggestLoss.filter(m => matchesSearch(m)) : records.biggestLoss;
             } else if (currentFilter === 'most-goals-scored') {
                 filtered = [...MATCHES_DATA]
                     .filter(m => m.Abandoned !== 'Y')
@@ -1507,165 +1550,114 @@
                 }
                 filtered = matches.sort((a, b) => a.Attendance - b.Attendance).slice(0, 20);
             } else if (currentFilter === 'win-streak') {
-                filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'W');
+                // FIX #5: Use validMatches for streak calculations
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'W');
             } else if (currentFilter === 'draw-streak') {
-                filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'D');
             } else if (currentFilter === 'loss-streak') {
-                filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'L');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'L');
             } else if (currentFilter === 'unbeaten-streak') {
-                filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'W' || m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'W' || m.Result === 'D');
             } else if (currentFilter === 'winless-streak') {
-                filtered = findLongestStreak(MATCHES_DATA, m => m.Result === 'L' || m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'L' || m.Result === 'D');
             } else if (currentFilter === 'on-this-day') {
                 const today = new Date();
                 const todayDay = today.getDate();
-                const todayMonth = today.getMonth(); // 0-indexed
+                const todayMonth = today.getMonth();
                 
                 filtered = filtered.filter(m => {
                     const matchDate = parseDate(m.Date);
                     if (!matchDate) return false;
-                    
                     return matchDate.getDate() === todayDay && matchDate.getMonth() === todayMonth;
                 });
             } else if (currentFilter === 'recent') {
                 const count = parseInt(document.getElementById('recentCount').value) || 10;
-                console.log('');
-                console.log('========================================');
-                console.log('RECENT FILTER - DETAILED DEBUG');
-                console.log('========================================');
-                console.log('Requesting:', count, 'most recent matches');
-                console.log('Total matches available:', filtered.length);
                 
-                // Parse all dates and store with original match
                 const matchesWithDates = filtered.map(m => ({
                     match: m,
-                    date: parseDate(m.Date),
-                    dateString: m.Date
+                    date: parseDate(m.Date)
                 }));
                 
-                console.log('Sample of date parsing:');
-                matchesWithDates.slice(0, 3).forEach((item, i) => {
-                    console.log(`  ${i + 1}. "${item.dateString}" => ${item.date}`);
-                });
-                
-                // Filter out any with null dates
                 const validMatches = matchesWithDates.filter(item => item.date !== null);
-                console.log('Matches with valid dates:', validMatches.length);
                 
-                if (validMatches.length === 0) {
-                    console.error('NO VALID DATES FOUND! All dates failed to parse!');
-                    return [];
-                }
+                if (validMatches.length === 0) return [];
                 
-                // Sort by date - NEWEST FIRST (largest timestamp first)
-                validMatches.sort((a, b) => {
-                    // b.date - a.date means newer dates come first
-                    return b.date.getTime() - a.date.getTime();
-                });
+                validMatches.sort((a, b) => b.date.getTime() - a.date.getTime());
                 
-                console.log('After sorting (newest first):');
-                console.log('  1st match (newest):', validMatches[0].dateString, '=', validMatches[0].date);
-                console.log('  2nd match:', validMatches[1]?.dateString, '=', validMatches[1]?.date);
-                console.log('  3rd match:', validMatches[2]?.dateString, '=', validMatches[2]?.date);
-                console.log('  ...');
-                console.log('  Last match (oldest):', validMatches[validMatches.length - 1].dateString, '=', validMatches[validMatches.length - 1].date);
+                filtered = validMatches.slice(0, count).map(item => item.match);
                 
-                // Take first N (which are the newest)
-                const recentMatches = validMatches.slice(0, count);
-                
-                console.log('');
-                console.log('RETURNING THESE', recentMatches.length, 'MATCHES:');
-                recentMatches.forEach((item, i) => {
-                    console.log(`  ${i + 1}. ${item.dateString} (${item.match.Opposition})`);
-                });
-                console.log('========================================');
-                console.log('');
-                
-                // Extract just the match objects
-                filtered = recentMatches.map(item => item.match);
-                
-                // Return early - don't apply general sorting
                 return filtered;
             }
             
-            // Apply date sorting ONLY for filters that don't have their own sorting logic
+            // Apply date sorting for filters that don't have their own sorting logic
             const skipDateSortFilters = [
                 'recent', 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
                 'most-goals-scored', 'most-goals-conceded', 'high-scoring-draws',
                 'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
             ];
             
-            console.log('');
-            console.log('=== CHECKING IF DATE SORT NEEDED ===');
-            console.log('Current filter:', currentFilter);
-            console.log('In skip list?', skipDateSortFilters.includes(currentFilter));
-            
             if (!skipDateSortFilters.includes(currentFilter)) {
-                console.log('');
-                console.log('--- Applying date sort ---');
-                console.log('Sort order:', sortOrder, '(desc=newest first, asc=oldest first)');
-                console.log('Matches to sort:', filtered.length);
-                
-                // Parse dates and pair with matches
                 const matchesWithDates = filtered.map(m => ({
                     match: m,
-                    date: parseDate(m.Date),
-                    dateString: m.Date
+                    date: parseDate(m.Date)
                 }));
                 
-                // Filter valid dates
                 const validMatches = matchesWithDates.filter(item => item.date !== null);
                 const invalidMatches = matchesWithDates.filter(item => item.date === null);
                 
-                console.log('Valid dates:', validMatches.length, 'Invalid dates:', invalidMatches.length);
-                
-                // Sort valid matches
                 validMatches.sort((a, b) => {
                     if (sortOrder === 'desc') {
-                        // Newest first (larger timestamps first)
                         return b.date.getTime() - a.date.getTime();
                     } else {
-                        // Oldest first (smaller timestamps first)
                         return a.date.getTime() - b.date.getTime();
                     }
                 });
                 
-                console.log('After sort:');
-                console.log('  First:', validMatches[0]?.dateString);
-                console.log('  Last:', validMatches[validMatches.length - 1]?.dateString);
-                console.log('--------------------------');
-                console.log('');
-                
-                // Combine: sorted valid matches + invalid at end
                 filtered = [...validMatches.map(item => item.match), ...invalidMatches.map(item => item.match)];
-            } else {
-                console.log('SKIPPING date sort for this filter');
-                console.log('Filtered array length:', filtered.length);
-                if (filtered.length > 0) {
-                    console.log('First item in filtered:', filtered[0].Date, filtered[0].Opposition);
-                }
             }
             
             return filtered;
         }
         
+        // Helper for searching within pre-filtered record sets
+        function matchesSearch(m) {
+            if (!searchTerm) return true;
+            const term = searchTerm.toLowerCase();
+            return (m.Opposition && m.Opposition.toLowerCase().includes(term)) ||
+                   (m.Competition && m.Competition.toLowerCase().includes(term)) ||
+                   (m.Date && m.Date.toLowerCase().includes(term)) ||
+                   (m.Season && m.Season.toLowerCase().includes(term)) ||
+                   (m['West Scorers'] && m['West Scorers'].toLowerCase().includes(term)) ||
+                   (m['Opposition Scorers'] && m['Opposition Scorers'].toLowerCase().includes(term));
+        }
+        
         function updateStats(matches) {
-            const statsBar = document.querySelector('.stats-bar');
-            if (['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games'].includes(currentFilter)) {
+            const statsBar = document.getElementById('statsBar');
+            const showStatsFilters = ['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses'];
+            if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
-                // Exclude abandoned matches from stats
                 const validMatches = matches.filter(m => m.Abandoned !== 'Y');
+                const wins = validMatches.filter(m => m.Result === 'W').length;
+                const gf = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
+                const ga = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+                const gd = gf - ga;
+                const winPct = validMatches.length > 0 ? Math.round((wins / validMatches.length) * 100) : 0;
+                
                 document.getElementById('statMatches').textContent = validMatches.length;
-                document.getElementById('statWins').textContent = validMatches.filter(m => m.Result === 'W').length;
+                document.getElementById('statWins').textContent = wins;
                 document.getElementById('statDraws').textContent = validMatches.filter(m => m.Result === 'D').length;
                 document.getElementById('statLosses').textContent = validMatches.filter(m => m.Result === 'L').length;
-                document.getElementById('statGoalsFor').textContent = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
-                document.getElementById('statGoalsAgainst').textContent = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+                document.getElementById('statWinPct').textContent = winPct + '%';
+                document.getElementById('statGoalsFor').textContent = gf;
+                document.getElementById('statGoalsAgainst').textContent = ga;
+                
+                const gdEl = document.getElementById('statGD');
+                gdEl.textContent = (gd > 0 ? '+' : '') + gd;
+                gdEl.style.color = gd > 0 ? '#166534' : gd < 0 ? '#991b1b' : '#000';
             } else {
                 statsBar.style.display = 'none';
             }
             
-            // Show/hide sort toggle based on filter type
             const sortToggle = document.getElementById('sortToggle');
             const filtersWithoutSort = [
                 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
@@ -1690,9 +1682,8 @@
             if (streakFilters.includes(currentFilter)) {
                 const type = currentFilter.replace('-streak', '').replace('-', ' ').toUpperCase();
                 document.getElementById('resultCount').textContent = 
-                    `Longest ${type} streak: ${filtered.length} matches`;
+                    'Longest ' + type + ' streak: ' + filtered.length + ' matches';
             } else if (recordFilters.includes(currentFilter)) {
-                // Show "Top X" for record filters
                 let recordType = '';
                 if (currentFilter === 'biggest-wins') recordType = 'Biggest Wins';
                 else if (currentFilter === 'biggest-losses') recordType = 'Biggest Losses';
@@ -1704,134 +1695,19 @@
                 
                 document.getElementById('resultCount').textContent = 
                     currentFilter === 'high-scoring-draws' ? 
-                        `${filtered.length} High Scoring Draws (sorted by goals)` :
-                        `Top ${filtered.length} - ${recordType}`;
+                        filtered.length + ' High Scoring Draws (sorted by goals)' :
+                        'Top ' + filtered.length + ' - ' + recordType;
             } else if (selectedSeason && currentFilter === 'season') {
                 document.getElementById('resultCount').textContent = 
-                    `${filtered.length} matches in ${selectedSeason}`;
+                    filtered.length + ' matches in ' + selectedSeason;
             } else {
                 document.getElementById('resultCount').textContent = 
-                    `${filtered.length} ${filtered.length === 1 ? 'match' : 'matches'} found`;
+                    filtered.length + ' ' + (filtered.length === 1 ? 'match' : 'matches') + ' found';
             }
             
+            // FIX #3: Use shared renderMatchCard function
             const matchList = document.getElementById('matchList');
-            
-            // DEBUG: Show what we're about to render
-            if (recordFilters.includes(currentFilter)) {
-                console.log('=== RENDERING MATCHES ===');
-                console.log('About to render', filtered.length, 'matches');
-                console.log('First 5 matches to render:');
-                filtered.slice(0, 5).forEach((m, i) => {
-                    console.log(`  ${i + 1}. ${m.Date} - ${m.Opposition} - ${m['Goals For']}-${m['Goals Against']}`);
-                });
-            }
-            
-            matchList.innerHTML = filtered.map(match => {
-                const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
-                                  match.Result === 'W' ? '<span class="badge win">WIN</span>' :
-                                  match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
-                                  '<span class="badge draw">DRAW</span>';
-                const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
-                                 match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
-                                 '<span class="badge away">AWAY</span>';
-                
-                // For display purposes:
-                // - Home games (H): West vs Opposition
-                // - Away games (A): Opposition vs West
-                // - Neutral games (N): West vs Opposition (like home)
-                // - Abandoned (Y): Show A-A
-                
-                let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
-                let displayHtHomeScore, displayHtAwayScore;
-                
-                if (match.Abandoned === 'Y') {
-                    // Abandoned match: show A-A
-                    displayHomeScore = 'A';
-                    displayAwayScore = 'A';
-                    displayHtHomeScore = null;
-                    displayHtAwayScore = null;
-                    
-                    if (match['Home/Away'] === 'A') {
-                        displayHomeTeam = match.Opposition;
-                        displayAwayTeam = 'West Didsbury & Chorlton';
-                    } else {
-                        displayHomeTeam = 'West Didsbury & Chorlton';
-                        displayAwayTeam = match.Opposition;
-                    }
-                } else if (match['Home/Away'] === 'A') {
-                    // Away game: Opposition listed first
-                    displayHomeTeam = match.Opposition;
-                    displayAwayTeam = 'West Didsbury & Chorlton';
-                    displayHomeScore = match['Goals Against'];
-                    displayAwayScore = match['Goals For'];
-                    displayHtHomeScore = match['HT Goals Against'];
-                    displayHtAwayScore = match['HT Goals For'];
-                } else {
-                    // Home or Neutral: West listed first
-                    displayHomeTeam = 'West Didsbury & Chorlton';
-                    displayAwayTeam = match.Opposition;
-                    displayHomeScore = match['Goals For'];
-                    displayAwayScore = match['Goals Against'];
-                    displayHtHomeScore = match['HT Goals For'];
-                    displayHtAwayScore = match['HT Goals Against'];
-                }
-                
-                const tags = getMatchTags(match);
-                const tagsHtml = tags.length > 0 ? 
-                    '<div class="match-tags">' + tags.map(t => {
-                        const className = t.isSilver ? 'record-tag silver' : 'record-tag';
-                        const clickHandler = t.clickDate ? `onclick="scrollToMatchByDate('${t.clickDate}')" style="cursor: pointer;"` : '';
-                        return `<span class="${className}" ${clickHandler}>${t.text}</span>`;
-                    }).join('') + '</div>' : '';
-                
-                return `
-                    <div class="match-card">
-                        ${tagsHtml}
-                        <div class="match-header">
-                            <span class="match-date">${match.Date}</span>
-                            <span>${resultBadge}${venueBadge}</span>
-                        </div>
-                        <div class="match-fixture">
-                            ${displayHomeTeam}
-                            <span class="match-score">${displayHomeScore} - ${displayAwayScore}</span>
-                            ${displayAwayTeam}
-                        </div>
-                        <div class="match-details">
-                            <strong>Competition:</strong> ${match.Competition}
-                            ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
-                            ${match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
-                        </div>
-                        ${match['Home/Away'] === 'H' ? `
-                            ${match['West Scorers'] ? `
-                                <div class="scorers">
-                                    <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                                </div>
-                            ` : ''}
-                            ${match['Opposition Scorers'] ? `
-                                <div class="scorers">
-                                    <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                                </div>
-                            ` : ''}
-                        ` : `
-                            ${match['Opposition Scorers'] ? `
-                                <div class="scorers">
-                                    <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                                </div>
-                            ` : ''}
-                            ${match['West Scorers'] ? `
-                                <div class="scorers">
-                                    <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                                </div>
-                            ` : ''}
-                        `}
-                        ${match.Notes ? `
-                            <div class="scorers">
-                                <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+            matchList.innerHTML = filtered.map(match => renderMatchCard(match)).join('');
         }
         
         function updateClearAllButton() {
@@ -1853,17 +1729,16 @@
             }
         }
         
-        function setFilter(filter) {
+        // FIX #6: Accept button element as parameter instead of relying on event.target
+        function setFilter(filter, btnElement) {
             currentFilter = filter;
             selectedSeason = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
             
-            // Hide attendance dropdowns when switching to other filters
             document.getElementById('highestAttendanceSelect').style.display = 'none';
             document.getElementById('lowestAttendanceSelect').style.display = 'none';
             
-            // Hide recent dropdown unless on recent filter
             const recentDropdown = document.getElementById('recentCount');
             if (filter !== 'recent') {
                 recentDropdown.style.display = 'none';
@@ -1872,16 +1747,17 @@
             }
             
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // FIX #6: Use passed element, fall back to event.target if needed
+            const targetBtn = btnElement || (typeof event !== 'undefined' && event.target ? event.target.closest('.filter-btn') : null);
+            if (targetBtn) targetBtn.classList.add('active');
             
             updateClearAllButton();
             
-            // Show streak info for streak filters
             const streakBox = document.getElementById('streakBox');
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             
             if (streakFilters.includes(filter)) {
-                renderMatches(); // Render first to get filtered matches
+                renderMatches();
                 const matches = filterMatches();
                 if (matches.length > 0) {
                     const streakValue = document.getElementById('streakValue');
@@ -1899,21 +1775,19 @@
                     else if (filter === 'winless-streak') streakType = 'WINLESS';
                     
                     const gameWord = matches.length === 1 ? 'game' : 'games';
-                    streakLabel.textContent = `Longest ${streakType} Streak`;
-                    streakValue.textContent = `${matches.length} ${gameWord}`;
-                    streakContext.textContent = `${startDate} to ${endDate}`;
+                    streakLabel.textContent = 'Longest ' + streakType + ' Streak';
+                    streakValue.textContent = matches.length + ' ' + gameWord;
+                    streakContext.textContent = startDate + ' to ' + endDate;
                     
                     streakBox.style.display = 'block';
                 } else {
                     streakBox.style.display = 'none';
                 }
             } else {
-                // Show current streak for non-streak filters
                 displayCurrentStreak();
                 renderMatches();
             }
             
-            // Smooth scroll to results with less offset
             setTimeout(() => {
                 const resultsHeader = document.querySelector('.results-header');
                 const yOffset = -20;
@@ -1922,6 +1796,7 @@
             }, 100);
         }
         
+        // FIX #3: Random match now uses shared renderMatchCard
         function showRandomMatch() {
             const randomIndex = Math.floor(Math.random() * MATCHES_DATA.length);
             const match = MATCHES_DATA[randomIndex];
@@ -1935,114 +1810,9 @@
             updateStats([match]);
             document.getElementById('resultCount').textContent = '🎲 Random Match';
             
-            // For display purposes:
-            // - Home games (H): West vs Opposition
-            // - Away games (A): Opposition vs West
-            // - Neutral games (N): West vs Opposition (like home)
-            // - Abandoned (Y): Show A-A
-            
-            let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
-            let displayHtHomeScore, displayHtAwayScore;
-            
-            if (match.Abandoned === 'Y') {
-                // Abandoned match: show A-A
-                displayHomeScore = 'A';
-                displayAwayScore = 'A';
-                displayHtHomeScore = null;
-                displayHtAwayScore = null;
-                
-                if (match['Home/Away'] === 'A') {
-                    displayHomeTeam = match.Opposition;
-                    displayAwayTeam = 'West Didsbury & Chorlton';
-                } else {
-                    displayHomeTeam = 'West Didsbury & Chorlton';
-                    displayAwayTeam = match.Opposition;
-                }
-            } else if (match['Home/Away'] === 'A') {
-                // Away game: Opposition listed first
-                displayHomeTeam = match.Opposition;
-                displayAwayTeam = 'West Didsbury & Chorlton';
-                displayHomeScore = match['Goals Against'];
-                displayAwayScore = match['Goals For'];
-                displayHtHomeScore = match['HT Goals Against'];
-                displayHtAwayScore = match['HT Goals For'];
-            } else {
-                // Home or Neutral: West listed first
-                displayHomeTeam = 'West Didsbury & Chorlton';
-                displayAwayTeam = match.Opposition;
-                displayHomeScore = match['Goals For'];
-                displayAwayScore = match['Goals Against'];
-                displayHtHomeScore = match['HT Goals For'];
-                displayHtAwayScore = match['HT Goals Against'];
-            }
-            
             const matchList = document.getElementById('matchList');
+            matchList.innerHTML = renderMatchCard(match);
             
-            const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
-                              match.Result === 'W' ? '<span class="badge win">WIN</span>' :
-                              match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
-                              '<span class="badge draw">DRAW</span>';
-            const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
-                             match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
-                             '<span class="badge away">AWAY</span>';
-            
-            const tags = getMatchTags(match);
-            const tagsHtml = tags.length > 0 ? 
-                '<div class="match-tags">' + tags.map(t => {
-                    const className = t.isSilver ? 'record-tag silver' : 'record-tag';
-                    const clickHandler = t.clickDate ? `onclick="scrollToMatchByDate('${t.clickDate}')" style="cursor: pointer;"` : '';
-                    return `<span class="${className}" ${clickHandler}>${t.text}</span>`;
-                }).join('') + '</div>' : '';
-            
-            matchList.innerHTML = `
-                <div class="match-card">
-                    ${tagsHtml}
-                    <div class="match-header">
-                        <span class="match-date">${match.Date}</span>
-                        <span>${resultBadge}${venueBadge}</span>
-                    </div>
-                    <div class="match-fixture">
-                        ${displayHomeTeam}
-                        <span class="match-score">${displayHomeScore} - ${displayAwayScore}</span>
-                        ${displayAwayTeam}
-                    </div>
-                    <div class="match-details">
-                        <strong>Competition:</strong> ${match.Competition}
-                        ${match.Attendance ? ` | <strong>Attendance:</strong> ${match.Attendance}${match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : ''}` : ''}
-                        ${match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ` | <strong>HT:</strong> ${displayHtHomeScore}-${displayHtAwayScore}` : ''}
-                    </div>
-                    ${match['Home/Away'] === 'H' ? `
-                        ${match['West Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                            </div>
-                        ` : ''}
-                        ${match['Opposition Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                            </div>
-                        ` : ''}
-                    ` : `
-                        ${match['Opposition Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ ${match.Opposition} Scorers:</strong> <span class="scorers-list">${match['Opposition Scorers']}</span>
-                            </div>
-                        ` : ''}
-                        ${match['West Scorers'] ? `
-                            <div class="scorers">
-                                <strong>⚽ West Scorers:</strong> <span class="scorers-list">${match['West Scorers']}</span>
-                            </div>
-                        ` : ''}
-                    `}
-                    ${match.Notes ? `
-                        <div class="scorers">
-                            <strong>📝 Notes:</strong> <span class="scorers-list">${match.Notes}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            // Smooth scroll to results
             setTimeout(() => {
                 const resultsHeader = document.querySelector('.results-header');
                 const yOffset = -20;
@@ -2050,6 +1820,70 @@
                 window.scrollTo({top: y, behavior: 'smooth'});
             }, 100);
         }
+        
+        // ===== HEAD-TO-HEAD =====
+        function showH2H(opposition) {
+            const validMatches = MATCHES_DATA.filter(m => m.Opposition === opposition && m.Abandoned !== 'Y');
+            const allMatches = MATCHES_DATA.filter(m => m.Opposition === opposition);
+            
+            if (allMatches.length === 0) return;
+            
+            const wins = validMatches.filter(m => m.Result === 'W').length;
+            const draws = validMatches.filter(m => m.Result === 'D').length;
+            const losses = validMatches.filter(m => m.Result === 'L').length;
+            const goalsFor = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
+            const goalsAgainst = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+            const totalPlayed = validMatches.length;
+            const winPct = totalPlayed > 0 ? Math.round((wins / totalPlayed) * 100) : 0;
+            
+            document.getElementById('h2hTitle').textContent = 'vs ' + opposition;
+            
+            document.getElementById('h2hStats').innerHTML = 
+                '<div class="h2h-stat wins"><div class="h2h-stat-value">' + wins + '</div><div class="h2h-stat-label">Wins</div></div>' +
+                '<div class="h2h-stat draws"><div class="h2h-stat-value">' + draws + '</div><div class="h2h-stat-label">Draws</div></div>' +
+                '<div class="h2h-stat losses"><div class="h2h-stat-value">' + losses + '</div><div class="h2h-stat-label">Losses</div></div>';
+            
+            document.getElementById('h2hExtra').innerHTML = 
+                '<div class="h2h-extra-item"><strong>Played:</strong> ' + totalPlayed + '</div>' +
+                '<div class="h2h-extra-item"><strong>Win Rate:</strong> ' + winPct + '%</div>' +
+                '<div class="h2h-extra-item"><strong>Goals For:</strong> ' + goalsFor + '</div>' +
+                '<div class="h2h-extra-item"><strong>Goals Against:</strong> ' + goalsAgainst + '</div>';
+            
+            // Sort matches newest first
+            const sorted = [...allMatches].sort((a, b) => {
+                const dateA = parseDate(a.Date);
+                const dateB = parseDate(b.Date);
+                if (!dateA || !dateB) return 0;
+                return dateB - dateA;
+            });
+            
+            document.getElementById('h2hMatches').innerHTML = 
+                '<h4>All Meetings (' + allMatches.length + ')</h4>' +
+                sorted.map(m => {
+                    const resultClass = m.Abandoned === 'Y' ? 'a' : m.Result.toLowerCase();
+                    const resultLetter = m.Abandoned === 'Y' ? 'A' : m.Result;
+                    const score = m.Abandoned === 'Y' ? 'A-A' : m['Goals For'] + '-' + m['Goals Against'];
+                    return '<div class="h2h-match-row">' +
+                        '<span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span>' +
+                        '<span class="h2h-match-date">' + m.Date + '</span>' +
+                        '<span class="h2h-match-score">' + score + '</span>' +
+                        '<span class="h2h-match-comp">' + (m.Competition || '') + '</span>' +
+                    '</div>';
+                }).join('');
+            
+            document.getElementById('h2hOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeH2H() {
+            document.getElementById('h2hOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Close H2H on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeH2H();
+        });
         
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
