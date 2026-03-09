@@ -1301,8 +1301,6 @@
                         <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Defeats</button>
                         <button class="filter-btn" onclick="setFilter('most-goals-scored', this)">Most Goals Scored</button>
                         <button class="filter-btn" onclick="setFilter('most-goals-conceded', this)">Most Goals Conceded</button>
-                        <button class="filter-btn" onclick="setFilter('scoreless-draws', this)">Scoreless Draws</button>
-                        <button class="filter-btn" onclick="setFilter('high-scoring-draws', this)">High Scoring Draws</button>
                         <button class="filter-btn" onclick="setFilter('highest-attendance', this)">Biggest Crowds</button>
                         <button class="filter-btn" onclick="setFilter('lowest-attendance', this)">Smallest Crowds</button>
                     </div>
@@ -2077,11 +2075,6 @@
                 filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'away-games') {
                 filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y');
-            } else if (currentFilter === 'scoreless-draws') {
-                filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] === 0);
-            } else if (currentFilter === 'high-scoring-draws') {
-                filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] >= 3)
-                    .sort((a, b) => b['Goals For'] - a['Goals For']);
             } else if (currentFilter === 'season' && selectedSeason) {
                 filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             } else if (currentFilter === 'biggest-wins') {
@@ -2142,7 +2135,7 @@
             
             const skipDateSortFilters = [
                 'recent', 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
-                'most-goals-scored', 'most-goals-conceded', 'high-scoring-draws',
+                'most-goals-scored', 'most-goals-conceded',
                 'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
             ];
             
@@ -2209,22 +2202,18 @@
             updateStats(filtered);
             
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
-            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance', 'high-scoring-draws'];
+            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance'];
             
             if (streakFilters.includes(currentFilter)) {
                 const runLabels = { 'win-streak': 'Longest Winning Run', 'draw-streak': 'Longest Consecutive Draws', 'loss-streak': 'Longest Losing Run', 'unbeaten-streak': 'Longest Unbeaten Run', 'winless-streak': 'Longest Winless Run' };
                 document.getElementById('resultCount').textContent = (runLabels[currentFilter] || currentFilter) + ': ' + filtered.length + ' matches';
             } else if (recordFilters.includes(currentFilter)) {
-                let recordType = {
+                const recordType = {
                     'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Defeats',
                     'most-goals-scored': 'Most Goals Scored', 'most-goals-conceded': 'Most Goals Conceded',
-                    'highest-attendance': 'Biggest Crowds', 'lowest-attendance': 'Smallest Crowds',
-                    'high-scoring-draws': 'High Scoring Draws'
+                    'highest-attendance': 'Biggest Crowds', 'lowest-attendance': 'Smallest Crowds'
                 }[currentFilter];
-                document.getElementById('resultCount').textContent =
-                    currentFilter === 'high-scoring-draws' ?
-                        filtered.length + ' High Scoring Draws (sorted by goals)' :
-                        'Top ' + filtered.length + ' - ' + recordType;
+                document.getElementById('resultCount').textContent = 'Top ' + filtered.length + ' — ' + recordType;
             } else if (selectedSeason && currentFilter === 'season') {
                 const abandonedInSeason = filtered.filter(m => m.Abandoned === 'Y').length;
                 const abandonedSuffix = abandonedInSeason > 0 ? ' (+' + abandonedInSeason + ' abandoned)' : '';
