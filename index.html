@@ -1207,15 +1207,15 @@
                 </button>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
                     <span class="lens-icon">🏆</span>
-                    <span class="lens-label">Widest Margins of Victory</span>
+                    <span class="lens-label">Biggest Wins</span>
                 </button>
                 <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
                     <span class="lens-icon">🏟</span>
-                    <span class="lens-label">Highest Attendances</span>
+                    <span class="lens-label">Biggest Crowds</span>
                 </button>
                 <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
                     <span class="lens-icon">🪑</span>
-                    <span class="lens-label">Lowest Attendances</span>
+                    <span class="lens-label">Smallest Crowds</span>
                 </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
                     <span class="lens-icon">🗓</span>
@@ -1223,7 +1223,7 @@
                 </button>
                 <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
                     <span class="lens-icon">⚽</span>
-                    <span class="lens-label">Highest-Scoring Games</span>
+                    <span class="lens-label">Highest Scoring Games</span>
                 </button>
                 <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
             </div>
@@ -1284,30 +1284,6 @@
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-section-label">Records</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn" onclick="setFilter('biggest-wins', this)">Biggest Wins</button>
-                        <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Losses</button>
-                        <button class="filter-btn" onclick="showAttendanceFilter('highest')">
-                            Highest Attendance
-                            <select id="highestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('highest')">
-                                <option value="all">All</option>
-                                <option value="home">Home</option>
-                                <option value="away">Away</option>
-                            </select>
-                        </button>
-                        <button class="filter-btn" onclick="showAttendanceFilter('lowest')">
-                            Lowest Attendance
-                            <select id="lowestAttendanceSelect" style="display:none;" onclick="event.stopPropagation()" onchange="filterByAttendance('lowest')">
-                                <option value="all">All</option>
-                                <option value="home">Home</option>
-                                <option value="away">Away</option>
-                            </select>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="filter-section">
                     <div class="filter-section-label">Runs</div>
                     <div class="filter-buttons">
                         <button class="filter-btn" onclick="setFilter('win-streak', this)">Longest Winning Run</button>
@@ -1321,10 +1297,14 @@
                 <div class="filter-section">
                     <div class="filter-section-label">Performance</div>
                     <div class="filter-buttons">
+                        <button class="filter-btn" onclick="setFilter('biggest-wins', this)">Biggest Wins</button>
+                        <button class="filter-btn" onclick="setFilter('biggest-losses', this)">Biggest Defeats</button>
                         <button class="filter-btn" onclick="setFilter('most-goals-scored', this)">Most Goals Scored</button>
                         <button class="filter-btn" onclick="setFilter('most-goals-conceded', this)">Most Goals Conceded</button>
                         <button class="filter-btn" onclick="setFilter('scoreless-draws', this)">Scoreless Draws</button>
                         <button class="filter-btn" onclick="setFilter('high-scoring-draws', this)">High Scoring Draws</button>
+                        <button class="filter-btn" onclick="setFilter('highest-attendance', this)">Biggest Crowds</button>
+                        <button class="filter-btn" onclick="setFilter('lowest-attendance', this)">Smallest Crowds</button>
                     </div>
                 </div>
             </div>
@@ -1457,8 +1437,6 @@
 
             // Reset season select etc.
             document.getElementById('seasonSelect').style.display = 'none';
-            document.getElementById('highestAttendanceSelect').style.display = 'none';
-            document.getElementById('lowestAttendanceSelect').style.display = 'none';
             document.getElementById('recentCount').style.display = 'none';
 
             // Determine if this lens supports venue filtering
@@ -1555,11 +1533,7 @@
             document.getElementById('seasonSelect').style.display = 'none';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('competitionSelect').value = '';
-            document.getElementById('highestAttendanceSelect').style.display = 'none';
-            document.getElementById('lowestAttendanceSelect').style.display = 'none';
             document.getElementById('recentCount').style.display = 'none';
-            document.getElementById('highestAttendanceSelect').value = 'all';
-            document.getElementById('lowestAttendanceSelect').value = 'all';
             document.getElementById('recentCount').value = '10';
 
             const sortToggle = document.getElementById('sortToggle');
@@ -1682,35 +1656,6 @@
                 document.getElementById('errorMessage').textContent = 'Error loading match data: ' + error.message;
                 errorBanner.style.display = 'block';
             }
-        }
-        
-        function showAttendanceFilter(type) {
-            attendanceType = type;
-            const selectId = type === 'highest' ? 'highestAttendanceSelect' : 'lowestAttendanceSelect';
-            const select = document.getElementById(selectId);
-            select.style.display = 'inline-block';
-            
-            const otherSelectId = type === 'highest' ? 'lowestAttendanceSelect' : 'highestAttendanceSelect';
-            document.getElementById(otherSelectId).style.display = 'none';
-            
-            attendanceVenue = select.value;
-            currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            const clickedBtn = event.target.closest('.filter-btn');
-            if (clickedBtn) clickedBtn.classList.add('active');
-            
-            displayCurrentStreak();
-            renderMatches();
-            scrollToResults();
-        }
-        
-        function filterByAttendance(type) {
-            const selectId = type === 'highest' ? 'highestAttendanceSelect' : 'lowestAttendanceSelect';
-            const select = document.getElementById(selectId);
-            attendanceVenue = select.value;
-            attendanceType = type;
-            currentFilter = type === 'highest' ? 'highest-attendance' : 'lowest-attendance';
-            renderMatches();
         }
         
         function toggleSortOrder() {
@@ -2271,9 +2216,9 @@
                 document.getElementById('resultCount').textContent = (runLabels[currentFilter] || currentFilter) + ': ' + filtered.length + ' matches';
             } else if (recordFilters.includes(currentFilter)) {
                 let recordType = {
-                    'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Losses',
+                    'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Defeats',
                     'most-goals-scored': 'Most Goals Scored', 'most-goals-conceded': 'Most Goals Conceded',
-                    'highest-attendance': 'Highest Attendance', 'lowest-attendance': 'Lowest Attendance',
+                    'highest-attendance': 'Biggest Crowds', 'lowest-attendance': 'Smallest Crowds',
                     'high-scoring-draws': 'High Scoring Draws'
                 }[currentFilter];
                 document.getElementById('resultCount').textContent =
@@ -2281,9 +2226,14 @@
                         filtered.length + ' High Scoring Draws (sorted by goals)' :
                         'Top ' + filtered.length + ' - ' + recordType;
             } else if (selectedSeason && currentFilter === 'season') {
-                document.getElementById('resultCount').textContent = filtered.length + ' matches in ' + selectedSeason;
+                const abandonedInSeason = filtered.filter(m => m.Abandoned === 'Y').length;
+                const abandonedSuffix = abandonedInSeason > 0 ? ' (+' + abandonedInSeason + ' abandoned)' : '';
+                document.getElementById('resultCount').textContent = filtered.length + ' matches in ' + selectedSeason + abandonedSuffix;
             } else {
-                document.getElementById('resultCount').textContent = filtered.length + ' ' + (filtered.length === 1 ? 'match' : 'matches') + ' found';
+                const abandonedCount = filtered.filter(m => m.Abandoned === 'Y').length;
+                const abandonedSuffix = abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : '';
+                const playedCount = filtered.length - abandonedCount;
+                document.getElementById('resultCount').textContent = playedCount + ' ' + (playedCount === 1 ? 'match' : 'matches') + ' found' + abandonedSuffix;
             }
             
             const totalCount = filtered._totalCount;
@@ -2307,8 +2257,6 @@
 
             document.getElementById('seasonSelect').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
-            document.getElementById('highestAttendanceSelect').style.display = 'none';
-            document.getElementById('lowestAttendanceSelect').style.display = 'none';
             
             const recentDropdown = document.getElementById('recentCount');
             if (filter !== 'recent') recentDropdown.style.display = 'none';
