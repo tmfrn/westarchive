@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>West Didsbury & Chorlton FC - Men's Team Match Archive</title>
+    <title>West Didsbury & Chorlton AFC - Men's Team Match Archive</title>
     <style>
         * {
             margin: 0;
@@ -99,16 +99,49 @@
         }
         
         .summary-box {
-            padding: 48px 40px;
+            padding: 0;
             background: #fafafa;
             border-bottom: 1px solid #e0e0e0;
         }
         
-        .summary-box h2 {
-            font-size: 1.6em;
-            margin-bottom: 32px;
+        .section-toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .section-toggle-header:hover {
+            background: #f0f0f0;
+        }
+
+        .section-toggle-header h2 {
+            font-size: 1.1em;
             color: #000;
-            font-weight: 800;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-chevron {
+            font-size: 1em;
+            color: #999;
+            transition: transform 0.2s;
+        }
+
+        .section-toggle-header.open .section-chevron {
+            transform: rotate(180deg);
+        }
+
+        .section-body {
+            display: none;
+            padding: 0 40px 32px;
+        }
+
+        .section-body.open {
+            display: block;
         }
         
         .summary-grid {
@@ -130,7 +163,7 @@
         .summary-item:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-            border-color: #000;
+            border-color: #166534;
         }
         
         .summary-label {
@@ -151,7 +184,7 @@
         
         .streak-box {
             padding: 32px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%);
             color: white;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -219,16 +252,8 @@
         
         /* ===== GOALSCORERS ===== */
         .goalscorers-box {
-            padding: 48px 40px;
             background: white;
             border-bottom: 1px solid #e0e0e0;
-        }
-
-        .goalscorers-box h2 {
-            font-size: 1.6em;
-            margin-bottom: 32px;
-            color: #000;
-            font-weight: 800;
         }
 
         .goalscorers-table {
@@ -274,7 +299,7 @@
         }
 
         .gs-bar-fill {
-            background: #000;
+            background: #166534;
             height: 8px;
             border-radius: 4px;
             transition: width 0.4s ease;
@@ -334,9 +359,9 @@
 
         .search-input:focus {
             outline: none;
-            border-color: #000;
+            border-color: #166534;
             background: white;
-            box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+            box-shadow: 0 0 0 4px rgba(22,101,52,0.08);
         }
 
         .lenses-row {
@@ -369,9 +394,9 @@
         }
 
         .lens-btn.active {
-            background: #000;
+            background: #166534;
             color: white;
-            border-color: #000;
+            border-color: #166534;
         }
 
         /* When any lens is active, dim the others */
@@ -558,9 +583,9 @@
         }
 
         .filter-btn.active {
-            background: #000;
+            background: #166534;
             color: white;
-            border-color: #000;
+            border-color: #166534;
         }
 
         /* ===== END LENSES ===== */
@@ -624,7 +649,7 @@
         .match-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-            border-color: #000;
+            border-color: #166534;
         }
         
         .match-tags {
@@ -869,7 +894,7 @@
             transition: color 0.2s;
         }
         
-        .opposition-link:hover { color: #4338ca; }
+        .opposition-link:hover { color: #166534; }
 
         /* ===== PLAYER MODAL ===== */
         .player-overlay {
@@ -1039,7 +1064,7 @@
             transition: color 0.2s;
         }
 
-        .gs-name-link:hover { color: #4338ca; }
+        .gs-name-link:hover { color: #166534; }
 
         @media (max-width: 768px) {
             .player-overlay { padding: 20px 10px; }
@@ -1050,7 +1075,8 @@
         @media (max-width: 768px) {
             .header { padding: 32px 20px; }
             .header h1 { font-size: 1.8em; }
-            .summary-box { padding: 32px 20px; }
+            .section-toggle-header { padding: 16px 20px; }
+            .section-body { padding: 0 20px 24px; }
             .summary-grid { grid-template-columns: 1fr; }
             .controls { padding: 24px 20px; }
             .lenses-row { gap: 8px; }
@@ -1068,7 +1094,7 @@
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <h1>West Didsbury & Chorlton FC</h1>
+                <h1>West Didsbury & Chorlton AFC</h1>
                 <p>Men's Team Match Archive</p>
             </div>
         </div>
@@ -1088,14 +1114,24 @@
         </div>
         
         <div class="summary-box">
-            <h2>Database Records</h2>
-            <div class="summary-grid" id="summaryGrid"></div>
+            <div class="section-toggle-header" id="summaryToggle" onclick="toggleSection('summary')">
+                <h2>Database Records</h2>
+                <span class="section-chevron">▼</span>
+            </div>
+            <div class="section-body" id="summaryBody">
+                <div class="summary-grid" id="summaryGrid"></div>
+            </div>
         </div>
 
         <div class="goalscorers-box" id="goalscorersBox" style="display:none;">
-            <h2>Top Goalscorers</h2>
-            <table class="goalscorers-table" id="goalscorersTable"></table>
-            <button class="gs-toggle" id="gsToggle" onclick="toggleGoalscorers()">Show all</button>
+            <div class="section-toggle-header" id="goalscorersToggle" onclick="toggleSection('goalscorers')">
+                <h2>Top Goalscorers</h2>
+                <span class="section-chevron">▼</span>
+            </div>
+            <div class="section-body" id="goalscorersBody">
+                <table class="goalscorers-table" id="goalscorersTable"></table>
+                <button class="gs-toggle" id="gsToggle" onclick="toggleGoalscorers()">Show all</button>
+            </div>
         </div>
         
         <div class="controls">
@@ -2396,6 +2432,19 @@
         function toggleGoalscorers() {
             gsShowAll = !gsShowAll;
             renderGoalscorers();
+        }
+
+        function toggleSection(section) {
+            const toggle = document.getElementById(section === 'summary' ? 'summaryToggle' : 'goalscorersToggle');
+            const body = document.getElementById(section === 'summary' ? 'summaryBody' : 'goalscorersBody');
+            const isOpen = body.classList.contains('open');
+            if (isOpen) {
+                body.classList.remove('open');
+                toggle.classList.remove('open');
+            } else {
+                body.classList.add('open');
+                toggle.classList.add('open');
+            }
         }
 
     </script>
