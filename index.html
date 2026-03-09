@@ -2255,6 +2255,7 @@
             const matchRows = Object.entries(matchGoals).map(([key, goalsInMatch]) => {
                 const [season, competition, opposition, venue] = key.split('|');
                 const match = MATCHES_DATA.find(m =>
+                    m.Abandoned !== 'Y' &&
                     m.Season && m.Season.trim() === season &&
                     m.Competition && m.Competition.trim() === competition &&
                     m.Opposition && m.Opposition.trim() === opposition &&
