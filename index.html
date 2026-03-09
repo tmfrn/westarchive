@@ -1768,7 +1768,7 @@
             streakLabel.textContent = 'Current Run';
             const gameWord = streak.count === 1 ? 'game' : 'games';
             const runLabel = streak.type === 'draws' ? 'RUN OF DRAWS' : streak.type.toUpperCase() + ' RUN';
-            streakValue.textContent = runLabel + ' — ' + streak.count + ' ' + gameWord;
+            streakValue.textContent = runLabel + ' - ' + streak.count + ' ' + gameWord;
             
             const typeLabel = streak.type === 'draws' ? 'run of draws' : streak.type + ' run';
             if (streak.count === streak.longestCount) {
