@@ -1439,7 +1439,7 @@
             document.getElementById('recentCount').style.display = 'none';
 
             // Determine if this lens supports venue filtering
-            const venueFilterableLenses = ['big-wins', 'big-crowds', 'ghost-games'];
+            const venueFilterableLenses = ['big-wins', 'big-crowds', 'ghost-games', 'big-defeats'];
             const pillsEl = document.getElementById('venuePills');
             if (venueFilterableLenses.includes(lens)) {
                 lensVenue = 'all';
@@ -1702,9 +1702,9 @@
             let streakCount = 0;
             let currentResult = latestMatch.Result;
             
-            if (currentResult === 'W') streakType = 'won';
-            else if (currentResult === 'L') streakType = 'lost';
-            else if (currentResult === 'D') streakType = 'drawn';
+            if (currentResult === 'W') streakType = 'winning';
+            else if (currentResult === 'L') streakType = 'losing';
+            else if (currentResult === 'D') streakType = 'draws';
             
             for (let i = sortedMatches.length - 1; i >= 0; i--) {
                 if (sortedMatches[i].Result === currentResult) streakCount++;
@@ -1767,12 +1767,14 @@
             streakBox.style.display = 'block';
             streakLabel.textContent = 'Current Run';
             const gameWord = streak.count === 1 ? 'game' : 'games';
-            streakValue.textContent = streak.type.toUpperCase() + ' ' + streak.count + ' ' + gameWord;
+            const runLabel = streak.type === 'draws' ? 'RUN OF DRAWS' : streak.type.toUpperCase() + ' RUN';
+            streakValue.textContent = runLabel + ' — ' + streak.count + ' ' + gameWord;
             
+            const typeLabel = streak.type === 'draws' ? 'run of draws' : streak.type + ' run';
             if (streak.count === streak.longestCount) {
-                streakContext.textContent = 'This is the longest ' + streak.type + ' run in club history!';
+                streakContext.textContent = 'This is the longest ' + typeLabel + ' in club history!';
             } else {
-                streakContext.textContent = 'Longest ' + streak.type + ' run: ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
+                streakContext.textContent = 'Longest ' + typeLabel + ': ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
             }
 
             renderFormGuide();
@@ -1896,7 +1898,6 @@
                 const canon = getCanonicalCompetition(m.Competition);
                 if (canon) present.add(canon);
             });
-
             const leagueOrder = [
                 'NWCL Premier Division',
                 'NWCL First Division',
@@ -1932,6 +1933,14 @@
 
         function filterByCompetition() {
             selectedCompetition = document.getElementById('competitionSelect').value;
+            // If current filter is a streak/run, reset to all — competition + streaks don't combine
+            const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
+            if (streakFilters.includes(currentFilter)) {
+                currentFilter = 'all';
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                const allBtn = document.querySelector('.filter-btn[onclick="setFilter(\'all\', this)"]');
+                if (allBtn) allBtn.classList.add('active');
+            }
             renderMatches();
         }
         
@@ -2082,16 +2091,30 @@
                 let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && m.Result === 'W');
                 if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H');
                 else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A');
+                if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
                 base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']));
                 if (searchTerm) base = base.filter(m => matchesSearch(m));
                 filtered = base.slice(0, listCap);
                 filtered._totalCount = base.length;
             } else if (currentFilter === 'biggest-losses') {
-                filtered = searchTerm ? records.biggestLoss.filter(m => matchesSearch(m)) : records.biggestLoss;
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && m.Result === 'L');
+                if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H');
+                else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A');
+                if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
+                base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']));
+                if (searchTerm) base = base.filter(m => matchesSearch(m));
+                filtered = base.slice(0, listCap);
+                filtered._totalCount = base.length;
             } else if (currentFilter === 'most-goals-scored') {
-                filtered = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y').sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap);
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y');
+                if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
+                filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap);
+                filtered._totalCount = base.length;
             } else if (currentFilter === 'most-goals-conceded') {
-                filtered = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y').sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap);
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y');
+                if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
+                filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap);
+                filtered._totalCount = base.length;
             } else if (currentFilter === 'highest-attendance') {
                 let matches = [...MATCHES_DATA].filter(m => m.Attendance);
                 if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H');
@@ -2238,6 +2261,18 @@
             currentFilter = filter;
             selectedSeason = '';
 
+            // Streak/run filters are incompatible with competition — clear it
+            const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
+            if (streakFilters.includes(filter)) {
+                selectedCompetition = '';
+                document.getElementById('competitionSelect').value = '';
+            }
+
+            // Hide venue pills — only lenses show them
+            document.getElementById('venuePills').classList.add('hidden');
+            lensVenue = 'all';
+            listCap = 50;
+
             // Clear lens state if using advanced filters
             activeLens = null;
             const row = document.getElementById('lensesRow');
@@ -2286,8 +2321,9 @@
         }
         
         function showRandomMatch() {
-            const randomIndex = Math.floor(Math.random() * MATCHES_DATA.length);
-            const match = MATCHES_DATA[randomIndex];
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const randomIndex = Math.floor(Math.random() * validMatches.length);
+            const match = validMatches[randomIndex];
             
             currentFilter = 'random';
             selectedSeason = '';
@@ -2547,3 +2583,4 @@
     </script>
 </body>
 </html>
+
