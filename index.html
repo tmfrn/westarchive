@@ -181,6 +181,41 @@
             font-size: 0.95em;
             opacity: 0.85;
         }
+
+        .form-guide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .form-guide-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            margin-right: 4px;
+        }
+
+        .form-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0;
+        }
+
+        .form-badge.w { background: rgba(255,255,255,0.95); color: #166534; }
+        .form-badge.d { background: rgba(255,255,255,0.95); color: #92400e; }
+        .form-badge.l { background: rgba(255,255,255,0.95); color: #991b1b; }
         
         /* ===== LENSES ===== */
         .controls {
@@ -778,6 +813,7 @@
                 <div class="streak-label">Current Streak</div>
                 <div class="streak-value" id="streakValue"></div>
                 <div class="streak-context" id="streakContext"></div>
+                <div class="form-guide" id="formGuide"></div>
             </div>
         </div>
         
@@ -804,11 +840,15 @@
                 </button>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
                     <span class="lens-icon">🏆</span>
-                    <span class="lens-label">Big Wins</span>
+                    <span class="lens-label">Our Biggest Wins</span>
                 </button>
-                <button class="lens-btn" id="lensCupRuns" onclick="activateLens('cup-runs', this)">
-                    <span class="lens-icon">🥂</span>
-                    <span class="lens-label">Cup Runs</span>
+                <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
+                    <span class="lens-icon">🏟</span>
+                    <span class="lens-label">Biggest Crowds</span>
+                </button>
+                <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
+                    <span class="lens-icon">👻</span>
+                    <span class="lens-label">Smallest Crowds</span>
                 </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
                     <span class="lens-icon">🗓</span>
@@ -816,7 +856,7 @@
                 </button>
                 <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
                     <span class="lens-icon">⚽</span>
-                    <span class="lens-label">Goals Fest</span>
+                    <span class="lens-label">Highest-Scoring Games</span>
                 </button>
                 <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
             </div>
@@ -1026,8 +1066,15 @@
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
-            } else if (lens === 'cup-runs') {
-                currentFilter = 'cup-runs';
+            } else if (lens === 'big-crowds') {
+                currentFilter = 'highest-attendance';
+                attendanceVenue = 'all';
+                selectedSeason = '';
+                renderMatches();
+                scrollToResults();
+            } else if (lens === 'ghost-games') {
+                currentFilter = 'lowest-attendance';
+                attendanceVenue = 'all';
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
@@ -1305,6 +1352,25 @@
             return { type: streakType, count: streakCount, longestCount: longestStreak, longestStart: longestStreakStart, longestEnd: longestStreakEnd };
         }
         
+        function renderFormGuide() {
+            const el = document.getElementById('formGuide');
+            if (!el) return;
+
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const sorted = [...validMatches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
+            const last5 = sorted.slice(-5);
+
+            if (last5.length === 0) { el.style.display = 'none'; return; }
+
+            const labels = { W: 'W', D: 'D', L: 'L' };
+            el.innerHTML =
+                '<span class="form-guide-label">Form</span>' +
+                last5.map(m =>
+                    '<div class="form-badge ' + m.Result.toLowerCase() + '">' + labels[m.Result] + '</div>'
+                ).join('');
+            el.style.display = 'flex';
+        }
+
         function displayCurrentStreak() {
             const streak = calculateCurrentStreak();
             if (!streak) { document.getElementById('streakBox').style.display = 'none'; return; }
@@ -1324,6 +1390,8 @@
             } else {
                 streakContext.textContent = 'Longest ' + streak.type + ' streak: ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
             }
+
+            renderFormGuide();
         }
         
         function calculateRecords() {
@@ -1532,10 +1600,6 @@
             '</div>';
         }
 
-        function isCupMatch(m) {
-            const comp = m.Competition || '';
-            return !comp.includes('North West Counties League') && !comp.includes('Play Off');
-        }
         
         function filterMatches() {
             let filtered = [...MATCHES_DATA];
@@ -1562,8 +1626,6 @@
                 filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'away-games') {
                 filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y');
-            } else if (currentFilter === 'cup-runs') {
-                filtered = filtered.filter(m => isCupMatch(m));
             } else if (currentFilter === 'scoreless-draws') {
                 filtered = filtered.filter(m => m.Abandoned !== 'Y' && m.Result === 'D' && m['Goals For'] === 0);
             } else if (currentFilter === 'high-scoring-draws') {
@@ -1647,7 +1709,7 @@
         
         function updateStats(matches) {
             const statsBar = document.getElementById('statsBar');
-            const showStatsFilters = ['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses', 'cup-runs'];
+            const showStatsFilters = ['all', 'recent', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses'];
             if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
                 const validMatches = matches.filter(m => m.Abandoned !== 'Y');
@@ -1702,8 +1764,6 @@
                     currentFilter === 'high-scoring-draws' ?
                         filtered.length + ' High Scoring Draws (sorted by goals)' :
                         'Top ' + filtered.length + ' - ' + recordType;
-            } else if (currentFilter === 'cup-runs') {
-                document.getElementById('resultCount').textContent = filtered.length + ' cup matches';
             } else if (selectedSeason && currentFilter === 'season') {
                 document.getElementById('resultCount').textContent = filtered.length + ' matches in ' + selectedSeason;
             } else {
