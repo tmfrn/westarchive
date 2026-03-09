@@ -2244,28 +2244,28 @@
             });
             const seasonsSorted = Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0]));
 
-            // Matches this player scored in — build from GOALS_DATA joined to MATCHES_DATA
-            // Group goals by date+opposition to get goals-per-match
+            // Group goals by 4-key match identifier
             const matchGoals = {};
             goals.forEach(r => {
-                const key = r.Date + '|' + r.Opposition + '|' + r['Home/Away'];
+                const key = [r.Season, r.Competition, r.Opposition, r['Home/Away']].join('|');
                 matchGoals[key] = (matchGoals[key] || 0) + 1;
             });
 
-            // Find corresponding match cards
+            // Find corresponding match cards using 4-key join
             const matchRows = Object.entries(matchGoals).map(([key, goalsInMatch]) => {
-                const [date, opposition, venue] = key.split('|');
+                const [season, competition, opposition, venue] = key.split('|');
                 const match = MATCHES_DATA.find(m =>
-                    m.Date === date &&
-                    m.Opposition === opposition &&
+                    m.Season && m.Season.trim() === season &&
+                    m.Competition && m.Competition.trim() === competition &&
+                    m.Opposition && m.Opposition.trim() === opposition &&
                     m['Home/Away'] === venue
                 );
-                return { match, goalsInMatch, date };
+                return { match, goalsInMatch };
             }).filter(r => r.match);
 
             // Sort newest first
             matchRows.sort((a, b) => {
-                const da = parseDate(a.date), db = parseDate(b.date);
+                const da = parseDate(a.match.Date), db = parseDate(b.match.Date);
                 if (!da || !db) return 0;
                 return db - da;
             });
