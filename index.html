@@ -217,6 +217,100 @@
         .form-badge.d { background: rgba(255,255,255,0.95); color: #92400e; }
         .form-badge.l { background: rgba(255,255,255,0.95); color: #991b1b; }
         
+        /* ===== GOALSCORERS ===== */
+        .goalscorers-box {
+            padding: 48px 40px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .goalscorers-box h2 {
+            font-size: 1.6em;
+            margin-bottom: 32px;
+            color: #000;
+            font-weight: 800;
+        }
+
+        .goalscorers-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .goalscorers-table tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .goalscorers-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .goalscorers-table td {
+            padding: 10px 8px;
+            font-size: 0.95em;
+        }
+
+        .gs-rank {
+            color: #999;
+            font-weight: 700;
+            width: 36px;
+            font-size: 0.85em;
+        }
+
+        .gs-name {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .gs-bar-cell {
+            width: 50%;
+            padding-right: 16px;
+        }
+
+        .gs-bar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .gs-bar-fill {
+            background: #000;
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .gs-goals {
+            font-weight: 800;
+            color: #000;
+            text-align: right;
+            white-space: nowrap;
+            width: 48px;
+        }
+
+        .gs-toggle {
+            margin-top: 20px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-style: dotted;
+            transition: color 0.2s;
+        }
+
+        .gs-toggle:hover { color: #333; }
+
+        @media (max-width: 768px) {
+            .goalscorers-box { padding: 32px 20px; }
+            .gs-bar-cell { display: none; }
+        }
+        /* ===== END GOALSCORERS ===== */
+
         /* ===== LENSES ===== */
         .controls {
             padding: 32px 40px;
@@ -821,6 +915,12 @@
             <h2>Database Records</h2>
             <div class="summary-grid" id="summaryGrid"></div>
         </div>
+
+        <div class="goalscorers-box" id="goalscorersBox" style="display:none;">
+            <h2>Top Goalscorers</h2>
+            <table class="goalscorers-table" id="goalscorersTable"></table>
+            <button class="gs-toggle" id="gsToggle" onclick="toggleGoalscorers()">Show all</button>
+        </div>
         
         <div class="controls">
             <div class="search-bar">
@@ -886,6 +986,15 @@
                         <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
                         <button class="filter-btn" onclick="showSeasonFilter()">By Season</button>
                         <select id="seasonSelect" class="filter-btn" style="display:none;" onchange="filterBySeason()"></select>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-section-label">Competition</div>
+                    <div class="filter-buttons">
+                        <select id="competitionSelect" class="filter-btn" onchange="filterByCompetition()">
+                            <option value="">All Competitions</option>
+                        </select>
                     </div>
                 </div>
 
@@ -1008,8 +1117,12 @@
 
     <script>
         let MATCHES_DATA = [];
+        let GOALS_DATA = [];
+        let playerGoals = {}; // name -> count
+        let gsShowAll = false;
         let currentFilter = 'all';
         let selectedSeason = '';
+        let selectedCompetition = '';
         let searchTerm = '';
         let records = {};
         let currentStreak = null;
@@ -1126,12 +1239,14 @@
 
             currentFilter = 'all';
             selectedSeason = '';
+            selectedCompetition = '';
             searchTerm = '';
             sortOrder = 'desc';
             attendanceVenue = 'all';
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').style.display = 'none';
             document.getElementById('seasonSelect').value = '';
+            document.getElementById('competitionSelect').value = '';
             document.getElementById('highestAttendanceSelect').style.display = 'none';
             document.getElementById('lowestAttendanceSelect').style.display = 'none';
             document.getElementById('recentCount').style.display = 'none';
@@ -1230,6 +1345,7 @@
                 calculateRecords();
                 populateSummary();
                 populateSeasonFilter();
+                populateCompetitionFilter();
                 displayCurrentStreak();
                 renderMatches();
                 
@@ -1488,6 +1604,21 @@
             select.innerHTML = '<option value="">Select Season...</option>' +
                 sortedSeasons.map(s => '<option value="' + s + '">' + s + '</option>').join('');
         }
+
+        function populateCompetitionFilter() {
+            const comps = new Set();
+            MATCHES_DATA.forEach(m => { if (m.Competition && m.Competition.trim()) comps.add(m.Competition.trim()); });
+            // Sort alphabetically, grouping by rough type is handled naturally
+            const sorted = Array.from(comps).sort();
+            const select = document.getElementById('competitionSelect');
+            select.innerHTML = '<option value="">All Competitions</option>' +
+                sorted.map(c => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('');
+        }
+
+        function filterByCompetition() {
+            selectedCompetition = document.getElementById('competitionSelect').value;
+            renderMatches();
+        }
         
         function showSeasonFilter() {
             document.getElementById('seasonSelect').style.display = 'inline-block';
@@ -1614,6 +1745,10 @@
                     (m['West Scorers'] && m['West Scorers'].toLowerCase().includes(term)) ||
                     (m['Opposition Scorers'] && m['Opposition Scorers'].toLowerCase().includes(term))
                 );
+            }
+
+            if (selectedCompetition) {
+                filtered = filtered.filter(m => m.Competition && m.Competition.trim() === selectedCompetition);
             }
             
             if (currentFilter === 'wins') {
@@ -1908,6 +2043,80 @@
         });
         
         fetchMatchData();
+        fetchGoalsData();
+        async function fetchGoalsData() {
+            try {
+                const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=2008440999&single=true&output=csv');
+                if (!response.ok) throw new Error('Goals sheet returned ' + response.status);
+                const csvText = await response.text();
+                if (!csvText || csvText.includes('<!DOCTYPE')) throw new Error('Invalid goals data');
+
+                const lines = csvText.split('\n').filter(l => l.trim());
+                const headers = parseCSVLine(lines[0]);
+
+                GOALS_DATA = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const values = parseCSVLine(lines[i]);
+                    const row = {};
+                    headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+                    GOALS_DATA.push(row);
+                }
+
+                aggregateGoals();
+                renderGoalscorers();
+            } catch (error) {
+                console.error('Error fetching goals data:', error);
+                // Non-fatal — just don't show the section
+            }
+        }
+
+        function aggregateGoals() {
+            playerGoals = {};
+            GOALS_DATA.forEach(row => {
+                // Only count West's goals, exclude own goals
+                if (row['For/Against'] !== 'For') return;
+                if (row['Own Goal'] === 'Y') return;
+                const name = (row['Scorer'] || '').trim();
+                if (!name) return;
+                playerGoals[name] = (playerGoals[name] || 0) + 1;
+            });
+        }
+
+        function renderGoalscorers() {
+            const box = document.getElementById('goalscorersBox');
+            const table = document.getElementById('goalscorersTable');
+            const toggle = document.getElementById('gsToggle');
+
+            const sorted = Object.entries(playerGoals).sort((a, b) => b[1] - a[1]);
+            if (sorted.length === 0) { box.style.display = 'none'; return; }
+
+            const displayList = gsShowAll ? sorted : sorted.slice(0, 10);
+            const max = sorted[0][1];
+
+            table.innerHTML = displayList.map(([name, goals], i) =>
+                '<tr>' +
+                    '<td class="gs-rank">' + (i + 1) + '</td>' +
+                    '<td class="gs-name">' + name + '</td>' +
+                    '<td class="gs-bar-cell">' +
+                        '<div class="gs-bar-track">' +
+                            '<div class="gs-bar-fill" style="width:' + Math.round((goals / max) * 100) + '%"></div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td class="gs-goals">' + goals + '</td>' +
+                '</tr>'
+            ).join('');
+
+            toggle.textContent = gsShowAll ? 'Show less' : 'Show all (' + sorted.length + ' players)';
+            toggle.style.display = sorted.length > 10 ? 'block' : 'none';
+            box.style.display = 'block';
+        }
+
+        function toggleGoalscorers() {
+            gsShowAll = !gsShowAll;
+            renderGoalscorers();
+        }
+
     </script>
 </body>
 </html>
