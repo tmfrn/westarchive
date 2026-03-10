@@ -424,11 +424,11 @@
             display: none;
             align-items: center;
             gap: 4px;
-            margin-left: 4px;
         }
 
         .lens-btn.active .lens-season-nav {
             display: flex;
+            margin-left: 4px;
         }
 
         .season-nav-btn {
@@ -1930,7 +1930,23 @@
             select.innerHTML = html;
         }
 
+        // Called whenever a user manually touches a filter dropdown.
+        // Deactivates any active lens (user is now in manual mode) without resetting the dropdowns.
+        function deactivateLensForFilter() {
+            if (!activeLens) return;
+            activeLens = null;
+            lensVenue = 'all';
+            const row = document.getElementById('lensesRow');
+            row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+            row.classList.remove('has-active');
+            document.getElementById('lensesClear').classList.add('hidden');
+            document.getElementById('venuePills').classList.add('hidden');
+            const fb = document.getElementById('filterBar');
+            if (fb) fb.classList.remove('runs-active');
+        }
+
         function filterByCompetition() {
+            deactivateLensForFilter();
             selectedCompetition = document.getElementById('competitionSelect').value;
             // If current filter is a streak/run, reset to all — competition + streaks don't combine
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
@@ -1944,6 +1960,7 @@
         }
         
         function filterBySeason() {
+            deactivateLensForFilter();
             selectedSeason = document.getElementById('seasonSelect').value;
             // Reset run filters if season selected
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
@@ -1956,6 +1973,7 @@
         }
         
         function filterByResult() {
+            deactivateLensForFilter();
             const val = document.getElementById('resultSelect').value;
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             if (val) {
@@ -1969,6 +1987,7 @@
         }
 
         function filterByVenue() {
+            deactivateLensForFilter();
             const val = document.getElementById('venueSelect').value;
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             if (val) {
@@ -2511,6 +2530,29 @@
         
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
+            if (searchTerm) {
+                // Search trumps everything — clear all filters and lenses
+                activeLens = null;
+                currentFilter = 'all';
+                selectedSeason = '';
+                selectedCompetition = '';
+                sortOrder = 'desc';
+                lensVenue = 'all';
+                listCap = 20;
+                const row = document.getElementById('lensesRow');
+                row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+                row.classList.remove('has-active');
+                document.getElementById('lensesClear').classList.add('hidden');
+                document.getElementById('venuePills').classList.add('hidden');
+                document.getElementById('seasonSelect').value = '';
+                document.getElementById('competitionSelect').value = '';
+                document.getElementById('resultSelect').value = '';
+                document.getElementById('venueSelect').value = '';
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                const fb = document.querySelector('.filter-bar');
+                if (fb) fb.classList.remove('runs-active');
+                displayCurrentStreak();
+            }
             renderMatches();
         });
         
