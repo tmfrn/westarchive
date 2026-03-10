@@ -249,6 +249,13 @@
         .form-badge.w { background: #16a34a; color: #fff; }
         .form-badge.d { background: #d97706; color: #fff; }
         .form-badge.l { background: #dc2626; color: #fff; }
+
+        .form-guide-arrow {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.45);
+            margin-left: 4px;
+            align-self: center;
+        }
         
         /* ===== GOALSCORERS ===== */
         .goalscorers-box {
@@ -571,6 +578,12 @@
             background: #166534;
             color: white;
             border-color: #166534;
+        }
+
+        .filter-bar.runs-active select,
+        .filter-bar.runs-active #clearFiltersBtn {
+            opacity: 0.35;
+            pointer-events: none;
         }
 
         /* Runs section */
@@ -1200,6 +1213,10 @@
                     <span class="lens-icon">🏆</span>
                     <span class="lens-label">Biggest Wins</span>
                 </button>
+                <button class="lens-btn" id="lensBigLosses" onclick="activateLens('big-losses', this)">
+                    <span class="lens-icon">😬</span>
+                    <span class="lens-label">Biggest Losses</span>
+                </button>
                 <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
                     <span class="lens-icon">🏟</span>
                     <span class="lens-label">Biggest Crowds</span>
@@ -1208,13 +1225,17 @@
                     <span class="lens-icon">🪑</span>
                     <span class="lens-label">Smallest Crowds</span>
                 </button>
+                <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
+                    <span class="lens-icon">⚽</span>
+                    <span class="lens-label">Highest Scoring Games</span>
+                </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
                     <span class="lens-icon">🗓</span>
                     <span class="lens-label">On This Day</span>
                 </button>
-                <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
-                    <span class="lens-icon">⚽</span>
-                    <span class="lens-label">Highest Scoring Games</span>
+                <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
+                    <span class="lens-icon">🎲</span>
+                    <span class="lens-label">Random</span>
                 </button>
                 <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
             </div>
@@ -1245,8 +1266,7 @@
                     <option value="home-games">Home Only</option>
                     <option value="away-games">Away Only</option>
                 </select>
-                <button class="filter-btn" onclick="setFilter('on-this-day', this)">🗓 On This Day</button>
-                <button class="filter-btn" onclick="showRandomMatch()">🎲 Random</button>
+                <button class="filter-btn" id="clearFiltersBtn" onclick="clearFilterBar()">✕ Clear</button>
             </div>
 
             <!-- Runs section -->
@@ -1349,7 +1369,7 @@
         let attendanceVenue = 'all';
         let sortOrder = 'desc';
         let activeLens = null;
-        let listCap = 50;       // cap for capped list filters (biggest-wins, attendance etc)
+        let listCap = 20;       // cap for capped list filters (biggest-wins, attendance etc)
         let lensVenue = 'all';  // venue filter for venue-filterable lenses
 
         // Seasons list (populated after data loads)
@@ -1384,18 +1404,22 @@
             // Deactivate advanced filter buttons
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
 
-            // Reset filter bar selects
+            // Reset filter bar selects and search
+            searchTerm = '';
+            document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('competitionSelect').value = '';
+            document.getElementById('resultSelect').value = '';
+            document.getElementById('venueSelect').value = '';
             selectedSeason = '';
             selectedCompetition = '';
 
             // Determine if this lens supports venue filtering
-            const venueFilterableLenses = ['big-wins', 'big-crowds', 'ghost-games', 'big-defeats'];
+            const venueFilterableLenses = ['big-wins', 'big-losses', 'big-crowds', 'ghost-games'];
             const pillsEl = document.getElementById('venuePills');
             if (venueFilterableLenses.includes(lens)) {
                 lensVenue = 'all';
-                listCap = 50;
+                listCap = 20;
                 pillsEl.classList.remove('hidden');
                 pillsEl.querySelectorAll('.venue-pill').forEach(p => {
                     p.classList.toggle('active', p.dataset.venue === 'all');
@@ -1410,6 +1434,11 @@
                 applySeasonLens();
             } else if (lens === 'big-wins') {
                 currentFilter = 'biggest-wins';
+                selectedSeason = '';
+                renderMatches();
+                scrollToResults();
+            } else if (lens === 'big-losses') {
+                currentFilter = 'biggest-losses';
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
@@ -1431,7 +1460,7 @@
                 renderMatches();
                 scrollToResults();
             } else if (lens === 'goals-fest') {
-                currentFilter = 'most-goals-scored';
+                currentFilter = 'most-goals-total';
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
@@ -1467,7 +1496,7 @@
         function clearLens() {
             activeLens = null;
             lensVenue = 'all';
-            listCap = 50;
+            listCap = 20;
             const row = document.getElementById('lensesRow');
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active');
@@ -1492,6 +1521,8 @@
             if (sortToggle) sortToggle.textContent = '📅 Show Oldest First';
 
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            const fb = document.querySelector('.filter-bar');
+            if (fb) fb.classList.remove('runs-active');
 
             displayCurrentStreak();
             renderMatches();
@@ -1511,7 +1542,7 @@
         }
 
         function showMoreList() {
-            listCap += 50;
+            listCap += 20;
             renderMatches();
         }
 
@@ -1613,6 +1644,26 @@
         function clearAllFilters() {
             clearLens();
         }
+
+        function clearFilterBar() {
+            // Clear only the filter bar dropdowns — leave lens active
+            selectedSeason = '';
+            selectedCompetition = '';
+            searchTerm = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('seasonSelect').value = '';
+            document.getElementById('competitionSelect').value = '';
+            document.getElementById('resultSelect').value = '';
+            document.getElementById('venueSelect').value = '';
+            if (!['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) {
+                // filter was set by a dropdown — reset to all
+            }
+            // If current filter was set by a dropdown, reset it
+            if (['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) {
+                currentFilter = 'all';
+            }
+            renderMatches();
+        }
         
         function parseDate(dateStr) {
             if (!dateStr) return null;
@@ -1697,7 +1748,8 @@
                 '<span class="form-guide-label">Form</span>' +
                 last5.map(m =>
                     '<div class="form-badge ' + m.Result.toLowerCase() + '">' + labels[m.Result] + '</div>'
-                ).join('');
+                ).join('') +
+                '<span class="form-guide-arrow" title="oldest to most recent">→</span>';
             el.style.display = 'flex';
         }
 
@@ -2084,6 +2136,12 @@
                 if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
                 filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap);
                 filtered._totalCount = base.length;
+            } else if (currentFilter === 'most-goals-total') {
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y');
+                if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
+                base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against']));
+                filtered = base.slice(0, listCap);
+                filtered._totalCount = base.length;
             } else if (currentFilter === 'highest-attendance') {
                 let matches = [...MATCHES_DATA].filter(m => m.Attendance);
                 if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H');
@@ -2121,7 +2179,7 @@
             
             const skipDateSortFilters = [
                 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
-                'most-goals-scored', 'most-goals-conceded',
+                'most-goals-scored', 'most-goals-conceded', 'most-goals-total',
                 'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
             ];
             
@@ -2177,7 +2235,7 @@
             const sortToggle = document.getElementById('sortToggle');
             const filtersWithoutSort = [
                 'biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance',
-                'most-goals-scored', 'most-goals-conceded', 'win-streak', 'draw-streak',
+                'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'win-streak', 'draw-streak',
                 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'
             ];
             sortToggle.style.display = filtersWithoutSort.includes(currentFilter) ? 'none' : 'block';
@@ -2243,14 +2301,20 @@
             document.getElementById('lensesClear').classList.add('hidden');
 
             document.getElementById('seasonSelect').value = '';
-            document.getElementById('seasonSelect').style.display = 'none';
-            
-            
+            searchTerm = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('resultSelect').value = '';
+            document.getElementById('venueSelect').value = '';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             const targetBtn = btnElement || (typeof event !== 'undefined' && event.target ? event.target.closest('.filter-btn') : null);
             if (targetBtn) targetBtn.classList.add('active');
             
             const streakBox = document.getElementById('streakBox');
+            const filterBarEl = document.querySelector('.filter-bar');
+            if (filterBarEl) {
+                if (streakFilters.includes(filter)) filterBarEl.classList.add('runs-active');
+                else filterBarEl.classList.remove('runs-active');
+            }
             
             if (streakFilters.includes(filter)) {
                 renderMatches();
@@ -2499,7 +2563,7 @@
             const sorted = Object.entries(playerGoals).sort((a, b) => b[1] - a[1]);
             if (sorted.length === 0) { box.style.display = 'none'; return; }
 
-            const displayList = gsShowAll ? sorted : sorted.slice(0, 10);
+            const displayList = gsShowAll ? sorted : sorted.slice(0, 20);
             const max = sorted[0][1];
 
             table.innerHTML = displayList.map(([name, goals], i) =>
@@ -2515,8 +2579,8 @@
                 '</tr>'
             ).join('');
 
-            toggle.textContent = gsShowAll ? 'Show less' : 'Show all (' + sorted.length + ' players)';
-            toggle.style.display = sorted.length > 10 ? 'block' : 'none';
+            toggle.textContent = gsShowAll ? 'Show less' : 'Show more (' + (sorted.length - 20) + ' more players)';
+            toggle.style.display = sorted.length > 20 ? 'block' : 'none';
             box.style.display = 'block';
         }
 
