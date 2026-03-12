@@ -547,6 +547,28 @@
             color: #166534;
         }
 
+        .streak-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0 12px;
+            color: #166534;
+            font-size: 0.78em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .streak-divider::before,
+        .streak-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #d1fae5;
+        }
+        .streak-divider:first-child {
+            margin-top: 0;
+        }
+
         /* Filter bar */
         .filter-bar {
             display: flex;
@@ -1522,7 +1544,8 @@
 
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             const fb = document.querySelector('.filter-bar');
-            if (fb) fb.classList.remove('runs-active');
+            if (fb) { fb.classList.remove('runs-active'); fb.classList.remove('has-filter'); }
+            document.getElementById('lensesRow').classList.remove('filter-active');
 
             displayCurrentStreak();
             renderMatches();
@@ -1646,7 +1669,6 @@
         }
 
         function clearFilterBar() {
-            // Clear only the filter bar dropdowns — leave lens active
             selectedSeason = '';
             selectedCompetition = '';
             searchTerm = '';
@@ -1655,13 +1677,12 @@
             document.getElementById('competitionSelect').value = '';
             document.getElementById('resultSelect').value = '';
             document.getElementById('venueSelect').value = '';
-            if (!['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) {
-                // filter was set by a dropdown — reset to all
-            }
-            // If current filter was set by a dropdown, reset it
             if (['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) {
                 currentFilter = 'all';
             }
+            document.querySelector('.filter-bar').classList.remove('has-filter');
+            document.getElementById('lensesRow').classList.remove('filter-active');
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             renderMatches();
         }
         
@@ -1708,7 +1729,8 @@
                 else break;
             }
             
-            let longestStreak = 0, longestStreakStart = null, longestStreakEnd = null;
+            let longestStreak = 0;
+            let longestInstances = [];
             let tempStreakCount = 0, tempStreakStart = null;
             
             for (let i = 0; i < sortedMatches.length; i++) {
@@ -1718,19 +1740,21 @@
                 } else {
                     if (tempStreakCount > longestStreak) {
                         longestStreak = tempStreakCount;
-                        longestStreakStart = tempStreakStart;
-                        longestStreakEnd = sortedMatches[i - 1].Date;
+                        longestInstances = [{ start: tempStreakStart, end: sortedMatches[i - 1].Date }];
+                    } else if (tempStreakCount === longestStreak && tempStreakCount > 0) {
+                        longestInstances.push({ start: tempStreakStart, end: sortedMatches[i - 1].Date });
                     }
                     tempStreakCount = 0; tempStreakStart = null;
                 }
             }
             if (tempStreakCount > longestStreak) {
                 longestStreak = tempStreakCount;
-                longestStreakStart = tempStreakStart;
-                longestStreakEnd = sortedMatches[sortedMatches.length - 1].Date;
+                longestInstances = [{ start: tempStreakStart, end: sortedMatches[sortedMatches.length - 1].Date }];
+            } else if (tempStreakCount === longestStreak && tempStreakCount > 0) {
+                longestInstances.push({ start: tempStreakStart, end: sortedMatches[sortedMatches.length - 1].Date });
             }
             
-            return { type: streakType, count: streakCount, longestCount: longestStreak, longestStart: longestStreakStart, longestEnd: longestStreakEnd };
+            return { type: streakType, count: streakCount, longestCount: longestStreak, longestInstances };
         }
         
         function renderFormGuide() {
@@ -1770,9 +1794,13 @@
             
             const typeLabel = streak.type === 'draws' ? 'run of draws' : streak.type + ' run';
             if (streak.count === streak.longestCount) {
-                streakContext.textContent = 'This is the longest ' + typeLabel + ' in club history!';
+                const isJoint = streak.longestInstances && streak.longestInstances.length > 1;
+                const prefix = isJoint ? 'This equals the joint-longest ' : 'This is the longest ';
+                streakContext.textContent = prefix + typeLabel + ' in club history.';
             } else {
-                streakContext.textContent = 'Longest ' + typeLabel + ': ' + streak.longestCount + ' games (' + streak.longestStart + ' to ' + streak.longestEnd + ')';
+                const inst = streak.longestInstances && streak.longestInstances[0];
+                const dateRange = inst ? inst.start + ' to ' + inst.end : '';
+                streakContext.textContent = 'Longest ' + typeLabel + ': ' + streak.longestCount + ' games (' + dateRange + ')';
             }
 
             renderFormGuide();
@@ -1930,48 +1958,59 @@
             select.innerHTML = html;
         }
 
-        // Called whenever a user manually touches a filter dropdown.
-        // Deactivates any active lens (user is now in manual mode) without resetting the dropdowns.
+        // Touching any filter dropdown deactivates any active lens (user takes manual control).
         function deactivateLensForFilter() {
-            if (!activeLens) return;
-            activeLens = null;
-            lensVenue = 'all';
-            const row = document.getElementById('lensesRow');
-            row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
-            row.classList.remove('has-active');
-            document.getElementById('lensesClear').classList.add('hidden');
-            document.getElementById('venuePills').classList.add('hidden');
-            const fb = document.getElementById('filterBar');
-            if (fb) fb.classList.remove('runs-active');
+            if (activeLens) {
+                activeLens = null;
+                currentFilter = 'all';
+                lensVenue = 'all';
+                listCap = 20;
+                const row = document.getElementById('lensesRow');
+                row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+                row.classList.remove('has-active');
+                row.classList.add('filter-active');
+                document.getElementById('lensesClear').classList.add('hidden');
+                document.getElementById('venuePills').classList.add('hidden');
+            }
+            document.querySelector('.filter-bar').classList.add('has-filter');
+        }
+
+        function filterBarIsActive() {
+            return document.getElementById('seasonSelect').value ||
+                   document.getElementById('competitionSelect').value ||
+                   document.getElementById('resultSelect').value ||
+                   document.getElementById('venueSelect').value;
         }
 
         function filterByCompetition() {
             deactivateLensForFilter();
             selectedCompetition = document.getElementById('competitionSelect').value;
-            // If current filter is a streak/run, reset to all — competition + streaks don't combine
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
-            if (streakFilters.includes(currentFilter)) {
-                currentFilter = 'all';
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                const allBtn = document.querySelector('.filter-btn[onclick="setFilter(\'all\', this)"]');
-                if (allBtn) allBtn.classList.add('active');
+            if (streakFilters.includes(currentFilter)) currentFilter = 'all';
+            if (!filterBarIsActive()) {
+                document.querySelector('.filter-bar').classList.remove('has-filter');
+                document.getElementById('lensesRow').classList.remove('filter-active');
             }
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             renderMatches();
         }
-        
+
         function filterBySeason() {
             deactivateLensForFilter();
             selectedSeason = document.getElementById('seasonSelect').value;
-            // Reset run filters if season selected
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             if (selectedSeason && streakFilters.includes(currentFilter)) currentFilter = 'all';
             if (selectedSeason) currentFilter = 'season';
             else if (currentFilter === 'season') currentFilter = 'all';
+            if (!filterBarIsActive()) {
+                document.querySelector('.filter-bar').classList.remove('has-filter');
+                document.getElementById('lensesRow').classList.remove('filter-active');
+            }
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             renderMatches();
             if (selectedSeason) document.getElementById('resultCount').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
+
         function filterByResult() {
             deactivateLensForFilter();
             const val = document.getElementById('resultSelect').value;
@@ -1981,6 +2020,10 @@
                 currentFilter = val;
             } else {
                 if (['wins', 'draws', 'losses'].includes(currentFilter)) currentFilter = 'all';
+            }
+            if (!filterBarIsActive()) {
+                document.querySelector('.filter-bar').classList.remove('has-filter');
+                document.getElementById('lensesRow').classList.remove('filter-active');
             }
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             renderMatches();
@@ -1996,22 +2039,46 @@
             } else {
                 if (['home-games', 'away-games'].includes(currentFilter)) currentFilter = 'all';
             }
+            if (!filterBarIsActive()) {
+                document.querySelector('.filter-bar').classList.remove('has-filter');
+                document.getElementById('lensesRow').classList.remove('filter-active');
+            }
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             renderMatches();
         }
 
         function findLongestStreak(matches, condition) {
             const sorted = [...matches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
-            let maxStreak = [], currentStreakArr = [];
+            let maxLen = 0;
+            let allStreaks = []; // all streaks matching maxLen
+            let currentStreakArr = [];
             for (const match of sorted) {
                 if (condition(match)) {
                     currentStreakArr.push(match);
-                    if (currentStreakArr.length > maxStreak.length) maxStreak = [...currentStreakArr];
                 } else {
-                    currentStreakArr = [];
+                    if (currentStreakArr.length > 0) {
+                        if (currentStreakArr.length > maxLen) {
+                            maxLen = currentStreakArr.length;
+                            allStreaks = [[...currentStreakArr]];
+                        } else if (currentStreakArr.length === maxLen) {
+                            allStreaks.push([...currentStreakArr]);
+                        }
+                        currentStreakArr = [];
+                    }
                 }
             }
-            return maxStreak;
+            if (currentStreakArr.length > 0) {
+                if (currentStreakArr.length > maxLen) {
+                    allStreaks = [[...currentStreakArr]];
+                } else if (currentStreakArr.length === maxLen) {
+                    allStreaks.push([...currentStreakArr]);
+                }
+            }
+            // Return flat array of first streak for backwards compat,
+            // but attach allStreaks so renderMatches can use it
+            const primary = allStreaks[0] || [];
+            primary._allStreaks = allStreaks;
+            return primary;
         }
         
         function renderMatchCard(match) {
@@ -2269,7 +2336,9 @@
             
             if (streakFilters.includes(currentFilter)) {
                 const runLabels = { 'win-streak': 'Longest Winning Run', 'draw-streak': 'Longest Run of Draws', 'loss-streak': 'Longest Losing Run', 'unbeaten-streak': 'Longest Unbeaten Run', 'winless-streak': 'Longest Winless Run' };
-                document.getElementById('resultCount').textContent = (runLabels[currentFilter] || currentFilter) + ': ' + filtered.length + ' matches';
+                const allStreaks = filtered._allStreaks || [filtered];
+                const jointLabel = allStreaks.length > 1 ? 'Joint-' : '';
+                document.getElementById('resultCount').textContent = jointLabel + (runLabels[currentFilter] || currentFilter) + ': ' + filtered.length + ' matches' + (allStreaks.length > 1 ? ' (' + allStreaks.length + ' occurrences)' : '');
             } else if (recordFilters.includes(currentFilter)) {
                 const recordType = {
                     'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Defeats',
@@ -2289,9 +2358,22 @@
             }
             
             const totalCount = filtered._totalCount;
-            let html = filtered.map(match => renderMatchCard(match)).join('');
-            if (totalCount && filtered.length < totalCount) {
-                html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
+            let html;
+            if (streakFilters.includes(currentFilter) && filtered._allStreaks && filtered._allStreaks.length > 1) {
+                const allStreaks = filtered._allStreaks;
+                const runLabels = { 'win-streak': 'Winning Run', 'draw-streak': 'Run of Draws', 'loss-streak': 'Losing Run', 'unbeaten-streak': 'Unbeaten Run', 'winless-streak': 'Winless Run' };
+                const label = runLabels[currentFilter] || 'Run';
+                html = allStreaks.map((streak, idx) => {
+                    const startDate = streak[0] ? streak[0].Date : '';
+                    const endDate = streak[streak.length - 1] ? streak[streak.length - 1].Date : '';
+                    const divider = '<div class="streak-divider"><span>' + label + ' ' + (idx + 1) + ' of ' + allStreaks.length + ' &mdash; ' + startDate + ' to ' + endDate + '</span></div>';
+                    return divider + streak.map(match => renderMatchCard(match)).join('');
+                }).join('');
+            } else {
+                html = filtered.map(match => renderMatchCard(match)).join('');
+                if (totalCount && filtered.length < totalCount) {
+                    html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
+                }
             }
             document.getElementById('matchList').innerHTML = html;
         }
@@ -2312,12 +2394,14 @@
             lensVenue = 'all';
             listCap = 50;
 
-            // Clear lens state if using advanced filters
+            // Clear lens and filter-bar state
             activeLens = null;
             const row = document.getElementById('lensesRow');
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active');
+            row.classList.remove('filter-active');
             document.getElementById('lensesClear').classList.add('hidden');
+            document.querySelector('.filter-bar').classList.remove('has-filter');
 
             document.getElementById('seasonSelect').value = '';
             searchTerm = '';
