@@ -2139,23 +2139,25 @@
                 }).join('') + '</div>' : '';
             
             let scorersHtml = '';
-            const dateKey = (match.Date || '').trim();
-            const compositeKey = [
-                (match.Season || '').trim(),
-                (match.Competition || '').trim(),
-                (match.Opposition || '').trim(),
-                (match['Home/Away'] || '').trim()
-            ].join('|');
-            const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
-            if (matchScorers) {
-                const westList = formatScorerList(matchScorers.west);
-                const oppList = formatScorerList(matchScorers.opp);
-                if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
-                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
-                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
-                } else {
-                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
-                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+            if (match.Abandoned !== 'Y') {
+                const dateKey = (match.Date || '').trim();
+                const compositeKey = [
+                    (match.Season || '').trim(),
+                    (match.Competition || '').trim(),
+                    (match.Opposition || '').trim(),
+                    (match['Home/Away'] || '').trim()
+                ].join('|');
+                const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
+                if (matchScorers) {
+                    const westList = formatScorerList(matchScorers.west);
+                    const oppList = formatScorerList(matchScorers.opp);
+                    if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
+                        if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                        if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
+                    } else {
+                        if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
+                        if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                    }
                 }
             }
             
