@@ -1382,6 +1382,7 @@
         let MATCHES_DATA = [];
         let GOALS_DATA = [];
         let playerGoals = {}; // name -> count
+        let scorersByDate = {}; // date string -> { west: [{name, minute, pen, og}], opp: [...] }
         let gsShowAll = false;
         let currentFilter = 'all';
         let selectedSeason = '';
@@ -2081,6 +2082,16 @@
             return primary;
         }
         
+        function formatScorerEntry(entry) {
+            if (!entry.minute) return entry.name + (entry.og ? ' (OG)' : '');
+            const suffix = entry.pen ? entry.minute + ', pen' : entry.minute;
+            return entry.name + ' (' + suffix + ')' + (entry.og ? ' (OG)' : '');
+        }
+
+        function formatScorerList(entries) {
+            return entries.map(formatScorerEntry).join(', ');
+        }
+
         function renderMatchCard(match) {
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                               match.Result === 'W' ? '<span class="badge win">WIN</span>' :
@@ -2127,12 +2138,17 @@
                 }).join('') + '</div>' : '';
             
             let scorersHtml = '';
-            if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
-                if (match['West Scorers']) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + match['West Scorers'] + '</span></div>';
-                if (match['Opposition Scorers']) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + match['Opposition Scorers'] + '</span></div>';
-            } else {
-                if (match['Opposition Scorers']) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + match['Opposition Scorers'] + '</span></div>';
-                if (match['West Scorers']) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + match['West Scorers'] + '</span></div>';
+            const matchScorers = scorersByDate[(match.Date || '').trim()];
+            if (matchScorers) {
+                const westList = formatScorerList(matchScorers.west);
+                const oppList = formatScorerList(matchScorers.opp);
+                if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
+                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
+                } else {
+                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
+                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                }
             }
             
             const notesHtml = match.Notes ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes + '</span></div>' : '';
@@ -2168,14 +2184,18 @@
             
             if (searchTerm) {
                 const term = searchTerm.toLowerCase();
-                filtered = filtered.filter(m =>
-                    (m.Opposition && m.Opposition.toLowerCase().includes(term)) ||
-                    (m.Competition && m.Competition.toLowerCase().includes(term)) ||
-                    (m.Date && m.Date.toLowerCase().includes(term)) ||
-                    (m.Season && m.Season.toLowerCase().includes(term)) ||
-                    (m['West Scorers'] && m['West Scorers'].toLowerCase().includes(term)) ||
-                    (m['Opposition Scorers'] && m['Opposition Scorers'].toLowerCase().includes(term))
-                );
+                filtered = filtered.filter(m => {
+                    if (m.Opposition && m.Opposition.toLowerCase().includes(term)) return true;
+                    if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
+                    if (m.Date && m.Date.toLowerCase().includes(term)) return true;
+                    if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+                    const matchScorers = scorersByDate[(m.Date || '').trim()];
+                    if (matchScorers) {
+                        const allNames = [...matchScorers.west, ...matchScorers.opp].map(e => e.name.toLowerCase());
+                        if (allNames.some(n => n.includes(term))) return true;
+                    }
+                    return false;
+                });
             }
 
             if (selectedCompetition) {
@@ -2283,12 +2303,16 @@
         function matchesSearch(m) {
             if (!searchTerm) return true;
             const term = searchTerm.toLowerCase();
-            return (m.Opposition && m.Opposition.toLowerCase().includes(term)) ||
-                   (m.Competition && m.Competition.toLowerCase().includes(term)) ||
-                   (m.Date && m.Date.toLowerCase().includes(term)) ||
-                   (m.Season && m.Season.toLowerCase().includes(term)) ||
-                   (m['West Scorers'] && m['West Scorers'].toLowerCase().includes(term)) ||
-                   (m['Opposition Scorers'] && m['Opposition Scorers'].toLowerCase().includes(term));
+            if (m.Opposition && m.Opposition.toLowerCase().includes(term)) return true;
+            if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
+            if (m.Date && m.Date.toLowerCase().includes(term)) return true;
+            if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+            const matchScorers = scorersByDate[(m.Date || '').trim()];
+            if (matchScorers) {
+                const allNames = [...matchScorers.west, ...matchScorers.opp].map(e => e.name.toLowerCase());
+                if (allNames.some(n => n.includes(term))) return true;
+            }
+            return false;
         }
         
         function updateStats(matches) {
@@ -2671,13 +2695,32 @@
 
         function aggregateGoals() {
             playerGoals = {};
+            scorersByDate = {};
+
             GOALS_DATA.forEach(row => {
-                // Only count West's goals, exclude own goals
-                if (row['For/Against'] !== 'For') return;
-                if (row['Own Goal'] === 'Y') return;
+                const dateKey = (row['Date'] || '').trim();
+                const forAgainst = row['For/Against'];
+                const isOG = row['Own Goal'] === 'Y';
                 const name = (row['Scorer'] || '').trim();
-                if (!name) return;
-                playerGoals[name] = (playerGoals[name] || 0) + 1;
+                const minute = (row['Minute'] || '').trim();
+                const isPen = row['Penalty'] === 'Y';
+
+                // Aggregate player goals (West goals only, no OGs)
+                if (forAgainst === 'For' && !isOG && name) {
+                    playerGoals[name] = (playerGoals[name] || 0) + 1;
+                }
+
+                // Build per-match scorer lookup (all scorers including OGs, keyed by date)
+                if (!dateKey || !name) return;
+                if (!scorersByDate[dateKey]) {
+                    scorersByDate[dateKey] = { west: [], opp: [] };
+                }
+                const entry = { name, minute, pen: isPen, og: isOG };
+                if (forAgainst === 'For') {
+                    scorersByDate[dateKey].west.push(entry);
+                } else {
+                    scorersByDate[dateKey].opp.push(entry);
+                }
             });
         }
 
