@@ -2108,6 +2108,12 @@
             return primary;
         }
         
+        function ordinal(n) {
+            const s = ['th','st','nd','rd'];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
         function formatScorerEntry(entry, dateKey) {
             const minutePart = entry.minute ? (entry.pen ? entry.minute + ', pen' : entry.minute) : '';
             const ogPart = entry.og ? ' (OG)' : '';
@@ -2118,7 +2124,7 @@
             if (!entry.og && dateKey) {
                 const milestone = playerMilestones[entry.name + '|' + dateKey];
                 if (milestone) {
-                    const milestoneLabel = milestone === 1 ? '1st club goal ⭐' : milestone + 'th club goal 🎯';
+                    const milestoneLabel = milestone === 1 ? '1st club goal ⭐' : ordinal(milestone) + ' club goal 🎯';
                     label += ' <span class="scorer-milestone">' + milestoneLabel + '</span>';
                 }
             }
@@ -2882,7 +2888,197 @@
                 .sort((a, b) => a.date - b.date);
         }
 
+        // Polyfill for canvas roundRect (older Safari/mobile)
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                const rad = Array.isArray(r) ? r[0] : r;
+                this.moveTo(x + rad, y);
+                this.lineTo(x + w - rad, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + rad);
+                this.lineTo(x + w, y + h);
+                this.lineTo(x, y + h);
+                this.lineTo(x, y + rad);
+                this.quadraticCurveTo(x, y, x + rad, y);
+                this.closePath();
+                return this;
+            };
+        }
+
+        function buildSeasonAverages() {
+            const bySeason = {};
+            MATCHES_DATA.forEach(m => {
+                if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return;
+                const s = m.Season;
+                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatch: null };
+                bySeason[s].total += m.Attendance;
+                bySeason[s].count++;
+                if (m.Attendance > bySeason[s].peak) {
+                    bySeason[s].peak = m.Attendance;
+                    bySeason[s].peakMatch = m;
+                }
+            });
+            // Return in chronological order — seasons are "YYYY/YY" so string sort works
+            return Object.entries(bySeason)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([season, d]) => ({
+                    season,
+                    avg: Math.round(d.total / d.count),
+                    count: d.count,
+                    peak: d.peak,
+                    peakMatch: d.peakMatch
+                }));
+        }
+
         function drawAttendanceChart() {
+            const canvas = document.getElementById('attendanceCanvas');
+            if (!canvas) return;
+
+            const container = canvas.parentElement;
+            const isMobile = window.innerWidth < 600;
+            const W = container.clientWidth || 800;
+            const H = isMobile ? 260 : 300;
+            const DPR = window.devicePixelRatio || 1;
+            canvas.width = W * DPR;
+            canvas.height = H * DPR;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(DPR, DPR);
+
+            const data = buildSeasonAverages();
+            if (data.length === 0) return;
+
+            const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
+            const chartW = W - PAD.left - PAD.right;
+            const chartH = H - PAD.top - PAD.bottom;
+
+            const maxAvg = Math.ceil(Math.max(...data.map(d => d.avg)) / 100) * 100;
+            const barW = chartW / data.length;
+            const BAR_GAP = Math.max(2, barW * 0.15);
+
+            const yScale = v => PAD.top + chartH - (v / maxAvg) * chartH;
+
+            // Y grid + labels
+            ctx.font = (isMobile ? '10' : '11') + 'px Inter, -apple-system, sans-serif';
+            const yTicks = isMobile ? 4 : 5;
+            for (let i = 0; i <= yTicks; i++) {
+                const v = Math.round((maxAvg / yTicks) * i);
+                const y = yScale(v);
+                ctx.beginPath();
+                ctx.strokeStyle = i === 0 ? '#ccc' : '#f0f0f0';
+                ctx.lineWidth = 1;
+                ctx.moveTo(PAD.left, y);
+                ctx.lineTo(PAD.left + chartW, y);
+                ctx.stroke();
+                ctx.fillStyle = '#999';
+                ctx.textAlign = 'right';
+                const label = v >= 1000 ? (v / 1000).toFixed(1).replace('.0','') + 'k' : v.toString();
+                ctx.fillText(label, PAD.left - 5, y + 4);
+            }
+
+            // Bars + x labels
+            data.forEach((d, i) => {
+                const x = PAD.left + i * barW + BAR_GAP / 2;
+                const bw = barW - BAR_GAP;
+                const barH = (d.avg / maxAvg) * chartH;
+                const y = PAD.top + chartH - barH;
+
+                // Bar fill — gradient green, lighter for older seasons
+                const alpha = 0.45 + 0.55 * (i / (data.length - 1));
+                ctx.fillStyle = `rgba(22,101,52,${alpha.toFixed(2)})`;
+                ctx.beginPath();
+                ctx.roundRect(x, y, bw, barH, [3, 3, 0, 0]);
+                ctx.fill();
+
+                // X label — season start year only, skip alternates on mobile
+                if (!isMobile || i % 2 === 0) {
+                    ctx.fillStyle = '#888';
+                    ctx.textAlign = 'center';
+                    ctx.font = (isMobile ? '9' : '10') + 'px Inter, -apple-system, sans-serif';
+                    const shortSeason = d.season.split('/')[0].slice(2); // "12" from "2012/13"
+                    const nextPart = d.season.split('/')[1] || ''; // "13"
+                    const label = isMobile ? "'" + shortSeason : shortSeason + '/' + nextPart;
+                    ctx.fillText(label, x + bw / 2, H - PAD.bottom + 14);
+                }
+            });
+
+            // Tooltip
+            const tooltip = document.getElementById('attendanceTooltip');
+            const HOVER_PAD = 4;
+
+            function getBarHit(mx, my) {
+                for (let i = 0; i < data.length; i++) {
+                    const x = PAD.left + i * barW + BAR_GAP / 2;
+                    const bw = barW - BAR_GAP;
+                    const barH = (data[i].avg / maxAvg) * chartH;
+                    const y = PAD.top + chartH - barH;
+                    if (mx >= x - HOVER_PAD && mx <= x + bw + HOVER_PAD && my >= y - HOVER_PAD && my <= PAD.top + chartH + HOVER_PAD) {
+                        return data[i];
+                    }
+                }
+                return null;
+            }
+
+            function showTooltip(clientX, clientY, d) {
+                const pm = d.peakMatch;
+                const peakLine = pm
+                    ? '<br>Peak: ' + d.peak.toLocaleString() + ' vs ' + pm.Opposition + ' (' + pm.Date + ')'
+                    : '';
+                tooltip.innerHTML = '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' home games' + peakLine;
+                tooltip.style.display = 'block';
+                const ttW = 230;
+                const left = clientX + 14 + ttW > window.innerWidth ? clientX - ttW - 8 : clientX + 14;
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = (clientY - 10) + 'px';
+            }
+
+            function onMouseMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                const hit = getBarHit(e.clientX - rect.left, e.clientY - rect.top);
+                if (hit) {
+                    showTooltip(e.clientX, e.clientY, hit);
+                    canvas.style.cursor = 'pointer';
+                } else {
+                    tooltip.style.display = 'none';
+                    canvas.style.cursor = 'default';
+                }
+            }
+
+            function onMouseLeave() {
+                tooltip.style.display = 'none';
+                canvas.style.cursor = 'default';
+            }
+
+            function onTouchStart(e) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const hit = getBarHit(touch.clientX - rect.left, touch.clientY - rect.top);
+                if (hit) {
+                    e.preventDefault();
+                    showTooltip(touch.clientX, touch.clientY, hit);
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            }
+
+            function onTouchEnd() {
+                setTimeout(() => { tooltip.style.display = 'none'; }, 2500);
+            }
+
+            canvas.removeEventListener('mousemove', canvas._attendanceMove);
+            canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
+            canvas.removeEventListener('touchstart', canvas._attendanceTouch);
+            canvas.removeEventListener('touchend', canvas._attendanceTouchEnd);
+            canvas._attendanceMove = onMouseMove;
+            canvas._attendanceLeave = onMouseLeave;
+            canvas._attendanceTouch = onTouchStart;
+            canvas._attendanceTouchEnd = onTouchEnd;
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseleave', onMouseLeave);
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+            canvas.addEventListener('touchend', onTouchEnd);
+        }
             const canvas = document.getElementById('attendanceCanvas');
             if (!canvas) return;
 
