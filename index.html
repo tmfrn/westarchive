@@ -2720,6 +2720,10 @@
         
         fetchMatchData();
         fetchGoalsData();
+        window.addEventListener('resize', () => {
+            const body = document.getElementById('attendanceBody');
+            if (body && body.classList.contains('open')) drawAttendanceChart();
+        });
         async function fetchGoalsData() {
             try {
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=2008440999&single=true&output=csv');
@@ -2741,6 +2745,7 @@
 
                 aggregateGoals();
                 renderGoalscorers();
+                renderMatches(); // re-render cards now that scorer data is available
             } catch (error) {
                 console.error('Error fetching goals data:', error);
                 // Non-fatal — just don't show the section
@@ -2881,23 +2886,27 @@
             const canvas = document.getElementById('attendanceCanvas');
             if (!canvas) return;
 
-            // Set actual pixel dimensions
             const container = canvas.parentElement;
+            const isMobile = window.innerWidth < 600;
             const W = container.clientWidth || 800;
-            const H = 320;
-            canvas.width = W;
-            canvas.height = H;
+            const H = isMobile ? 280 : 320;
+            const DPR = window.devicePixelRatio || 1;
+            canvas.width = W * DPR;
+            canvas.height = H * DPR;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
 
             const ctx = canvas.getContext('2d');
+            ctx.scale(DPR, DPR);
+
             const data = buildAttendanceData();
             if (data.length < 2) return;
 
-            const PAD = { top: 24, right: 24, bottom: 48, left: 56 };
+            const PAD = { top: 20, right: isMobile ? 12 : 24, bottom: isMobile ? 40 : 44, left: isMobile ? 44 : 56 };
             const chartW = W - PAD.left - PAD.right;
             const chartH = H - PAD.top - PAD.bottom;
 
             const attendances = data.map(d => d.attendance);
-            const minA = 0;
             const maxA = Math.ceil(Math.max(...attendances) / 500) * 500;
 
             const dates = data.map(d => d.date.getTime());
@@ -2905,70 +2914,70 @@
             const maxD = dates[dates.length - 1];
 
             const xScale = t => PAD.left + ((t - minD) / (maxD - minD)) * chartW;
-            const yScale = v => PAD.top + chartH - ((v - minA) / (maxA - minA)) * chartH;
+            const yScale = v => PAD.top + chartH - (v / maxA) * chartH;
 
             // Grid lines + Y labels
-            ctx.font = '11px Inter, -apple-system, sans-serif';
+            ctx.font = (isMobile ? '10' : '11') + 'px Inter, -apple-system, sans-serif';
             ctx.fillStyle = '#999';
             ctx.textAlign = 'right';
-            const yTicks = 5;
+            const yTicks = isMobile ? 4 : 5;
             for (let i = 0; i <= yTicks; i++) {
-                const v = minA + (maxA - minA) * (i / yTicks);
+                const v = Math.round((maxA / yTicks) * i);
                 const y = yScale(v);
                 ctx.beginPath();
                 ctx.strokeStyle = i === 0 ? '#ccc' : '#f0f0f0';
-                ctx.lineWidth = i === 0 ? 1 : 1;
+                ctx.lineWidth = 1;
                 ctx.moveTo(PAD.left, y);
                 ctx.lineTo(PAD.left + chartW, y);
                 ctx.stroke();
-                ctx.fillText(v.toLocaleString(), PAD.left - 8, y + 4);
+                const label = v >= 1000 ? (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'k' : v.toString();
+                ctx.fillText(label, PAD.left - 6, y + 4);
             }
 
-            // X axis season labels — one per season year change
+            // X axis — show one label every ~2 years on mobile, every year on desktop
             ctx.textAlign = 'center';
             ctx.fillStyle = '#999';
+            const yearStep = isMobile ? 2 : 1;
             const seenYears = new Set();
             data.forEach(d => {
                 const yr = d.date.getFullYear();
-                if (!seenYears.has(yr)) {
-                    seenYears.add(yr);
-                    const x = xScale(d.date.getTime());
-                    ctx.fillText(yr, x, H - PAD.bottom + 18);
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#e8e8e8';
-                    ctx.lineWidth = 1;
-                    ctx.moveTo(x, PAD.top);
-                    ctx.lineTo(x, PAD.top + chartH);
-                    ctx.stroke();
-                }
+                if (seenYears.has(yr)) return;
+                // Only show every yearStep years
+                const firstYearInData = new Date(minD).getFullYear();
+                if ((yr - firstYearInData) % yearStep !== 0) { seenYears.add(yr); return; }
+                seenYears.add(yr);
+                const x = xScale(d.date.getTime());
+                ctx.fillText(yr, x, H - PAD.bottom + 16);
+                ctx.beginPath();
+                ctx.strokeStyle = '#eeeeee';
+                ctx.lineWidth = 1;
+                ctx.moveTo(x, PAD.top);
+                ctx.lineTo(x, PAD.top + chartH);
+                ctx.stroke();
             });
 
-            // Trend line (linear regression)
+            // Trend line (linear regression on index)
             const n = data.length;
-            const xs = data.map((d, i) => i); // use index for regression stability
             const ys = attendances;
-            const sumX = xs.reduce((a, b) => a + b, 0);
+            const sumX = (n * (n - 1)) / 2;
             const sumY = ys.reduce((a, b) => a + b, 0);
-            const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
-            const sumXX = xs.reduce((s, x) => s + x * x, 0);
+            const sumXY = ys.reduce((s, y, i) => s + i * y, 0);
+            const sumXX = ys.reduce((s, _, i) => s + i * i, 0);
             const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
             const intercept = (sumY - slope * sumX) / n;
 
-            const trendY0 = intercept;
-            const trendY1 = intercept + slope * (n - 1);
-
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(22,101,52,0.35)';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(22,101,52,0.4)';
+            ctx.lineWidth = isMobile ? 1.5 : 2;
             ctx.setLineDash([6, 4]);
-            ctx.moveTo(xScale(dates[0]), yScale(Math.max(minA, trendY0)));
-            ctx.lineTo(xScale(dates[n - 1]), yScale(Math.max(minA, trendY1)));
+            ctx.moveTo(xScale(dates[0]), yScale(Math.max(0, intercept)));
+            ctx.lineTo(xScale(dates[n - 1]), yScale(Math.max(0, intercept + slope * (n - 1))));
             ctx.stroke();
             ctx.setLineDash([]);
 
             // Connecting line
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(22,101,52,0.2)';
+            ctx.strokeStyle = 'rgba(22,101,52,0.25)';
             ctx.lineWidth = 1.5;
             data.forEach((d, i) => {
                 const x = xScale(d.date.getTime());
@@ -2977,43 +2986,52 @@
             });
             ctx.stroke();
 
-            // Dots
+            // Dots — larger on mobile for touch targets
+            const DOT_R = isMobile ? 5 : 3.5;
             data.forEach(d => {
                 const x = xScale(d.date.getTime());
                 const y = yScale(d.attendance);
                 ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.arc(x, y, DOT_R, 0, Math.PI * 2);
                 ctx.fillStyle = '#166534';
                 ctx.fill();
             });
 
-            // Tooltip on hover
+            // Tooltip
             const tooltip = document.getElementById('attendanceTooltip');
-            const HOVER_R = 8;
+            const HOVER_R = isMobile ? 18 : 10;
 
-            function onMouseMove(e) {
-                const rect = canvas.getBoundingClientRect();
-                const mx = e.clientX - rect.left;
-                const my = e.clientY - rect.top;
-                let hit = null;
-                let minDist = HOVER_R * 2;
+            function showTooltip(clientX, clientY, d) {
+                const m = d.match;
+                const score = m['Home/Away'] === 'H'
+                    ? m['Goals For'] + '-' + m['Goals Against']
+                    : m['Goals Against'] + '-' + m['Goals For'];
+                const result = m.Result === 'W' ? '✅' : m.Result === 'L' ? '❌' : '➖';
+                tooltip.innerHTML = result + ' vs ' + m.Opposition + ' &nbsp;' + score + '<br>' + m.Date + ' &nbsp;·&nbsp; ' + d.attendance.toLocaleString() + ' fans';
+                tooltip.style.display = 'block';
+                // Keep tooltip on screen
+                const ttW = 220;
+                const left = clientX + 14 + ttW > window.innerWidth ? clientX - ttW - 8 : clientX + 14;
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = (clientY - 10) + 'px';
+            }
+
+            function getHit(canvasX, canvasY) {
+                let hit = null, minDist = HOVER_R * 2;
                 data.forEach(d => {
                     const x = xScale(d.date.getTime());
                     const y = yScale(d.attendance);
-                    const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2);
+                    const dist = Math.sqrt((canvasX - x) ** 2 + (canvasY - y) ** 2);
                     if (dist < HOVER_R && dist < minDist) { minDist = dist; hit = d; }
                 });
+                return hit;
+            }
+
+            function onMouseMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                const hit = getHit(e.clientX - rect.left, e.clientY - rect.top);
                 if (hit) {
-                    const m = hit.match;
-                    const score = m['Home/Away'] === 'H'
-                        ? m['Goals For'] + '-' + m['Goals Against']
-                        : m['Goals Against'] + '-' + m['Goals For'];
-                    const opp = m.Opposition;
-                    const result = m.Result === 'W' ? '✅' : m.Result === 'L' ? '❌' : '➖';
-                    tooltip.innerHTML = result + ' vs ' + opp + ' &nbsp;' + score + '<br>' + m.Date + ' &nbsp;·&nbsp; ' + hit.attendance.toLocaleString() + ' fans';
-                    tooltip.style.display = 'block';
-                    tooltip.style.left = (e.clientX + 14) + 'px';
-                    tooltip.style.top = (e.clientY - 10) + 'px';
+                    showTooltip(e.clientX, e.clientY, hit);
                     canvas.style.cursor = 'pointer';
                 } else {
                     tooltip.style.display = 'none';
@@ -3026,13 +3044,34 @@
                 canvas.style.cursor = 'default';
             }
 
-            // Remove old listeners before adding new ones (in case of redraw)
+            function onTouchStart(e) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const hit = getHit(touch.clientX - rect.left, touch.clientY - rect.top);
+                if (hit) {
+                    e.preventDefault();
+                    showTooltip(touch.clientX, touch.clientY, hit);
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            }
+
+            function onTouchEnd() {
+                setTimeout(() => { tooltip.style.display = 'none'; }, 2000);
+            }
+
             canvas.removeEventListener('mousemove', canvas._attendanceMove);
             canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
+            canvas.removeEventListener('touchstart', canvas._attendanceTouch);
+            canvas.removeEventListener('touchend', canvas._attendanceTouchEnd);
             canvas._attendanceMove = onMouseMove;
             canvas._attendanceLeave = onMouseLeave;
+            canvas._attendanceTouch = onTouchStart;
+            canvas._attendanceTouchEnd = onTouchEnd;
             canvas.addEventListener('mousemove', onMouseMove);
             canvas.addEventListener('mouseleave', onMouseLeave);
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+            canvas.addEventListener('touchend', onTouchEnd);
         }
 
     </script>
