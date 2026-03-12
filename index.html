@@ -825,6 +825,106 @@
         .scorers strong { color: #000; }
         .scorers-list { color: #666; }
 
+        /* On This Day banner */
+        .otd-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            color: #fff;
+            padding: 20px 24px 16px;
+            border-bottom: 3px solid #3b82f6;
+        }
+        .otd-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .otd-icon { font-size: 1.3em; }
+        .otd-title {
+            font-size: 1em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #93c5fd;
+            flex: 1;
+        }
+        .otd-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1em;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .otd-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .otd-matches {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .otd-match {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.88em;
+            flex-wrap: wrap;
+        }
+        .otd-match-year {
+            color: #93c5fd;
+            font-weight: 700;
+            font-size: 0.95em;
+            min-width: 36px;
+        }
+        .otd-match-result {
+            font-weight: 800;
+            font-size: 0.8em;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+        .otd-match-result.w { background: #166534; color: #fff; }
+        .otd-match-result.d { background: #374151; color: #fff; }
+        .otd-match-result.l { background: #7f1d1d; color: #fff; }
+        .otd-match-score {
+            font-weight: 700;
+            font-size: 1em;
+            color: #fff;
+        }
+        .otd-match-opp {
+            color: #cbd5e1;
+            flex: 1;
+        }
+        .otd-match-comp {
+            color: #64748b;
+            font-size: 0.82em;
+            font-style: italic;
+        }
+        .otd-explore {
+            background: none;
+            border: 1px solid #3b82f6;
+            color: #93c5fd;
+            font-size: 0.82em;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .otd-explore:hover { background: rgba(59,130,246,0.15); }
+
+        .scorer-link {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 2px;
+        }
+        .scorer-link:hover { color: #000; }
+
         .scorer-milestone {
             display: inline-block;
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
@@ -1197,6 +1297,16 @@
         <div class="error-banner" id="errorBanner">
             <span id="errorMessage">Error loading match data.</span>
             <button onclick="fetchMatchData()">Retry</button>
+        </div>
+
+        <div class="otd-banner" id="otdBanner" style="display:none;">
+            <div class="otd-header">
+                <span class="otd-icon">📅</span>
+                <span class="otd-title">On This Day</span>
+                <button class="otd-close" onclick="dismissOTD()">✕</button>
+            </div>
+            <div class="otd-matches" id="otdMatches"></div>
+            <button class="otd-explore" onclick="activateLens('on-this-day', document.getElementById('lensOnThisDay'))">See all On This Day matches →</button>
         </div>
         
         <div class="streak-box" id="streakBox" style="display: none;">
@@ -1674,6 +1784,8 @@
                 // Show attendance chart section if there's home attendance data
                 const hasHomeAttendance = MATCHES_DATA.some(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y');
                 if (hasHomeAttendance) document.getElementById('attendanceChartBox').style.display = 'block';
+
+                displayOTDBanner();
                 
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) sortButton.textContent = '📅 Show Oldest First';
@@ -2136,14 +2248,18 @@
             return n + (s[(v - 20) % 10] || s[v] || s[0]);
         }
 
-        function formatScorerEntry(entry, dateKey) {
+        function formatScorerEntry(entry, dateKey, isWest) {
             const minutePart = entry.minute ? (entry.pen ? entry.minute + ', pen' : entry.minute) : '';
             const ogPart = entry.og ? ' (OG)' : '';
-            let label = entry.name;
+            const safeName = entry.name.replace(/'/g, "\\'");
+            const nameHtml = (isWest && !entry.og)
+                ? '<span class="scorer-link" onclick="showPlayerModal(\'' + safeName + '\')">' + entry.name + '</span>'
+                : entry.name;
+            let label = nameHtml;
             if (minutePart) label += ' (' + minutePart + ')';
             label += ogPart;
             // Milestone annotation (West goals only, no OGs)
-            if (!entry.og && dateKey) {
+            if (isWest && !entry.og && dateKey) {
                 const milestone = playerMilestones[entry.name + '|' + dateKey];
                 if (milestone) {
                     const milestoneLabel = milestone === 1 ? '1st club goal ⭐' : ordinal(milestone) + ' club goal 🎯';
@@ -2153,8 +2269,8 @@
             return label;
         }
 
-        function formatScorerList(entries, dateKey) {
-            return entries.map(e => formatScorerEntry(e, dateKey)).join(', ');
+        function formatScorerList(entries, dateKey, isWest) {
+            return entries.map(e => formatScorerEntry(e, dateKey, isWest)).join(', ');
         }
 
         function renderMatchCard(match) {
@@ -2213,8 +2329,8 @@
                 ].join('|');
                 const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
                 if (matchScorers) {
-                    const westList = formatScorerList(matchScorers.west, dateKey);
-                    const oppList = formatScorerList(matchScorers.opp, dateKey);
+                    const westList = formatScorerList(matchScorers.west, dateKey, true);
+                    const oppList = formatScorerList(matchScorers.opp, dateKey, false);
                     if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
                         if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
                         if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
@@ -2752,6 +2868,50 @@
             const body = document.getElementById('attendanceBody');
             if (body && body.classList.contains('open')) drawAttendanceChart();
         });
+        function dismissOTD() {
+            document.getElementById('otdBanner').style.display = 'none';
+        }
+
+        function displayOTDBanner() {
+            const today = new Date();
+            const todayDay = today.getDate();
+            const todayMonth = today.getMonth();
+
+            const matches = MATCHES_DATA.filter(m => {
+                if (m.Abandoned === 'Y') return false;
+                const d = parseDate(m.Date);
+                if (!d) return false;
+                return d.getDate() === todayDay && d.getMonth() === todayMonth;
+            }).sort((a, b) => {
+                const da = parseDate(a.Date), db = parseDate(b.Date);
+                return db - da; // newest first
+            });
+
+            if (matches.length === 0) return;
+
+            const html = matches.map(m => {
+                const result = (m.Result || 'd').toLowerCase();
+                const isHome = m['Home/Away'] === 'H';
+                const score = isHome
+                    ? m['Goals For'] + '–' + m['Goals Against']
+                    : m['Goals Against'] + '–' + m['Goals For'];
+                const opp = isHome
+                    ? 'vs ' + m.Opposition
+                    : '@ ' + m.Opposition;
+                const year = (m.Date || '').split('/')[2] || '';
+                return '<div class="otd-match">' +
+                    '<span class="otd-match-year">' + year + '</span>' +
+                    '<span class="otd-match-result ' + result + '">' + (m.Result || 'D') + '</span>' +
+                    '<span class="otd-match-score">' + score + '</span>' +
+                    '<span class="otd-match-opp">' + opp + '</span>' +
+                    '<span class="otd-match-comp">' + m.Competition + '</span>' +
+                '</div>';
+            }).join('');
+
+            document.getElementById('otdMatches').innerHTML = html;
+            document.getElementById('otdBanner').style.display = 'block';
+        }
+
         async function fetchGoalsData() {
             try {
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=2008440999&single=true&output=csv');
