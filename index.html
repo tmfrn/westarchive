@@ -1842,6 +1842,12 @@
             records.mostGoalsConceded = [...validMatches].sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, 20);
             records.highestAttendance = [...validMatches].filter(m => m.Attendance).sort((a, b) => b.Attendance - a.Attendance).slice(0, 20);
             records.lowestAttendance = [...validMatches].filter(m => m.Attendance).sort((a, b) => a.Attendance - b.Attendance).slice(0, 20);
+            const homeMatches = validMatches.filter(m => m['Home/Away'] === 'H' && m.Attendance);
+            const awayMatches = validMatches.filter(m => m['Home/Away'] === 'A' && m.Attendance);
+            records.highestHomeAttendance = homeMatches.length ? Math.max(...homeMatches.map(m => m.Attendance)) : null;
+            records.lowestHomeAttendance = homeMatches.length ? Math.min(...homeMatches.map(m => m.Attendance)) : null;
+            records.highestAwayAttendance = awayMatches.length ? Math.max(...awayMatches.map(m => m.Attendance)) : null;
+            records.lowestAwayAttendance = awayMatches.length ? Math.min(...awayMatches.map(m => m.Attendance)) : null;
             records.cleanSheets = validMatches.filter(m => m['Goals Against'] === 0).length;
             records.failedToScore = validMatches.filter(m => m['Goals For'] === 0).length;
             records.longestWinStreak = findLongestStreak(validMatches, m => m.Result === 'W');
@@ -1877,6 +1883,22 @@
             }
             if (records.lowestAttendance.length > 0 && match.Attendance && match.Attendance === records.lowestAttendance[0].Attendance) {
                 tags.push({ text: 'LOWEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+            }
+            if (match['Home/Away'] === 'H' && match.Attendance) {
+                if (records.highestHomeAttendance && match.Attendance === records.highestHomeAttendance) {
+                    tags.push({ text: 'HIGHEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+                }
+                if (records.lowestHomeAttendance && match.Attendance === records.lowestHomeAttendance) {
+                    tags.push({ text: 'LOWEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+                }
+            }
+            if (match['Home/Away'] === 'A' && match.Attendance) {
+                if (records.highestAwayAttendance && match.Attendance === records.highestAwayAttendance) {
+                    tags.push({ text: 'HIGHEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+                }
+                if (records.lowestAwayAttendance && match.Attendance === records.lowestAwayAttendance) {
+                    tags.push({ text: 'LOWEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+                }
             }
             return tags;
         }
@@ -2764,9 +2786,15 @@
             scorersByKey = {};
             playerMilestones = {};
 
-            // Sort all West goals chronologically first (by date string via parseDate)
+            // Build a set of dates that are abandoned matches (to exclude from milestone counts)
+            const abandonedDates = new Set(
+                MATCHES_DATA.filter(m => m.Abandoned === 'Y').map(m => (m.Date || '').trim())
+            );
+
+            // Sort all West goals chronologically, excluding abandoned match dates
             const westGoals = GOALS_DATA.filter(r =>
                 r['For/Against'] === 'For' && r['Own Goal'] !== 'Y' && (r['Scorer'] || '').trim()
+                && !abandonedDates.has((r['Date'] || '').trim())
             ).slice().sort((a, b) => {
                 const da = parseDate(a['Date']), db = parseDate(b['Date']);
                 if (!da && !db) return 0;
@@ -2911,12 +2939,14 @@
             MATCHES_DATA.forEach(m => {
                 if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return;
                 const s = m.Season;
-                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatch: null };
+                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [] };
                 bySeason[s].total += m.Attendance;
                 bySeason[s].count++;
                 if (m.Attendance > bySeason[s].peak) {
                     bySeason[s].peak = m.Attendance;
-                    bySeason[s].peakMatch = m;
+                    bySeason[s].peakMatches = [m];
+                } else if (m.Attendance === bySeason[s].peak) {
+                    bySeason[s].peakMatches.push(m);
                 }
             });
             // Return in chronological order — seasons are "YYYY/YY" so string sort works
@@ -2927,7 +2957,7 @@
                     avg: Math.round(d.total / d.count),
                     count: d.count,
                     peak: d.peak,
-                    peakMatch: d.peakMatch
+                    peakMatches: d.peakMatches
                 }));
         }
 
@@ -3023,10 +3053,11 @@
             }
 
             function showTooltip(clientX, clientY, d) {
-                const pm = d.peakMatch;
-                const peakLine = pm
-                    ? '<br>Peak: ' + d.peak.toLocaleString() + ' vs ' + pm.Opposition + ' (' + pm.Date + ')'
-                    : '';
+                let peakLine = '';
+                if (d.peakMatches && d.peakMatches.length > 0) {
+                    const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', ');
+                    peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' — ' + peakGames;
+                }
                 tooltip.innerHTML = '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' home games' + peakLine;
                 tooltip.style.display = 'block';
                 const ttW = 230;
