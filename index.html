@@ -824,6 +824,20 @@
         
         .scorers strong { color: #000; }
         .scorers-list { color: #666; }
+
+        .scorer-milestone {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+            font-size: 0.72em;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 4px;
+            vertical-align: middle;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+        }
         
         /* Head-to-head modal */
         .h2h-overlay {
@@ -1194,6 +1208,19 @@
             </div>
         </div>
         
+        <div class="summary-box" id="attendanceChartBox" style="display:none;">
+            <div class="section-toggle-header" id="attendanceToggle" onclick="toggleSection('attendance')">
+                <h2>Home Attendance Over Time</h2>
+                <span class="section-chevron">▼</span>
+            </div>
+            <div class="section-body" id="attendanceBody">
+                <div style="position:relative;">
+                    <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
+                </div>
+                <div id="attendanceTooltip" style="display:none;position:fixed;background:#000;color:#fff;padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;"></div>
+            </div>
+        </div>
+
         <div class="summary-box">
             <div class="section-toggle-header" id="summaryToggle" onclick="toggleSection('summary')">
                 <h2>Database Records</h2>
@@ -1384,13 +1411,13 @@
         let playerGoals = {}; // name -> count
         let scorersByDate = {}; // date string -> { west: [{name, minute, pen, og}], opp: [...] }
         let scorersByKey = {};  // "Season|Competition|Opposition|H/A" -> { west: [...], opp: [...] }
+        let playerMilestones = {}; // "name|dateKey" -> milestone number (e.g. 10, 25, 50)
         let gsShowAll = false;
         let currentFilter = 'all';
         let selectedSeason = '';
         let selectedCompetition = '';
         let searchTerm = '';
         let records = {};
-        let attendanceVenue = 'all';
         let sortOrder = 'desc';
         let activeLens = null;
         let listCap = 20;       // cap for capped list filters (biggest-wins, attendance etc)
@@ -1468,13 +1495,11 @@
                 scrollToResults();
             } else if (lens === 'big-crowds') {
                 currentFilter = 'highest-attendance';
-                attendanceVenue = 'all';
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
             } else if (lens === 'ghost-games') {
                 currentFilter = 'lowest-attendance';
-                attendanceVenue = 'all';
                 selectedSeason = '';
                 renderMatches();
                 scrollToResults();
@@ -1532,7 +1557,6 @@
             selectedCompetition = '';
             searchTerm = '';
             sortOrder = 'desc';
-            attendanceVenue = 'all';
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('competitionSelect').value = '';
@@ -1558,7 +1582,6 @@
         function setLensVenue(venue, pillEl) {
             lensVenue = venue;
             listCap = 50; // reset cap when changing venue
-            attendanceVenue = venue; // keep legacy var in sync
             document.getElementById('venuePills').querySelectorAll('.venue-pill').forEach(p => {
                 p.classList.toggle('active', p.dataset.venue === venue);
             });
@@ -1647,6 +1670,10 @@
                 populateCompetitionFilter();
                 displayCurrentStreak();
                 renderMatches();
+
+                // Show attendance chart section if there's home attendance data
+                const hasHomeAttendance = MATCHES_DATA.some(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y');
+                if (hasHomeAttendance) document.getElementById('attendanceChartBox').style.display = 'block';
                 
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) sortButton.textContent = '📅 Show Oldest First';
@@ -1666,10 +1693,6 @@
             renderMatches();
         }
         
-        function clearAllFilters() {
-            clearLens();
-        }
-
         function clearFilterBar() {
             selectedSeason = '';
             selectedCompetition = '';
@@ -1833,24 +1856,26 @@
             if (match.Opposition === 'Maine Road' && match.Result === 'W') {
                 tags.push({ text: '🏆 M21 IS OURS', isSilver: false });
             }
-            if (records.biggestWin.length > 0 && match === records.biggestWin[0] && match.Result === 'W') {
+            if (records.biggestWin.length > 0 && match.Result === 'W') {
                 const margin = match['Goals For'] - match['Goals Against'];
-                tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false });
+                const recordMargin = records.biggestWin[0]['Goals For'] - records.biggestWin[0]['Goals Against'];
+                if (margin === recordMargin) tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false });
             }
-            if (records.biggestLoss.length > 0 && match === records.biggestLoss[0] && match.Result === 'L') {
+            if (records.biggestLoss.length > 0 && match.Result === 'L') {
                 const margin = match['Goals Against'] - match['Goals For'];
-                tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false });
+                const recordMargin = records.biggestLoss[0]['Goals Against'] - records.biggestLoss[0]['Goals For'];
+                if (margin === recordMargin) tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false });
             }
-            if (records.highestScore.length > 0 && match === records.highestScore[0]) {
+            if (records.highestScore.length > 0 && match['Goals For'] === records.highestScore[0]['Goals For']) {
                 tags.push({ text: 'MOST GOALS SCORED (' + match['Goals For'] + ')', isSilver: false });
             }
-            if (records.mostGoalsConceded.length > 0 && match === records.mostGoalsConceded[0]) {
+            if (records.mostGoalsConceded.length > 0 && match['Goals Against'] === records.mostGoalsConceded[0]['Goals Against']) {
                 tags.push({ text: 'MOST GOALS CONCEDED (' + match['Goals Against'] + ')', isSilver: false });
             }
-            if (records.highestAttendance.length > 0 && match === records.highestAttendance[0]) {
+            if (records.highestAttendance.length > 0 && match.Attendance && match.Attendance === records.highestAttendance[0].Attendance) {
                 tags.push({ text: 'HIGHEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
             }
-            if (records.lowestAttendance.length > 0 && match === records.lowestAttendance[0]) {
+            if (records.lowestAttendance.length > 0 && match.Attendance && match.Attendance === records.lowestAttendance[0].Attendance) {
                 tags.push({ text: 'LOWEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
             }
             return tags;
@@ -2083,14 +2108,25 @@
             return primary;
         }
         
-        function formatScorerEntry(entry) {
-            if (!entry.minute) return entry.name + (entry.og ? ' (OG)' : '');
-            const suffix = entry.pen ? entry.minute + ', pen' : entry.minute;
-            return entry.name + ' (' + suffix + ')' + (entry.og ? ' (OG)' : '');
+        function formatScorerEntry(entry, dateKey) {
+            const minutePart = entry.minute ? (entry.pen ? entry.minute + ', pen' : entry.minute) : '';
+            const ogPart = entry.og ? ' (OG)' : '';
+            let label = entry.name;
+            if (minutePart) label += ' (' + minutePart + ')';
+            label += ogPart;
+            // Milestone annotation (West goals only, no OGs)
+            if (!entry.og && dateKey) {
+                const milestone = playerMilestones[entry.name + '|' + dateKey];
+                if (milestone) {
+                    const milestoneLabel = milestone === 1 ? '1st club goal ⭐' : milestone + 'th club goal 🎯';
+                    label += ' <span class="scorer-milestone">' + milestoneLabel + '</span>';
+                }
+            }
+            return label;
         }
 
-        function formatScorerList(entries) {
-            return entries.map(formatScorerEntry).join(', ');
+        function formatScorerList(entries, dateKey) {
+            return entries.map(e => formatScorerEntry(e, dateKey)).join(', ');
         }
 
         function renderMatchCard(match) {
@@ -2149,8 +2185,8 @@
                 ].join('|');
                 const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
                 if (matchScorers) {
-                    const westList = formatScorerList(matchScorers.west);
-                    const oppList = formatScorerList(matchScorers.opp);
+                    const westList = formatScorerList(matchScorers.west, dateKey);
+                    const oppList = formatScorerList(matchScorers.opp, dateKey);
                     if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
                         if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
                         if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
@@ -2368,7 +2404,7 @@
             updateStats(filtered);
             
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
-            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'highest-attendance', 'lowest-attendance'];
+            const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'highest-attendance', 'lowest-attendance'];
             
             if (streakFilters.includes(currentFilter)) {
                 const runLabels = { 'win-streak': 'Longest Winning Run', 'draw-streak': 'Longest Run of Draws', 'loss-streak': 'Longest Losing Run', 'unbeaten-streak': 'Longest Unbeaten Run', 'winless-streak': 'Longest Winless Run' };
@@ -2379,6 +2415,7 @@
                 const recordType = {
                     'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Defeats',
                     'most-goals-scored': 'Most Goals Scored', 'most-goals-conceded': 'Most Goals Conceded',
+                    'most-goals-total': 'Highest Scoring Games',
                     'highest-attendance': 'Biggest Crowds', 'lowest-attendance': 'Smallest Crowds'
                 }[currentFilter];
                 document.getElementById('resultCount').textContent = 'Top ' + filtered.length + ' – ' + recordType;
@@ -2407,6 +2444,11 @@
                 }).join('');
             } else {
                 html = filtered.map(match => renderMatchCard(match)).join('');
+                if (currentFilter === 'on-this-day' && filtered.length === 0) {
+                    const today = new Date();
+                    const dayMonth = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+                    html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches in the archive on ' + dayMonth + '.</div>';
+                }
                 if (totalCount && filtered.length < totalCount) {
                     html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
                 }
@@ -2456,8 +2498,8 @@
             }
             
             if (streakFilters.includes(filter)) {
-                renderMatches();
                 const matches = filterMatches();
+                renderMatches();
                 if (matches.length > 0) {
                     const streakValue = document.getElementById('streakValue');
                     const streakContext = document.getElementById('streakContext');
@@ -2494,7 +2536,7 @@
             row.classList.remove('has-active');
             document.getElementById('lensesClear').classList.add('hidden');
             document.getElementById('seasonSelect').value = '';
-            document.getElementById('seasonSelect').style.display = 'none';
+            document.getElementById('seasonSelect').style.display = '';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             
             updateStats([match]);
@@ -2709,7 +2751,33 @@
             playerGoals = {};
             scorersByDate = {};
             scorersByKey = {};
+            playerMilestones = {};
 
+            // Sort all West goals chronologically first (by date string via parseDate)
+            const westGoals = GOALS_DATA.filter(r =>
+                r['For/Against'] === 'For' && r['Own Goal'] !== 'Y' && (r['Scorer'] || '').trim()
+            ).slice().sort((a, b) => {
+                const da = parseDate(a['Date']), db = parseDate(b['Date']);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return da - db;
+            });
+
+            // Build cumulative goal counts and flag milestones
+            const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
+            const runningTotals = {};
+            westGoals.forEach(r => {
+                const name = r['Scorer'].trim();
+                const dateKey = (r['Date'] || '').trim();
+                runningTotals[name] = (runningTotals[name] || 0) + 1;
+                const total = runningTotals[name];
+                if (MILESTONES.has(total)) {
+                    playerMilestones[name + '|' + dateKey] = total;
+                }
+            });
+
+            // Now build all the other lookups
             GOALS_DATA.forEach(row => {
                 const dateKey = (row['Date'] || '').trim();
                 const forAgainst = row['For/Against'];
@@ -2718,7 +2786,6 @@
                 const minute = (row['Minute'] || '').trim();
                 const isPen = row['Penalty'] === 'Y';
 
-                // Aggregate player goals (West goals only, no OGs)
                 if (forAgainst === 'For' && !isOG && name) {
                     playerGoals[name] = (playerGoals[name] || 0) + 1;
                 }
@@ -2727,14 +2794,12 @@
 
                 const entry = { name, minute, pen: isPen, og: isOG };
 
-                // Build date-keyed lookup
                 if (dateKey) {
                     if (!scorersByDate[dateKey]) scorersByDate[dateKey] = { west: [], opp: [] };
                     if (forAgainst === 'For') scorersByDate[dateKey].west.push(entry);
                     else scorersByDate[dateKey].opp.push(entry);
                 }
 
-                // Build composite-keyed lookup as fallback
                 const compositeKey = [
                     (row['Season'] || '').trim(),
                     (row['Competition'] || '').trim(),
@@ -2784,8 +2849,15 @@
         }
 
         function toggleSection(section) {
-            const toggle = document.getElementById(section === 'summary' ? 'summaryToggle' : 'goalscorersToggle');
-            const body = document.getElementById(section === 'summary' ? 'summaryBody' : 'goalscorersBody');
+            const idMap = {
+                summary: { toggle: 'summaryToggle', body: 'summaryBody' },
+                goalscorers: { toggle: 'goalscorersToggle', body: 'goalscorersBody' },
+                attendance: { toggle: 'attendanceToggle', body: 'attendanceBody' }
+            };
+            const ids = idMap[section];
+            if (!ids) return;
+            const toggle = document.getElementById(ids.toggle);
+            const body = document.getElementById(ids.body);
             const isOpen = body.classList.contains('open');
             if (isOpen) {
                 body.classList.remove('open');
@@ -2793,7 +2865,174 @@
             } else {
                 body.classList.add('open');
                 toggle.classList.add('open');
+                if (section === 'attendance') drawAttendanceChart();
             }
+        }
+
+        function buildAttendanceData() {
+            return MATCHES_DATA
+                .filter(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y')
+                .map(m => ({ date: parseDate(m.Date), attendance: m.Attendance, match: m }))
+                .filter(d => d.date)
+                .sort((a, b) => a.date - b.date);
+        }
+
+        function drawAttendanceChart() {
+            const canvas = document.getElementById('attendanceCanvas');
+            if (!canvas) return;
+
+            // Set actual pixel dimensions
+            const container = canvas.parentElement;
+            const W = container.clientWidth || 800;
+            const H = 320;
+            canvas.width = W;
+            canvas.height = H;
+
+            const ctx = canvas.getContext('2d');
+            const data = buildAttendanceData();
+            if (data.length < 2) return;
+
+            const PAD = { top: 24, right: 24, bottom: 48, left: 56 };
+            const chartW = W - PAD.left - PAD.right;
+            const chartH = H - PAD.top - PAD.bottom;
+
+            const attendances = data.map(d => d.attendance);
+            const minA = 0;
+            const maxA = Math.ceil(Math.max(...attendances) / 500) * 500;
+
+            const dates = data.map(d => d.date.getTime());
+            const minD = dates[0];
+            const maxD = dates[dates.length - 1];
+
+            const xScale = t => PAD.left + ((t - minD) / (maxD - minD)) * chartW;
+            const yScale = v => PAD.top + chartH - ((v - minA) / (maxA - minA)) * chartH;
+
+            // Grid lines + Y labels
+            ctx.font = '11px Inter, -apple-system, sans-serif';
+            ctx.fillStyle = '#999';
+            ctx.textAlign = 'right';
+            const yTicks = 5;
+            for (let i = 0; i <= yTicks; i++) {
+                const v = minA + (maxA - minA) * (i / yTicks);
+                const y = yScale(v);
+                ctx.beginPath();
+                ctx.strokeStyle = i === 0 ? '#ccc' : '#f0f0f0';
+                ctx.lineWidth = i === 0 ? 1 : 1;
+                ctx.moveTo(PAD.left, y);
+                ctx.lineTo(PAD.left + chartW, y);
+                ctx.stroke();
+                ctx.fillText(v.toLocaleString(), PAD.left - 8, y + 4);
+            }
+
+            // X axis season labels — one per season year change
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#999';
+            const seenYears = new Set();
+            data.forEach(d => {
+                const yr = d.date.getFullYear();
+                if (!seenYears.has(yr)) {
+                    seenYears.add(yr);
+                    const x = xScale(d.date.getTime());
+                    ctx.fillText(yr, x, H - PAD.bottom + 18);
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#e8e8e8';
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(x, PAD.top);
+                    ctx.lineTo(x, PAD.top + chartH);
+                    ctx.stroke();
+                }
+            });
+
+            // Trend line (linear regression)
+            const n = data.length;
+            const xs = data.map((d, i) => i); // use index for regression stability
+            const ys = attendances;
+            const sumX = xs.reduce((a, b) => a + b, 0);
+            const sumY = ys.reduce((a, b) => a + b, 0);
+            const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+            const sumXX = xs.reduce((s, x) => s + x * x, 0);
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            const trendY0 = intercept;
+            const trendY1 = intercept + slope * (n - 1);
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(22,101,52,0.35)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            ctx.moveTo(xScale(dates[0]), yScale(Math.max(minA, trendY0)));
+            ctx.lineTo(xScale(dates[n - 1]), yScale(Math.max(minA, trendY1)));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Connecting line
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(22,101,52,0.2)';
+            ctx.lineWidth = 1.5;
+            data.forEach((d, i) => {
+                const x = xScale(d.date.getTime());
+                const y = yScale(d.attendance);
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Dots
+            data.forEach(d => {
+                const x = xScale(d.date.getTime());
+                const y = yScale(d.attendance);
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#166534';
+                ctx.fill();
+            });
+
+            // Tooltip on hover
+            const tooltip = document.getElementById('attendanceTooltip');
+            const HOVER_R = 8;
+
+            function onMouseMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                let hit = null;
+                let minDist = HOVER_R * 2;
+                data.forEach(d => {
+                    const x = xScale(d.date.getTime());
+                    const y = yScale(d.attendance);
+                    const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2);
+                    if (dist < HOVER_R && dist < minDist) { minDist = dist; hit = d; }
+                });
+                if (hit) {
+                    const m = hit.match;
+                    const score = m['Home/Away'] === 'H'
+                        ? m['Goals For'] + '-' + m['Goals Against']
+                        : m['Goals Against'] + '-' + m['Goals For'];
+                    const opp = m.Opposition;
+                    const result = m.Result === 'W' ? '✅' : m.Result === 'L' ? '❌' : '➖';
+                    tooltip.innerHTML = result + ' vs ' + opp + ' &nbsp;' + score + '<br>' + m.Date + ' &nbsp;·&nbsp; ' + hit.attendance.toLocaleString() + ' fans';
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (e.clientX + 14) + 'px';
+                    tooltip.style.top = (e.clientY - 10) + 'px';
+                    canvas.style.cursor = 'pointer';
+                } else {
+                    tooltip.style.display = 'none';
+                    canvas.style.cursor = 'default';
+                }
+            }
+
+            function onMouseLeave() {
+                tooltip.style.display = 'none';
+                canvas.style.cursor = 'default';
+            }
+
+            // Remove old listeners before adding new ones (in case of redraw)
+            canvas.removeEventListener('mousemove', canvas._attendanceMove);
+            canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
+            canvas._attendanceMove = onMouseMove;
+            canvas._attendanceLeave = onMouseLeave;
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseleave', onMouseLeave);
         }
 
     </script>
