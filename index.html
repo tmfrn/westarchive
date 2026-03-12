@@ -1383,6 +1383,7 @@
         let GOALS_DATA = [];
         let playerGoals = {}; // name -> count
         let scorersByDate = {}; // date string -> { west: [{name, minute, pen, og}], opp: [...] }
+        let scorersByKey = {};  // "Season|Competition|Opposition|H/A" -> { west: [...], opp: [...] }
         let gsShowAll = false;
         let currentFilter = 'all';
         let selectedSeason = '';
@@ -2138,7 +2139,14 @@
                 }).join('') + '</div>' : '';
             
             let scorersHtml = '';
-            const matchScorers = scorersByDate[(match.Date || '').trim()];
+            const dateKey = (match.Date || '').trim();
+            const compositeKey = [
+                (match.Season || '').trim(),
+                (match.Competition || '').trim(),
+                (match.Opposition || '').trim(),
+                (match['Home/Away'] || '').trim()
+            ].join('|');
+            const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
             if (matchScorers) {
                 const westList = formatScorerList(matchScorers.west);
                 const oppList = formatScorerList(matchScorers.opp);
@@ -2189,9 +2197,10 @@
                     if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
                     if (m.Date && m.Date.toLowerCase().includes(term)) return true;
                     if (m.Season && m.Season.toLowerCase().includes(term)) return true;
-                    const matchScorers = scorersByDate[(m.Date || '').trim()];
-                    if (matchScorers) {
-                        const allNames = [...matchScorers.west, ...matchScorers.opp].map(e => e.name.toLowerCase());
+                    const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
+                    const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
+                    if (ms) {
+                        const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                         if (allNames.some(n => n.includes(term))) return true;
                     }
                     return false;
@@ -2307,9 +2316,10 @@
             if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
             if (m.Date && m.Date.toLowerCase().includes(term)) return true;
             if (m.Season && m.Season.toLowerCase().includes(term)) return true;
-            const matchScorers = scorersByDate[(m.Date || '').trim()];
-            if (matchScorers) {
-                const allNames = [...matchScorers.west, ...matchScorers.opp].map(e => e.name.toLowerCase());
+            const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
+            const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
+            if (ms) {
+                const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                 if (allNames.some(n => n.includes(term))) return true;
             }
             return false;
@@ -2696,6 +2706,7 @@
         function aggregateGoals() {
             playerGoals = {};
             scorersByDate = {};
+            scorersByKey = {};
 
             GOALS_DATA.forEach(row => {
                 const dateKey = (row['Date'] || '').trim();
@@ -2710,16 +2721,28 @@
                     playerGoals[name] = (playerGoals[name] || 0) + 1;
                 }
 
-                // Build per-match scorer lookup (all scorers including OGs, keyed by date)
-                if (!dateKey || !name) return;
-                if (!scorersByDate[dateKey]) {
-                    scorersByDate[dateKey] = { west: [], opp: [] };
-                }
+                if (!name) return;
+
                 const entry = { name, minute, pen: isPen, og: isOG };
-                if (forAgainst === 'For') {
-                    scorersByDate[dateKey].west.push(entry);
-                } else {
-                    scorersByDate[dateKey].opp.push(entry);
+
+                // Build date-keyed lookup
+                if (dateKey) {
+                    if (!scorersByDate[dateKey]) scorersByDate[dateKey] = { west: [], opp: [] };
+                    if (forAgainst === 'For') scorersByDate[dateKey].west.push(entry);
+                    else scorersByDate[dateKey].opp.push(entry);
+                }
+
+                // Build composite-keyed lookup as fallback
+                const compositeKey = [
+                    (row['Season'] || '').trim(),
+                    (row['Competition'] || '').trim(),
+                    (row['Opposition'] || '').trim(),
+                    (row['Home/Away'] || '').trim()
+                ].join('|');
+                if (compositeKey !== '|||') {
+                    if (!scorersByKey[compositeKey]) scorersByKey[compositeKey] = { west: [], opp: [] };
+                    if (forAgainst === 'For') scorersByKey[compositeKey].west.push(entry);
+                    else scorersByKey[compositeKey].opp.push(entry);
                 }
             });
         }
