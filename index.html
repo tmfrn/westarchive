@@ -3077,6 +3077,18 @@
                 }
 
             });
+
+            // Sort each game's scorer lists by minute ascending.
+            // Handles stoppage time (e.g. "90+4") by splitting on "+".
+            function parseMinute(m) {
+                if (!m) return 999;
+                const parts = m.toString().split('+');
+                return parseInt(parts[0], 10) * 100 + (parts[1] ? parseInt(parts[1], 10) : 0);
+            }
+            Object.values(scorersByDate).forEach(game => {
+                game.west.sort((a, b) => parseMinute(a.minute) - parseMinute(b.minute));
+                game.opp.sort((a, b) => parseMinute(a.minute) - parseMinute(b.minute));
+            });
         }
 
         function renderGoalscorers() {
