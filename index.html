@@ -1853,6 +1853,28 @@
             return null;
         }
         
+        // Normalise any date string to DD/MM/YYYY for consistent cross-sheet keying.
+        // Handles: DD/MM/YYYY, M/D/YYYY (Google Sheets US export), YYYY-MM-DD (ISO)
+        function normaliseDateKey(raw) {
+            if (!raw) return '';
+            const s = raw.trim();
+            // Already DD/MM/YYYY
+            const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (dmy) {
+                // Disambiguate: if first part > 12 it must be day; if second part > 12 it must be day
+                const a = parseInt(dmy[1]), b = parseInt(dmy[2]);
+                if (a > 12) return s; // definitely DD/MM/YYYY already
+                if (b > 12) { // MM/DD/YYYY — swap
+                    return dmy[2].padStart(2,'0') + '/' + dmy[1].padStart(2,'0') + '/' + dmy[3];
+                }
+                return dmy[1].padStart(2,'0') + '/' + dmy[2].padStart(2,'0') + '/' + dmy[3];
+            }
+            // ISO: YYYY-MM-DD
+            const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (iso) return iso[3] + '/' + iso[2] + '/' + iso[1];
+            return s;
+        }
+
         // Penalty shootout games are draws for statistical purposes
         function effectiveResult(m) {
             if (m.Penalties === 'Y') return 'D';
@@ -2340,7 +2362,7 @@
             
             let scorersHtml = '';
             if (match.Abandoned !== 'Y') {
-                const dateKey = (match.Date || '').trim();
+                const dateKey = normaliseDateKey(match.Date || '');
                 const matchScorers = scorersByDate[dateKey];
                 if (matchScorers) {
                     const westList = formatScorerList(matchScorers.west, dateKey, true);
@@ -2396,7 +2418,7 @@
                     if (m.Season && m.Season.toLowerCase().includes(term)) return true;
                     if (m.Round && m.Round.toLowerCase().includes(term)) return true;
                     if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
-                    const ms = scorersByDate[(m.Date||'').trim()];
+                    const ms = scorersByDate[normaliseDateKey(m.Date||'')];
                     if (ms) {
                         const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                         if (allNames.some(n => n.includes(term))) return true;
@@ -2516,7 +2538,7 @@
             if (m.Season && m.Season.toLowerCase().includes(term)) return true;
             if (m.Round && m.Round.toLowerCase().includes(term)) return true;
             if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
-            const ms = scorersByDate[(m.Date||'').trim()];
+            const ms = scorersByDate[normaliseDateKey(m.Date||'')];
             if (ms) {
                 const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                 if (allNames.some(n => n.includes(term))) return true;
@@ -2780,10 +2802,12 @@
 
             if (goals.length === 0) return;
 
-            // Goals by season
+            // Goals by season (look up season from Results via date)
             const bySeason = {};
             goals.forEach(r => {
-                const s = r.Season || 'Unknown';
+                const dk = normaliseDateKey(r['Date'] || '');
+                const match = MATCHES_DATA.find(m => normaliseDateKey(m.Date || '') === dk);
+                const s = (match && match.Season) ? match.Season : 'Unknown';
                 bySeason[s] = (bySeason[s] || 0) + 1;
             });
             const seasonsSorted = Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0]));
@@ -2791,12 +2815,7 @@
             // Group goals by date (unambiguous join key between Goals and Results sheets)
             const matchGoals = {};
             goals.forEach(r => {
-                const rawDateG = (r['Date'] || '').trim();
-                const mdyG = rawDateG.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-                const isoG = rawDateG.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                const dateKey = mdyG ? mdyG[2].padStart(2,'0')+'/'+mdyG[1].padStart(2,'0')+'/'+mdyG[3]
-                              : isoG ? isoG[3]+'/'+isoG[2]+'/'+isoG[1]
-                              : rawDateG;
+                const dateKey = normaliseDateKey(r['Date'] || '');
                 if (dateKey) matchGoals[dateKey] = (matchGoals[dateKey] || 0) + 1;
             });
 
@@ -2804,7 +2823,7 @@
             const matchRows = Object.entries(matchGoals).map(([dateKey, goalsInMatch]) => {
                 const match = MATCHES_DATA.find(m =>
                     m.Abandoned !== 'Y' &&
-                    (m.Date || '').trim() === dateKey
+                    normaliseDateKey(m.Date || '') === dateKey
                 );
                 return { match, goalsInMatch };
             }).filter(r => r.match);
@@ -2996,12 +3015,7 @@
             const milestoneSeen = {}; // "name|milestone" -> true once badged
             westGoals.forEach(r => {
                 const name = r['Scorer'].trim();
-                const rawDateM = (r['Date'] || '').trim();
-                const mdyM = rawDateM.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-                const isoM = rawDateM.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                const dateKey = mdyM ? mdyM[2].padStart(2,'0')+'/'+mdyM[1].padStart(2,'0')+'/'+mdyM[3]
-                              : isoM ? isoM[3]+'/'+isoM[2]+'/'+isoM[1]
-                              : rawDateM;
+                const dateKey = normaliseDateKey(r['Date'] || '');
                 runningTotals[name] = (runningTotals[name] || 0) + 1;
                 const total = runningTotals[name];
                 const seenKey = name + '|' + total;
@@ -3019,18 +3033,7 @@
             GOALS_DATA.forEach(row => {
                 // Goals CSV from Google Sheets exports dates as M/D/YYYY or MM/DD/YYYY.
                 // Results CSV exports as DD/MM/YYYY. Normalise Goals dates to DD/MM/YYYY.
-                const rawDate = (row['Date'] || '').trim();
-                let dateKey = rawDate;
-                const mdyMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-                const isoMatch = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                if (mdyMatch) {
-                    const mo = mdyMatch[1].padStart(2,'0');
-                    const dy = mdyMatch[2].padStart(2,'0');
-                    const yr = mdyMatch[3];
-                    dateKey = dy + '/' + mo + '/' + yr;
-                } else if (isoMatch) {
-                    dateKey = isoMatch[3] + '/' + isoMatch[2] + '/' + isoMatch[1];
-                }
+                const dateKey = normaliseDateKey(row['Date'] || '');
                 const forAgainst = row['For/Against'];
                 const isOG = row['Own Goal'] === 'Y';
                 const name = (row['Scorer'] || '').trim();
