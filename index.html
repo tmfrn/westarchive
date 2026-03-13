@@ -796,27 +796,28 @@
         .match-fixture {
             display: flex;
             align-items: center;
-            justify-content: center;
             font-weight: 700;
             font-size: 1.1em;
             margin-bottom: 16px;
             color: #000;
-            gap: 0;
         }
-        .match-fixture > span, .match-fixture > .opposition-link {
+        .match-fixture .fixture-home {
             flex: 1;
             min-width: 0;
             word-break: break-word;
         }
-        .match-fixture > span:last-child, .match-fixture > .opposition-link:last-child {
+        .match-fixture .fixture-away {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
             text-align: right;
         }
         .match-score {
             font-size: 1.3em;
             color: #000;
-            padding: 0 12px;
+            padding: 0 16px;
+            white-space: nowrap;
             flex: 0 0 auto;
-            text-align: center;
         }
         
         .match-details {
@@ -1286,7 +1287,8 @@
             .lens-btn { font-size: 0.82em; padding: 9px 14px; }
             .results-header { padding: 24px 20px; }
             .matches { padding: 24px 20px 48px; }
-            .match-fixture { flex-direction: column; gap: 8px; text-align: center; }
+            .match-fixture { flex-direction: column; gap: 4px; text-align: center; }
+            .match-fixture .fixture-home, .match-fixture .fixture-away { text-align: center; }
             .h2h-overlay { padding: 20px 10px; }
             .h2h-extra { grid-template-columns: 1fr; }
             .h2h-extra-item { border-right: none; border-bottom: 1px solid #e0e0e0; }
@@ -2392,9 +2394,9 @@
                     '<span>' + resultBadge + venueBadge + '</span>' +
                 '</div>' +
                 '<div class="match-fixture">' +
-                    displayHome +
+                    '<span class="fixture-home">' + displayHome + '</span>' +
                     '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + ' - ' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
-                    displayAway +
+                    '<span class="fixture-away">' + displayAway + '</span>' +
                 '</div>' +
                 '<div class="match-details">' +
                     '<strong>Competition:</strong> ' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') +
