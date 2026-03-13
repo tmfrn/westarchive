@@ -2065,17 +2065,7 @@
         // Maps a raw Competition string to a canonical group name
         function getCanonicalCompetition(raw) {
             if (!raw) return null;
-            const r = raw.trim();
-            if (/Premier Division/.test(r)) return 'NWCL Premier Division';
-            if (/First Division South/.test(r)) return 'NWCL First Division South';
-            if (/First Division/.test(r) && !/South/.test(r)) return 'NWCL First Division';
-            if (/Emirates F\.?A\.? Cup|F\.A\.? Challenge Cup|F\.A\.? Cup/i.test(r)) return 'FA Cup';
-            if (/Carlsberg Vase|Isuzu FA Vase|F\.A\.? (Carlsberg )?Vase/i.test(r)) return 'FA Vase';
-            if (/League Challenge Cup|Macron Cup/i.test(r)) return 'League Cup';
-            if (/First Division Trophy/i.test(r)) return 'First Division Trophy';
-            if (/Lancashire Challenge Trophy/i.test(r)) return 'Lancashire Challenge Trophy';
-            if (/Manchester Premier Cup/i.test(r)) return 'Manchester Premier Cup';
-            return r; // fallback: show as-is
+            return raw.trim();
         }
 
         function populateCompetitionFilter() {
@@ -2087,16 +2077,17 @@
             });
 
             const leagueOrder = [
-                'NWCL Premier Division',
-                'NWCL First Division',
-                'NWCL First Division South',
+                'NWCFL Premier Division',
+                'NWCFL First Division',
+                'NWCFL First Division South',
+                'NWCFL Premier Division Play-Offs',
             ];
             const cupOrder = [
                 'FA Cup',
                 'FA Vase',
-                'First Division Trophy',
+                'NWCFL League Cup',
+                'NWCFL First Division Trophy',
                 'Lancashire Challenge Trophy',
-                'League Cup',
                 'Manchester Premier Cup',
             ];
 
@@ -2946,15 +2937,9 @@
             scorersByKey = {};
             playerMilestones = {};
 
-            // Build a set of dates that are abandoned matches (to exclude from milestone counts)
-            const abandonedDates = new Set(
-                MATCHES_DATA.filter(m => m.Abandoned === 'Y').map(m => (m.Date || '').trim())
-            );
-
-            // Sort all West goals chronologically, excluding abandoned match dates
+            // Sort all West goals chronologically
             const westGoals = GOALS_DATA.filter(r =>
                 r['For/Against'] === 'For' && r['Own Goal'] !== 'Y' && (r['Scorer'] || '').trim()
-                && !abandonedDates.has((r['Date'] || '').trim())
             ).slice().sort((a, b) => {
                 const da = parseDate(a['Date']), db = parseDate(b['Date']);
                 if (!da && !db) return 0;
