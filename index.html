@@ -1527,7 +1527,7 @@
         let GOALS_DATA = [];
         let playerGoals = {}; // name -> count
         let scorersByDate = {}; // date string -> { west: [{name, minute, pen, og}], opp: [...] }
-        let scorersByKey = {};  // "Season|Competition|Opposition|H/A" -> { west: [...], opp: [...] }
+        let scorersByKey = {}; // legacy — no longer populated; retained for safety only
         let playerMilestones = {}; // "name|dateKey" -> milestone number (e.g. 10, 25, 50)
         let gsShowAll = false;
         let currentFilter = 'all';
@@ -2335,13 +2335,7 @@
             let scorersHtml = '';
             if (match.Abandoned !== 'Y') {
                 const dateKey = (match.Date || '').trim();
-                const compositeKey = [
-                    (match.Season || '').trim(),
-                    (match.Competition || '').trim(),
-                    (match.Opposition || '').trim(),
-                    (match['Home/Away'] || '').trim()
-                ].join('|');
-                const matchScorers = scorersByDate[dateKey] || scorersByKey[compositeKey];
+                const matchScorers = scorersByDate[dateKey];
                 if (matchScorers) {
                     const westList = formatScorerList(matchScorers.west, dateKey, true);
                     const oppList = formatScorerList(matchScorers.opp, dateKey, false);
@@ -2396,8 +2390,7 @@
                     if (m.Season && m.Season.toLowerCase().includes(term)) return true;
                     if (m.Round && m.Round.toLowerCase().includes(term)) return true;
                     if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
-                    const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
-                    const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
+                    const ms = scorersByDate[(m.Date||'').trim()];
                     if (ms) {
                         const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                         if (allNames.some(n => n.includes(term))) return true;
@@ -2517,8 +2510,7 @@
             if (m.Season && m.Season.toLowerCase().includes(term)) return true;
             if (m.Round && m.Round.toLowerCase().includes(term)) return true;
             if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
-            const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
-            const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
+            const ms = scorersByDate[(m.Date||'').trim()];
             if (ms) {
                 const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase());
                 if (allNames.some(n => n.includes(term))) return true;
@@ -3030,17 +3022,6 @@
                     else scorersByDate[dateKey].opp.push(entry);
                 }
 
-                const compositeKey = [
-                    (row['Season'] || '').trim(),
-                    (row['Competition'] || '').trim(),
-                    (row['Opposition'] || '').trim(),
-                    (row['Home/Away'] || '').trim()
-                ].join('|');
-                if (compositeKey !== '|||') {
-                    if (!scorersByKey[compositeKey]) scorersByKey[compositeKey] = { west: [], opp: [] };
-                    if (forAgainst === 'For') scorersByKey[compositeKey].west.push(entry);
-                    else scorersByKey[compositeKey].opp.push(entry);
-                }
             });
         }
 
