@@ -2374,7 +2374,7 @@
                     displayAway +
                 '</div>' +
                 '<div class="match-details">' +
-                    '<strong>Competition:</strong> ' + match.Competition +
+                    '<strong>Competition:</strong> ' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') +
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
                     (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
                     (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
@@ -2790,22 +2790,18 @@
             });
             const seasonsSorted = Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0]));
 
-            // Group goals by 4-key match identifier
+            // Group goals by date (unambiguous join key between Goals and Results sheets)
             const matchGoals = {};
             goals.forEach(r => {
-                const key = [r.Season, r.Competition, r.Opposition, r['Home/Away']].join('|');
-                matchGoals[key] = (matchGoals[key] || 0) + 1;
+                const dateKey = (r['Date'] || '').trim();
+                if (dateKey) matchGoals[dateKey] = (matchGoals[dateKey] || 0) + 1;
             });
 
-            // Find corresponding match cards using 4-key join
-            const matchRows = Object.entries(matchGoals).map(([key, goalsInMatch]) => {
-                const [season, competition, opposition, venue] = key.split('|');
+            // Find corresponding match cards using date
+            const matchRows = Object.entries(matchGoals).map(([dateKey, goalsInMatch]) => {
                 const match = MATCHES_DATA.find(m =>
                     m.Abandoned !== 'Y' &&
-                    m.Season && m.Season.trim() === season &&
-                    m.Competition && m.Competition.trim() === competition &&
-                    m.Opposition && m.Opposition.trim() === opposition &&
-                    m['Home/Away'] === venue
+                    (m.Date || '').trim() === dateKey
                 );
                 return { match, goalsInMatch };
             }).filter(r => r.match);
