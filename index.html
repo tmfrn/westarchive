@@ -796,26 +796,27 @@
         .match-fixture {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             font-weight: 700;
             font-size: 1.1em;
             margin-bottom: 16px;
             color: #000;
-            gap: 8px;
+            gap: 0;
         }
         .match-fixture > span, .match-fixture > .opposition-link {
+            flex: 1;
             min-width: 0;
             word-break: break-word;
-            flex: 1;
         }
         .match-fixture > span:last-child, .match-fixture > .opposition-link:last-child {
             text-align: right;
         }
-        
         .match-score {
             font-size: 1.3em;
             color: #000;
-            padding: 0 8px;
+            padding: 0 12px;
+            flex: 0 0 auto;
+            text-align: center;
         }
         
         .match-details {
@@ -1698,7 +1699,7 @@
 
         function setLensVenue(venue, pillEl) {
             lensVenue = venue;
-            listCap = 50; // reset cap when changing venue
+            listCap = 20; // reset cap when changing venue
             document.getElementById('venuePills').querySelectorAll('.venue-pill').forEach(p => {
                 p.classList.toggle('active', p.dataset.venue === venue);
             });
@@ -2548,7 +2549,7 @@
         
         function updateStats(matches) {
             const statsBar = document.getElementById('statsBar');
-            const showStatsFilters = ['all', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses', 'biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'highest-attendance', 'lowest-attendance', 'win-streak', 'loss-streak', 'draw-streak', 'unbeaten-streak', 'winless-streak'];
+            const showStatsFilters = ['all', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses'];
             if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
                 const validMatches = matches.filter(m => m.Abandoned !== 'Y');
@@ -2663,7 +2664,7 @@
             // Hide venue pills — only lenses show them
             document.getElementById('venuePills').classList.add('hidden');
             lensVenue = 'all';
-            listCap = 50;
+            listCap = 20;
 
             // Clear lens and filter-bar state
             activeLens = null;
