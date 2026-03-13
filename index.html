@@ -17,6 +17,7 @@
             min-height: 100vh;
             padding: 0;
             color: #fff;
+            overflow-x: hidden;
         }
         
         .container {
@@ -786,6 +787,8 @@
         .badge.loss { background: #fee2e2; color: #991b1b; }
         .badge.draw { background: #fef3c7; color: #92400e; }
         .badge.abandoned { background: #6b7280; color: #ffffff; font-weight: 700; }
+        .badge.pens-win { background: #d1fae5; color: #065f46; }
+        .badge.pens-loss { background: #ffe4e6; color: #9f1239; }
         .badge.home { background: #dbeafe; color: #1e40af; }
         .badge.away { background: #f3e8ff; color: #6b21a8; }
         .badge.neutral { background: #e5e7eb; color: #374151; }
@@ -798,6 +801,15 @@
             font-size: 1.1em;
             margin-bottom: 16px;
             color: #000;
+            gap: 8px;
+        }
+        .match-fixture > span, .match-fixture > .opposition-link {
+            min-width: 0;
+            word-break: break-word;
+            flex: 1;
+        }
+        .match-fixture > span:last-child, .match-fixture > .opposition-link:last-child {
+            text-align: right;
         }
         
         .match-score {
@@ -926,17 +938,12 @@
         .scorer-link:hover { color: #000; }
 
         .scorer-milestone {
-            display: inline-block;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #000;
-            font-size: 0.72em;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 8px;
-            margin-left: 4px;
-            vertical-align: middle;
-            white-space: nowrap;
-            letter-spacing: 0.01em;
+            display: inline;
+            color: #92400e;
+            font-size: 0.78em;
+            font-weight: 600;
+            margin-left: 3px;
+            opacity: 0.8;
         }
         
         /* Head-to-head modal */
@@ -2265,7 +2272,22 @@
         }
 
         function renderMatchCard(match) {
+            // Penalty shootout handling
+            const hasPens = match['Penalties'] === 'Y';
+            const penResult = match['Penalty Result'] || '';
+            // Penalty Score stored as date in sheet e.g. "05/04/2026" meaning 5-4
+            let penScore = '';
+            const rawPenScore = (match['Penalty Score'] || '').trim();
+            if (rawPenScore) {
+                const parts = rawPenScore.split('/');
+                if (parts.length >= 2) {
+                    penScore = parseInt(parts[0], 10) + '-' + parseInt(parts[1], 10);
+                }
+            }
+
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
+                              (hasPens && penResult === 'W') ? '<span class="badge win">WIN</span><span class="badge pens-win">WON ON PENS</span>' :
+                              (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW</span><span class="badge pens-loss">LOST ON PENS</span>' :
                               match.Result === 'W' ? '<span class="badge win">WIN</span>' :
                               match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
                               '<span class="badge draw">DRAW</span>';
@@ -2275,6 +2297,7 @@
             
             let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore;
             let displayHtHomeScore, displayHtAwayScore;
+
             
             if (match.Abandoned === 'Y') {
                 displayHomeScore = 'A'; displayAwayScore = 'A';
@@ -2347,13 +2370,14 @@
                 '</div>' +
                 '<div class="match-fixture">' +
                     displayHome +
-                    '<span class="match-score">' + displayHomeScore + ' - ' + displayAwayScore + '</span>' +
+                    '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + ' - ' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
                     displayAway +
                 '</div>' +
                 '<div class="match-details">' +
                     '<strong>Competition:</strong> ' + match.Competition +
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
                     (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
+                    (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
                 '</div>' +
                 scorersHtml + notesHtml +
             '</div>';
@@ -2370,6 +2394,8 @@
                     if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
                     if (m.Date && m.Date.toLowerCase().includes(term)) return true;
                     if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+                    if (m.Round && m.Round.toLowerCase().includes(term)) return true;
+                    if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
                     const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
                     const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
                     if (ms) {
@@ -2489,6 +2515,8 @@
             if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
             if (m.Date && m.Date.toLowerCase().includes(term)) return true;
             if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+            if (m.Round && m.Round.toLowerCase().includes(term)) return true;
+            if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
             const ck = [(m.Season||'').trim(),(m.Competition||'').trim(),(m.Opposition||'').trim(),(m['Home/Away']||'').trim()].join('|');
             const ms = scorersByDate[(m.Date||'').trim()] || scorersByKey[ck];
             if (ms) {
@@ -2500,7 +2528,7 @@
         
         function updateStats(matches) {
             const statsBar = document.getElementById('statsBar');
-            const showStatsFilters = ['all', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses'];
+            const showStatsFilters = ['all', 'on-this-day', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses', 'biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'highest-attendance', 'lowest-attendance', 'win-streak', 'loss-streak', 'draw-streak', 'unbeaten-streak', 'winless-streak'];
             if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
                 const validMatches = matches.filter(m => m.Abandoned !== 'Y');
@@ -2579,10 +2607,20 @@
                 }).join('');
             } else {
                 html = filtered.map(match => renderMatchCard(match)).join('');
-                if (currentFilter === 'on-this-day' && filtered.length === 0) {
-                    const today = new Date();
-                    const dayMonth = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-                    html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches in the archive on ' + dayMonth + '.</div>';
+                if (filtered.length === 0) {
+                    if (currentFilter === 'on-this-day') {
+                        const today = new Date();
+                        const dayMonth = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+                        html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches in the archive on ' + dayMonth + '.</div>';
+                    } else if (selectedCompetition && selectedSeason) {
+                        html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No <strong style="color:#555">' + selectedCompetition + '</strong> matches in <strong style="color:#555">' + selectedSeason + '</strong>.<br><span style="font-size:0.9em;margin-top:8px;display:block;">Try clearing the season or competition filter.</span></div>';
+                    } else if (selectedCompetition) {
+                        html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches found for <strong style="color:#555">' + selectedCompetition + '</strong>.</div>';
+                    } else if (searchTerm) {
+                        html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches found for <strong style="color:#555">"' + searchTerm + '"</strong>.</div>';
+                    } else {
+                        html = '<div style="text-align:center;padding:48px 24px;color:#999;font-size:0.95em;">No matches found.</div>';
+                    }
                 }
                 if (totalCount && filtered.length < totalCount) {
                     html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
@@ -2613,7 +2651,8 @@
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active');
             row.classList.remove('filter-active');
-            document.getElementById('lensesClear').classList.add('hidden');
+            // Show the clear button so users can get back to all matches
+            document.getElementById('lensesClear').classList.remove('hidden');
             document.querySelector('.filter-bar').classList.remove('has-filter');
 
             document.getElementById('seasonSelect').value = '';
@@ -2883,9 +2922,11 @@
             const html = matches.map(m => {
                 const result = (m.Result || 'd').toLowerCase();
                 const isHome = m['Home/Away'] === 'H';
+                const gf = m['Goals For'] !== null && m['Goals For'] !== undefined ? m['Goals For'] : '-';
+                const ga = m['Goals Against'] !== null && m['Goals Against'] !== undefined ? m['Goals Against'] : '-';
                 const score = isHome
-                    ? m['Goals For'] + '–' + m['Goals Against']
-                    : m['Goals Against'] + '–' + m['Goals For'];
+                    ? gf + '–' + ga
+                    : ga + '–' + gf;
                 const opp = isHome
                     ? 'vs ' + m.Opposition
                     : '@ ' + m.Opposition;
@@ -2949,15 +2990,24 @@
             });
 
             // Build cumulative goal counts and flag milestones
+            // Key: "name|dateKey" -> milestone number. Only the FIRST goal in a match
+            // that crosses a milestone gets a badge (handles multi-goal games correctly).
             const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
             const runningTotals = {};
+            const milestoneSeen = {}; // "name|milestone" -> true once badged
             westGoals.forEach(r => {
                 const name = r['Scorer'].trim();
                 const dateKey = (r['Date'] || '').trim();
                 runningTotals[name] = (runningTotals[name] || 0) + 1;
                 const total = runningTotals[name];
-                if (MILESTONES.has(total)) {
-                    playerMilestones[name + '|' + dateKey] = total;
+                const seenKey = name + '|' + total;
+                if (MILESTONES.has(total) && !milestoneSeen[seenKey]) {
+                    milestoneSeen[seenKey] = true;
+                    const matchKey = name + '|' + dateKey;
+                    // Only set if not already badged for this match (first goal wins)
+                    if (!playerMilestones[matchKey]) {
+                        playerMilestones[matchKey] = total;
+                    }
                 }
             });
 
