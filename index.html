@@ -815,7 +815,7 @@
         .match-score {
             font-size: 1.3em;
             color: #000;
-            padding: 0 20px;
+            padding: 0 8px;
         }
         
         .match-details {
@@ -1853,6 +1853,12 @@
             return null;
         }
         
+        // Penalty shootout games are draws for statistical purposes
+        function effectiveResult(m) {
+            if (m.Penalties === 'Y') return 'D';
+            return m.Result;
+        }
+
         function calculateCurrentStreak() {
             if (MATCHES_DATA.length === 0) return null;
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
@@ -1862,14 +1868,14 @@
             const latestMatch = sortedMatches[sortedMatches.length - 1];
             let streakType = '';
             let streakCount = 0;
-            let currentResult = latestMatch.Result;
+            let currentResult = effectiveResult(latestMatch);
             
             if (currentResult === 'W') streakType = 'winning';
             else if (currentResult === 'L') streakType = 'losing';
             else if (currentResult === 'D') streakType = 'draws';
             
             for (let i = sortedMatches.length - 1; i >= 0; i--) {
-                if (sortedMatches[i].Result === currentResult) streakCount++;
+                if (effectiveResult(sortedMatches[i]) === currentResult) streakCount++;
                 else break;
             }
             
@@ -1878,7 +1884,7 @@
             let tempStreakCount = 0, tempStreakStart = null;
             
             for (let i = 0; i < sortedMatches.length; i++) {
-                if (sortedMatches[i].Result === currentResult) {
+                if (effectiveResult(sortedMatches[i]) === currentResult) {
                     if (tempStreakCount === 0) tempStreakStart = sortedMatches[i].Date;
                     tempStreakCount++;
                 } else {
@@ -1915,7 +1921,7 @@
             el.innerHTML =
                 '<span class="form-guide-label">Form</span>' +
                 last5.map(m =>
-                    '<div class="form-badge ' + m.Result.toLowerCase() + '">' + labels[m.Result] + '</div>'
+                    '<div class="form-badge ' + effectiveResult(m).toLowerCase() + '">' + labels[effectiveResult(m)] + '</div>'
                 ).join('') +
                 '<span class="form-guide-arrow" title="oldest to most recent">→</span>';
             el.style.display = 'flex';
@@ -1953,9 +1959,9 @@
         function calculateRecords() {
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             
-            records.biggestWin = validMatches.filter(m => m.Result === 'W')
+            records.biggestWin = validMatches.filter(m => effectiveResult(m) === 'W')
                 .sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])).slice(0, 20);
-            records.biggestLoss = validMatches.filter(m => m.Result === 'L')
+            records.biggestLoss = validMatches.filter(m => effectiveResult(m) === 'L')
                 .sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])).slice(0, 20);
             records.highestScore = [...validMatches].sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, 20);
             records.mostGoalsConceded = [...validMatches].sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, 20);
@@ -1969,24 +1975,24 @@
             records.lowestAwayAttendance = awayMatches.length ? Math.min(...awayMatches.map(m => m.Attendance)) : null;
             records.cleanSheets = validMatches.filter(m => m['Goals Against'] === 0).length;
             records.failedToScore = validMatches.filter(m => m['Goals For'] === 0).length;
-            records.longestWinStreak = findLongestStreak(validMatches, m => m.Result === 'W');
-            records.longestDrawStreak = findLongestStreak(validMatches, m => m.Result === 'D');
-            records.longestLossStreak = findLongestStreak(validMatches, m => m.Result === 'L');
-            records.longestUnbeatenStreak = findLongestStreak(validMatches, m => m.Result === 'W' || m.Result === 'D');
-            records.longestWinlessStreak = findLongestStreak(validMatches, m => m.Result === 'L' || m.Result === 'D');
+            records.longestWinStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'W');
+            records.longestDrawStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'D');
+            records.longestLossStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L');
+            records.longestUnbeatenStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
+            records.longestWinlessStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
         }
         
         function getMatchTags(match) {
             const tags = [];
-            if (match.Opposition === 'Maine Road' && match.Result === 'W') {
+            if (match.Opposition === 'Maine Road' && effectiveResult(match) === 'W') {
                 tags.push({ text: '🏆 M21 IS OURS', isSilver: false });
             }
-            if (records.biggestWin.length > 0 && match.Result === 'W') {
+            if (records.biggestWin.length > 0 && effectiveResult(match) === 'W') {
                 const margin = match['Goals For'] - match['Goals Against'];
                 const recordMargin = records.biggestWin[0]['Goals For'] - records.biggestWin[0]['Goals Against'];
                 if (margin === recordMargin) tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false });
             }
-            if (records.biggestLoss.length > 0 && match.Result === 'L') {
+            if (records.biggestLoss.length > 0 && effectiveResult(match) === 'L') {
                 const margin = match['Goals Against'] - match['Goals For'];
                 const recordMargin = records.biggestLoss[0]['Goals Against'] - records.biggestLoss[0]['Goals For'];
                 if (margin === recordMargin) tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false });
@@ -2026,9 +2032,9 @@
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             const totalMatches = validMatches.length;
             const abandonedCount = MATCHES_DATA.length - totalMatches;
-            const wins = validMatches.filter(m => m.Result === 'W').length;
-            const draws = validMatches.filter(m => m.Result === 'D').length;
-            const losses = validMatches.filter(m => m.Result === 'L').length;
+            const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
+            const draws = validMatches.filter(m => effectiveResult(m) === 'D').length;
+            const losses = validMatches.filter(m => effectiveResult(m) === 'L').length;
             const goalsFor = validMatches.reduce((sum, m) => sum + (m['Goals For'] || 0), 0);
             const goalsAgainst = validMatches.reduce((sum, m) => sum + (m['Goals Against'] || 0), 0);
             const gd = goalsFor - goalsAgainst;
@@ -2286,10 +2292,10 @@
             }
 
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
-                              (hasPens && penResult === 'W') ? '<span class="badge win">WIN</span><span class="badge pens-win">WON ON PENS</span>' :
+                              (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW</span><span class="badge pens-win">WON ON PENS</span>' :
                               (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW</span><span class="badge pens-loss">LOST ON PENS</span>' :
-                              match.Result === 'W' ? '<span class="badge win">WIN</span>' :
-                              match.Result === 'L' ? '<span class="badge loss">LOSS</span>' :
+                              effectiveResult(match) === 'W' ? '<span class="badge win">WIN</span>' :
+                              effectiveResult(match) === 'L' ? '<span class="badge loss">LOSS</span>' :
                               '<span class="badge draw">DRAW</span>';
             const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
                              match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
@@ -2404,11 +2410,11 @@
             }
             
             if (currentFilter === 'wins') {
-                filtered = filtered.filter(m => m.Result === 'W' && m.Abandoned !== 'Y');
+                filtered = filtered.filter(m => effectiveResult(m) === 'W' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'draws') {
-                filtered = filtered.filter(m => m.Result === 'D' && m.Abandoned !== 'Y');
+                filtered = filtered.filter(m => effectiveResult(m) === 'D' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'losses') {
-                filtered = filtered.filter(m => m.Result === 'L' && m.Abandoned !== 'Y');
+                filtered = filtered.filter(m => effectiveResult(m) === 'L' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'home-games') {
                 filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
             } else if (currentFilter === 'away-games') {
@@ -2416,7 +2422,7 @@
             } else if (currentFilter === 'season' && selectedSeason) {
                 filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             } else if (currentFilter === 'biggest-wins') {
-                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && m.Result === 'W');
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'W');
                 if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H');
                 else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A');
                 if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
@@ -2425,7 +2431,7 @@
                 filtered = base.slice(0, listCap);
                 filtered._totalCount = base.length;
             } else if (currentFilter === 'biggest-losses') {
-                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && m.Result === 'L');
+                let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'L');
                 if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H');
                 else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A');
                 if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
@@ -2464,15 +2470,15 @@
                 filtered = matches.slice(0, listCap);
                 filtered._totalCount = matches.length;
             } else if (currentFilter === 'win-streak') {
-                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'W');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'W');
             } else if (currentFilter === 'draw-streak') {
-                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'D');
             } else if (currentFilter === 'loss-streak') {
-                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'L');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'L');
             } else if (currentFilter === 'unbeaten-streak') {
-                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'W' || m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
             } else if (currentFilter === 'winless-streak') {
-                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => m.Result === 'L' || m.Result === 'D');
+                filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
             } else if (currentFilter === 'on-this-day') {
                 const today = new Date();
                 const todayDay = today.getDate();
@@ -2524,7 +2530,7 @@
             if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
                 const validMatches = matches.filter(m => m.Abandoned !== 'Y');
-                const wins = validMatches.filter(m => m.Result === 'W').length;
+                const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
                 const gf = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
                 const ga = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
                 const gd = gf - ga;
@@ -2532,8 +2538,8 @@
                 
                 document.getElementById('statMatches').textContent = validMatches.length;
                 document.getElementById('statWins').textContent = wins;
-                document.getElementById('statDraws').textContent = validMatches.filter(m => m.Result === 'D').length;
-                document.getElementById('statLosses').textContent = validMatches.filter(m => m.Result === 'L').length;
+                document.getElementById('statDraws').textContent = validMatches.filter(m => effectiveResult(m) === 'D').length;
+                document.getElementById('statLosses').textContent = validMatches.filter(m => effectiveResult(m) === 'L').length;
                 document.getElementById('statWinPct').textContent = winPct + '%';
                 document.getElementById('statGoalsFor').textContent = gf;
                 document.getElementById('statGoalsAgainst').textContent = ga;
@@ -2716,9 +2722,9 @@
             const allMatches = MATCHES_DATA.filter(m => m.Opposition === opposition);
             if (allMatches.length === 0) return;
             
-            const wins = validMatches.filter(m => m.Result === 'W').length;
-            const draws = validMatches.filter(m => m.Result === 'D').length;
-            const losses = validMatches.filter(m => m.Result === 'L').length;
+            const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
+            const draws = validMatches.filter(m => effectiveResult(m) === 'D').length;
+            const losses = validMatches.filter(m => effectiveResult(m) === 'L').length;
             const goalsFor = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
             const goalsAgainst = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
             const totalPlayed = validMatches.length;
@@ -2744,8 +2750,8 @@
             document.getElementById('h2hMatches').innerHTML =
                 '<h4>All Meetings (' + allMatches.length + ')</h4>' +
                 sorted.map(m => {
-                    const resultClass = m.Abandoned === 'Y' ? 'a' : m.Result.toLowerCase();
-                    const resultLetter = m.Abandoned === 'Y' ? 'A' : m.Result;
+                    const resultClass = m.Abandoned === 'Y' ? 'a' : effectiveResult(m).toLowerCase();
+                    const resultLetter = m.Abandoned === 'Y' ? 'A' : effectiveResult(m);
                     const score = m.Abandoned === 'Y' ? 'A-A' : m['Goals For'] + '-' + m['Goals Against'];
                     return '<div class="h2h-match-row">' +
                         '<span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span>' +
@@ -2785,7 +2791,12 @@
             // Group goals by date (unambiguous join key between Goals and Results sheets)
             const matchGoals = {};
             goals.forEach(r => {
-                const dateKey = (r['Date'] || '').trim();
+                const rawDateG = (r['Date'] || '').trim();
+                const mdyG = rawDateG.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                const isoG = rawDateG.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                const dateKey = mdyG ? mdyG[2].padStart(2,'0')+'/'+mdyG[1].padStart(2,'0')+'/'+mdyG[3]
+                              : isoG ? isoG[3]+'/'+isoG[2]+'/'+isoG[1]
+                              : rawDateG;
                 if (dateKey) matchGoals[dateKey] = (matchGoals[dateKey] || 0) + 1;
             });
 
@@ -2908,7 +2919,7 @@
             if (matches.length === 0) return;
 
             const html = matches.map(m => {
-                const result = (m.Result || 'd').toLowerCase();
+                const result = effectiveResult(m).toLowerCase();
                 const isHome = m['Home/Away'] === 'H';
                 const gf = m['Goals For'] !== null && m['Goals For'] !== undefined ? m['Goals For'] : '-';
                 const ga = m['Goals Against'] !== null && m['Goals Against'] !== undefined ? m['Goals Against'] : '-';
@@ -2921,7 +2932,7 @@
                 const year = (m.Date || '').split('/')[2] || '';
                 return '<div class="otd-match">' +
                     '<span class="otd-match-year">' + year + '</span>' +
-                    '<span class="otd-match-result ' + result + '">' + (m.Result || 'D') + '</span>' +
+                    '<span class="otd-match-result ' + result + '">' + effectiveResult(m) + '</span>' +
                     '<span class="otd-match-score">' + score + '</span>' +
                     '<span class="otd-match-opp">' + opp + '</span>' +
                     '<span class="otd-match-comp">' + m.Competition + '</span>' +
@@ -2985,7 +2996,12 @@
             const milestoneSeen = {}; // "name|milestone" -> true once badged
             westGoals.forEach(r => {
                 const name = r['Scorer'].trim();
-                const dateKey = (r['Date'] || '').trim();
+                const rawDateM = (r['Date'] || '').trim();
+                const mdyM = rawDateM.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                const isoM = rawDateM.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                const dateKey = mdyM ? mdyM[2].padStart(2,'0')+'/'+mdyM[1].padStart(2,'0')+'/'+mdyM[3]
+                              : isoM ? isoM[3]+'/'+isoM[2]+'/'+isoM[1]
+                              : rawDateM;
                 runningTotals[name] = (runningTotals[name] || 0) + 1;
                 const total = runningTotals[name];
                 const seenKey = name + '|' + total;
@@ -3001,7 +3017,20 @@
 
             // Now build all the other lookups
             GOALS_DATA.forEach(row => {
-                const dateKey = (row['Date'] || '').trim();
+                // Goals CSV from Google Sheets exports dates as M/D/YYYY or MM/DD/YYYY.
+                // Results CSV exports as DD/MM/YYYY. Normalise Goals dates to DD/MM/YYYY.
+                const rawDate = (row['Date'] || '').trim();
+                let dateKey = rawDate;
+                const mdyMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                const isoMatch = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (mdyMatch) {
+                    const mo = mdyMatch[1].padStart(2,'0');
+                    const dy = mdyMatch[2].padStart(2,'0');
+                    const yr = mdyMatch[3];
+                    dateKey = dy + '/' + mo + '/' + yr;
+                } else if (isoMatch) {
+                    dateKey = isoMatch[3] + '/' + isoMatch[2] + '/' + isoMatch[1];
+                }
                 const forAgainst = row['For/Against'];
                 const isOG = row['Own Goal'] === 'Y';
                 const name = (row['Scorer'] || '').trim();
