@@ -939,13 +939,16 @@
         }
         .scorer-link:hover { color: #000; }
 
-        .scorer-milestone {
-            display: inline;
-            color: #92400e;
+        .milestone-note {
             font-size: 0.78em;
+            color: #92400e;
             font-weight: 600;
-            margin-left: 3px;
-            opacity: 0.8;
+            margin-top: 4px;
+            padding: 3px 6px;
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            border-radius: 0 4px 4px 0;
+            display: inline-block;
         }
         
         /* Head-to-head modal */
@@ -2287,19 +2290,23 @@
             let label = nameHtml;
             if (minutePart) label += ' (' + minutePart + ')';
             label += ogPart;
-            // Milestone annotation (West goals only, no OGs)
-            if (isWest && !entry.og && dateKey) {
-                const milestone = playerMilestones[entry.name + '|' + dateKey];
-                if (milestone) {
-                    const milestoneLabel = milestone === 1 ? '1st club goal ⭐' : ordinal(milestone) + ' club goal 🎯';
-                    label += ' <span class="scorer-milestone">' + milestoneLabel + '</span>';
-                }
-            }
             return label;
         }
 
+        // Returns { html, milestones } where milestones is an array of { name, milestone }
         function formatScorerList(entries, dateKey, isWest) {
-            return entries.map(e => formatScorerEntry(e, dateKey, isWest)).join(', ');
+            const html = entries.map(e => formatScorerEntry(e, dateKey, isWest)).join(', ');
+            const milestones = [];
+            if (isWest && dateKey) {
+                entries.forEach(e => {
+                    if (e.og) return;
+                    const minute = (e.minute || '').toString().trim();
+                    const matchKey = e.name + '|' + dateKey + '|' + minute;
+                    const m = playerMilestones[matchKey];
+                    if (m) milestones.push({ name: e.name, milestone: m });
+                });
+            }
+            return { html, milestones };
         }
 
         function renderMatchCard(match) {
@@ -2368,14 +2375,25 @@
                 const dateKey = normaliseDateKey(match.Date || '');
                 const matchScorers = scorersByDate[dateKey];
                 if (matchScorers) {
-                    const westList = formatScorerList(matchScorers.west, dateKey, true);
-                    const oppList = formatScorerList(matchScorers.opp, dateKey, false);
+                    const westResult = formatScorerList(matchScorers.west, dateKey, true);
+                    const oppResult = formatScorerList(matchScorers.opp, dateKey, false);
+                    const westList = westResult.html;
+                    const oppList = oppResult.html;
                     if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
                         if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
                         if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
                     } else {
                         if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
                         if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                    }
+                    // Milestone notes — rendered separately underneath scorers
+                    if (westResult.milestones.length > 0) {
+                        const notes = westResult.milestones.map(m => {
+                            const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club';
+                            const icon = m.milestone === 1 ? '⭐' : '🎯';
+                            return icon + ' ' + m.name + '\'s ' + label;
+                        });
+                        scorersHtml += '<div class="milestone-note">' + notes.join(' &nbsp;·&nbsp; ') + '</div>';
                     }
                 }
             }
@@ -3011,21 +3029,22 @@
             });
 
             // Build cumulative goal counts and flag milestones
-            // Key: "name|dateKey" -> milestone number. Only the FIRST goal in a match
-            // that crosses a milestone gets a badge (handles multi-goal games correctly).
+            // Key: "name|dateKey|minute" -> milestone number.
+            // Stores the exact minute so we can match the specific goal, not all goals in a game.
             const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
             const runningTotals = {};
             const milestoneSeen = {}; // "name|milestone" -> true once badged
             westGoals.forEach(r => {
                 const name = r['Scorer'].trim();
                 const dateKey = normaliseDateKey(r['Date'] || '');
+                const minute = (r['Minute'] || '').toString().trim();
                 runningTotals[name] = (runningTotals[name] || 0) + 1;
                 const total = runningTotals[name];
                 const seenKey = name + '|' + total;
                 if (MILESTONES.has(total) && !milestoneSeen[seenKey]) {
                     milestoneSeen[seenKey] = true;
-                    const matchKey = name + '|' + dateKey;
-                    // Only set if not already badged for this match (first goal wins)
+                    // Key includes minute so only the exact goal gets the badge
+                    const matchKey = name + '|' + dateKey + '|' + minute;
                     if (!playerMilestones[matchKey]) {
                         playerMilestones[matchKey] = total;
                     }
