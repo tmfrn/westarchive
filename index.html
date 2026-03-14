@@ -1568,6 +1568,7 @@
 
     <script>
         let currentTeam = 'men';
+        let fetchToken = 0; // incremented on each team switch to cancel stale callbacks
 
         const CSV_URLS = {
             men: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?output=csv',
@@ -1852,6 +1853,9 @@
             document.getElementById('matchList').innerHTML = '';
             document.getElementById('resultCount').textContent = 'Loading matches...';
 
+            // Increment token so any in-flight fetches from the previous team are ignored
+            fetchToken++;
+
             // Fetch new data
             fetchMatchData();
             if (team === 'men') fetchGoalsData();
@@ -1861,6 +1865,7 @@
             const errorBanner = document.getElementById('errorBanner');
             errorBanner.style.display = 'none';
             document.getElementById('resultCount').textContent = 'Loading matches...';
+            const myToken = fetchToken;
             
             try {
                 const response = await fetch(CSV_URLS[currentTeam]);
@@ -1876,6 +1881,8 @@
                 const lines = csvText.split('\n').filter(line => line.trim());
                 const headers = parseCSVLine(lines[0]);
                 
+                if (myToken !== fetchToken) return; // team switched while fetching
+
                 MATCHES_DATA = [];
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -3101,6 +3108,7 @@
         }
 
         async function fetchGoalsData() {
+            const myToken = fetchToken;
             try {
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=2008440999&single=true&output=csv');
                 if (!response.ok) throw new Error('Goals sheet returned ' + response.status);
@@ -3109,6 +3117,8 @@
 
                 const lines = csvText.split('\n').filter(l => l.trim());
                 const headers = parseCSVLine(lines[0]);
+
+                if (myToken !== fetchToken) return; // team switched while fetching
 
                 GOALS_DATA = [];
                 for (let i = 1; i < lines.length; i++) {
