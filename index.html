@@ -1279,6 +1279,40 @@
         }
         /* ===== END PLAYER MODAL ===== */
         
+        /* ===== TEAM TABS ===== */
+        .team-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .team-tab {
+            padding: 8px 24px;
+            border-radius: 24px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.88em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.02em;
+        }
+
+        .team-tab:hover {
+            border-color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.9);
+        }
+
+        .team-tab.active {
+            background: white;
+            border-color: white;
+            color: #000;
+        }
+        /* ===== END TEAM TABS ===== */
+
         @media (max-width: 768px) {
             .header { padding: 32px 20px; }
             .header h1 { font-size: 1.8em; }
@@ -1303,7 +1337,11 @@
         <div class="header">
             <div class="header-content">
                 <h1>West Didsbury & Chorlton AFC</h1>
-                <p>Men's Team Match Archive</p>
+                <p id="headerSubtitle">Men's Team Match Archive</p>
+                <div class="team-tabs">
+                    <button class="team-tab active" id="tabMen" onclick="switchTeam('men')">Men's Team</button>
+                    <button class="team-tab" id="tabWomen" onclick="switchTeam('women')">Women's Team</button>
+                </div>
             </div>
         </div>
         
@@ -1529,6 +1567,13 @@
     </div>
 
     <script>
+        let currentTeam = 'men';
+
+        const CSV_URLS = {
+            men: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?output=csv',
+            women: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=1259562151&single=true&output=csv'
+        };
+
         let MATCHES_DATA = [];
         let GOALS_DATA = [];
         let playerGoals = {}; // name -> count
@@ -1753,13 +1798,72 @@
             return values;
         }
         
+        function switchTeam(team) {
+            if (team === currentTeam) return;
+            currentTeam = team;
+
+            // Update tabs
+            document.getElementById('tabMen').classList.toggle('active', team === 'men');
+            document.getElementById('tabWomen').classList.toggle('active', team === 'women');
+
+            // Update header subtitle and page title
+            const subtitle = team === 'men' ? "Men's Team Match Archive" : "Women's Team Match Archive";
+            document.getElementById('headerSubtitle').textContent = subtitle;
+            document.title = 'West Didsbury & Chorlton AFC - ' + subtitle;
+
+            // Reset all state
+            MATCHES_DATA = [];
+            GOALS_DATA = [];
+            playerGoals = {};
+            scorersByDate = {};
+            playerMilestones = {};
+            gsShowAll = false;
+            currentFilter = 'all';
+            selectedSeason = '';
+            selectedCompetition = '';
+            searchTerm = '';
+            sortOrder = 'desc';
+            activeLens = null;
+            lensVenue = 'all';
+            listCap = 20;
+
+            // Reset UI controls
+            document.getElementById('searchInput').value = '';
+            document.getElementById('seasonSelect').innerHTML = '<option value="">All Seasons</option>';
+            document.getElementById('competitionSelect').innerHTML = '<option value="">All Competitions</option>';
+            document.getElementById('resultSelect').value = '';
+            document.getElementById('venueSelect').value = '';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('lensesRow').classList.remove('has-active', 'filter-active');
+            document.getElementById('lensesClear').classList.add('hidden');
+            document.getElementById('venuePills').classList.add('hidden');
+            const fb = document.querySelector('.filter-bar');
+            if (fb) { fb.classList.remove('runs-active', 'has-filter'); }
+            const sortToggle = document.getElementById('sortToggle');
+            if (sortToggle) sortToggle.textContent = '📅 Show Oldest First';
+
+            // Hide sections that may not apply to women's data
+            document.getElementById('attendanceChartBox').style.display = 'none';
+            document.getElementById('goalscorersBox').style.display = 'none';
+            document.getElementById('streakBox').style.display = 'none';
+            document.getElementById('otdBanner').style.display = 'none';
+            document.getElementById('statsBar').style.display = 'none';
+            document.getElementById('matchList').innerHTML = '';
+            document.getElementById('resultCount').textContent = 'Loading matches...';
+
+            // Fetch new data
+            fetchMatchData();
+            if (team === 'men') fetchGoalsData();
+        }
+
         async function fetchMatchData() {
             const errorBanner = document.getElementById('errorBanner');
             errorBanner.style.display = 'none';
             document.getElementById('resultCount').textContent = 'Loading matches...';
             
             try {
-                const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?output=csv');
+                const response = await fetch(CSV_URLS[currentTeam]);
                 
                 if (!response.ok) throw new Error('Server returned ' + response.status);
                 
@@ -1802,6 +1906,18 @@
                 
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) sortButton.textContent = '📅 Show Oldest First';
+
+                // Hide attendance-dependent lenses for women's team
+                const attendanceLenses = ['lensBigCrowds', 'lensGhostGames'];
+                attendanceLenses.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = currentTeam === 'women' ? 'none' : '';
+                });
+
+                // Hide goalscorers box for women's (no goals sheet yet)
+                if (currentTeam === 'women') {
+                    document.getElementById('goalscorersBox').style.display = 'none';
+                }
 
             } catch (error) {
                 console.error('Error fetching match data:', error);
@@ -2932,7 +3048,7 @@
         });
         
         fetchMatchData();
-        fetchGoalsData();
+        if (currentTeam === 'men') fetchGoalsData();
         window.addEventListener('resize', () => {
             const body = document.getElementById('attendanceBody');
             if (body && body.classList.contains('open')) drawAttendanceChart();
