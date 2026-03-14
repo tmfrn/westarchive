@@ -1907,11 +1907,12 @@
                 const sortButton = document.getElementById('sortToggle');
                 if (sortButton) sortButton.textContent = '📅 Show Oldest First';
 
-                // Hide attendance-dependent lenses for women's team
+                // Hide attendance-dependent lenses only if no attendance data exists
+                const hasAttendance = MATCHES_DATA.some(m => m.Attendance);
                 const attendanceLenses = ['lensBigCrowds', 'lensGhostGames'];
                 attendanceLenses.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.style.display = currentTeam === 'women' ? 'none' : '';
+                    if (el) el.style.display = hasAttendance ? '' : 'none';
                 });
 
                 // Hide goalscorers box for women's (no goals sheet yet)
