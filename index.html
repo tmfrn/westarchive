@@ -9,30 +9,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0c0f0a;
-            --bg-card: #151a12;
-            --bg-card-hover: #1c2218;
-            --bg-surface: #111510;
-            --bg-elevated: #1a1f17;
-            --border-primary: #2a3125;
-            --border-subtle: #222a1e;
-            --text-primary: #e8ede5;
-            --text-secondary: #9aa894;
-            --text-muted: #6b7a64;
-            --text-bright: #f4f7f3;
-            --accent: #4ade80;
-            --accent-dim: #22c55e;
-            --accent-deep: #166534;
-            --accent-surface: rgba(74,222,128,0.06);
-            --accent-border: rgba(74,222,128,0.15);
-            --win: #4ade80;
-            --win-bg: rgba(74,222,128,0.12);
-            --draw: #fbbf24;
-            --draw-bg: rgba(251,191,36,0.12);
-            --loss: #f87171;
-            --loss-bg: rgba(248,113,113,0.12);
-            --pens-win-bg: rgba(74,222,128,0.08);
-            --pens-loss-bg: rgba(248,113,113,0.08);
+            --bg-primary: #f5f5f0;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fafaf7;
+            --bg-surface: #fbfbf8;
+            --bg-elevated: #ffffff;
+            --border-primary: #e0ddd5;
+            --border-subtle: #eae8e1;
+            --text-primary: #1a1a18;
+            --text-secondary: #5a5a52;
+            --text-muted: #8a8a80;
+            --text-bright: #0d0d0c;
+            --accent: #166534;
+            --accent-dim: #15803d;
+            --accent-deep: #14532d;
+            --accent-surface: rgba(22,101,52,0.05);
+            --accent-border: rgba(22,101,52,0.18);
+            --win: #166534;
+            --win-bg: rgba(22,101,52,0.08);
+            --draw: #92400e;
+            --draw-bg: rgba(146,64,14,0.08);
+            --loss: #991b1b;
+            --loss-bg: rgba(153,27,27,0.08);
+            --pens-win-bg: rgba(22,101,52,0.06);
+            --pens-loss-bg: rgba(153,27,27,0.06);
             --font-display: 'Bricolage Grotesque', 'Georgia', serif;
             --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --radius-sm: 6px;
@@ -60,7 +60,7 @@
             top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
             z-index: 9999;
-            opacity: 0.025;
+            opacity: 0.018;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             background-repeat: repeat;
             background-size: 256px 256px;
@@ -86,7 +86,7 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
             opacity: 0.6;
         }
 
@@ -138,9 +138,9 @@
         }
 
         .team-tab.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--bg-primary);
+            background: var(--text-bright);
+            border-color: var(--text-bright);
+            color: #fff;
             font-weight: 700;
         }
 
@@ -216,7 +216,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255,255,255,0.03);
+            background: rgba(0,0,0,0.02);
             border-radius: var(--radius-sm);
             padding: 10px 14px;
             font-size: 0.86rem;
@@ -448,9 +448,9 @@
 
         .gs-bar-cell { width: 50%; padding-right: 16px; }
         .gs-bar-track { background: var(--border-subtle); border-radius: 3px; height: 6px; overflow: hidden; }
-        .gs-bar-fill { background: var(--accent); height: 6px; border-radius: 3px; transition: width 0.4s ease; opacity: 0.7; }
+        .gs-bar-fill { background: var(--accent-dim); height: 6px; border-radius: 3px; transition: width 0.4s ease; opacity: 0.8; }
 
-        .gs-goals { font-weight: 800; color: var(--accent); text-align: right; white-space: nowrap; width: 48px; font-family: var(--font-display); }
+        .gs-goals { font-weight: 800; color: var(--accent-deep); text-align: right; white-space: nowrap; width: 48px; font-family: var(--font-display); }
 
         .gs-toggle {
             margin-top: 16px;
@@ -546,7 +546,7 @@
 
         .lens-btn.active {
             background: var(--accent);
-            color: var(--bg-primary);
+            color: #fff;
             border-color: var(--accent);
             font-weight: 700;
         }
@@ -568,9 +568,9 @@
         }
 
         .season-nav-btn {
-            background: rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.25);
             border: none;
-            color: var(--bg-primary);
+            color: #fff;
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -584,7 +584,7 @@
             line-height: 1;
         }
 
-        .season-nav-btn:hover { background: rgba(0,0,0,0.35); }
+        .season-nav-btn:hover { background: rgba(255,255,255,0.4); }
         .season-nav-btn:disabled { opacity: 0.3; cursor: default; }
 
         .lens-season-label {
@@ -631,7 +631,7 @@
         }
 
         .venue-pill:hover { border-color: var(--accent-border); color: var(--accent); }
-        .venue-pill.active { background: var(--accent); border-color: var(--accent); color: var(--bg-primary); }
+        .venue-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
         .show-more-btn {
             display: block;
@@ -698,7 +698,7 @@
 
         .filter-bar select.active-filter {
             background: var(--accent);
-            color: var(--bg-primary);
+            color: #fff;
             border-color: var(--accent);
         }
 
@@ -740,7 +740,7 @@
         }
 
         .filter-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
-        .filter-btn.active { background: var(--accent); color: var(--bg-primary); border-color: var(--accent); }
+        .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
         /* ===== RESULTS HEADER / STATS ===== */
         .results-header {
@@ -800,6 +800,7 @@
             margin-bottom: 12px;
             transition: all 0.25s var(--ease);
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .match-card:hover {
@@ -859,11 +860,11 @@
         .badge.loss { background: var(--loss-bg); color: var(--loss); }
         .badge.draw { background: var(--draw-bg); color: var(--draw); }
         .badge.abandoned { background: rgba(107,122,100,0.3); color: var(--text-muted); }
-        .badge.pens-win { background: var(--pens-win-bg); color: var(--win); border: 1px solid rgba(74,222,128,0.2); }
-        .badge.pens-loss { background: var(--pens-loss-bg); color: var(--loss); border: 1px solid rgba(248,113,113,0.2); }
-        .badge.home { background: rgba(96,165,250,0.1); color: #60a5fa; }
-        .badge.away { background: rgba(192,132,252,0.1); color: #c084fc; }
-        .badge.neutral { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        .badge.pens-win { background: var(--pens-win-bg); color: var(--win); border: 1px solid rgba(22,101,52,0.2); }
+        .badge.pens-loss { background: var(--pens-loss-bg); color: var(--loss); border: 1px solid rgba(153,27,27,0.2); }
+        .badge.home { background: rgba(37,99,235,0.08); color: #2563eb; }
+        .badge.away { background: rgba(147,51,234,0.08); color: #9333ea; }
+        .badge.neutral { background: rgba(0,0,0,0.04); color: var(--text-muted); }
 
         .match-fixture {
             display: flex;
@@ -949,7 +950,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
+            background: rgba(0,0,0,0.45);
             backdrop-filter: blur(4px);
             z-index: 1000;
             overflow-y: auto;
@@ -967,7 +968,7 @@
             border-radius: var(--radius-xl);
             max-width: 660px;
             width: 100%;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
             border: 1px solid var(--border-primary);
             animation: modalSlideIn 0.3s ease;
         }
@@ -995,7 +996,7 @@
         }
 
         .h2h-close, .player-close {
-            background: rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.06);
             border: none;
             color: var(--text-secondary);
             width: 34px; height: 34px;
@@ -1008,7 +1009,7 @@
             justify-content: center;
         }
 
-        .h2h-close:hover, .player-close:hover { background: rgba(255,255,255,0.15); }
+        .h2h-close:hover, .player-close:hover { background: rgba(0,0,0,0.1); }
 
         .h2h-stats {
             display: grid;
@@ -1083,9 +1084,9 @@
             margin-right: 10px;
             flex-shrink: 0;
         }
-        .h2h-match-result.w { background: var(--win); }
-        .h2h-match-result.d { background: var(--draw); }
-        .h2h-match-result.l { background: var(--loss); }
+        .h2h-match-result.w { background: var(--win); color: #fff; }
+        .h2h-match-result.d { background: var(--draw); color: #fff; }
+        .h2h-match-result.l { background: var(--loss); color: #fff; }
         .h2h-match-result.a { background: var(--text-muted); }
 
         /* ===== PLAYER MODAL SPECIFICS ===== */
@@ -1100,7 +1101,7 @@
             font-family: var(--font-display);
             font-size: 2.6rem;
             font-weight: 800;
-            color: var(--accent);
+            color: var(--accent-deep);
             line-height: 1;
         }
         .player-total-label { font-size: 0.86rem; color: var(--text-muted); font-weight: 500; }
@@ -1128,7 +1129,7 @@
 
         .player-season-chip .chip-goals {
             background: var(--accent);
-            color: var(--bg-primary);
+            color: #fff;
             border-radius: 10px;
             padding: 1px 7px;
             font-size: 0.88em;
@@ -1171,9 +1172,9 @@
             color: var(--bg-primary);
             flex-shrink: 0;
         }
-        .player-match-result.w { background: var(--win); }
-        .player-match-result.d { background: var(--draw); }
-        .player-match-result.l { background: var(--loss); }
+        .player-match-result.w { background: var(--win); color: #fff; }
+        .player-match-result.d { background: var(--draw); color: #fff; }
+        .player-match-result.l { background: var(--loss); color: #fff; }
 
         .player-match-date { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
         .player-match-opposition { font-weight: 600; color: var(--text-primary); flex: 1; }
@@ -1186,7 +1187,7 @@
             padding: 2px 9px;
             font-size: 0.76rem;
             font-weight: 700;
-            color: var(--accent);
+            color: var(--accent-deep);
             white-space: nowrap;
             flex-shrink: 0;
         }
@@ -1266,7 +1267,7 @@
                 <div style="position:relative;">
                     <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
                 </div>
-                <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-card);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+                <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-elevated);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
             </div>
         </div>
 
@@ -2437,28 +2438,28 @@
             const barW = chartW / data.length; const BAR_GAP = Math.max(2, barW * 0.15);
             const yScale = v => PAD.top + chartH - (v / maxAvg) * chartH;
 
-            // Clear with dark background
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#151a12';
+            // Clear with background
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#fbfbf8';
             ctx.fillRect(0, 0, W, H);
 
             ctx.font = (isMobile ? '10' : '11') + 'px "DM Sans", -apple-system, sans-serif';
             const yTicks = isMobile ? 4 : 5;
             for (let i = 0; i <= yTicks; i++) {
                 const v = Math.round((maxAvg / yTicks) * i); const y = yScale(v);
-                ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#2a3125' : '#1c2218'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#ccc' : '#e8e6df'; ctx.lineWidth = 1;
                 ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
-                ctx.fillStyle = '#6b7a64'; ctx.textAlign = 'right';
+                ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'right';
                 const label = v >= 1000 ? (v / 1000).toFixed(1).replace('.0','') + 'k' : v.toString();
                 ctx.fillText(label, PAD.left - 5, y + 4);
             }
             data.forEach((d, i) => {
                 const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
                 const barH = (d.avg / maxAvg) * chartH; const y = PAD.top + chartH - barH;
-                const alpha = 0.35 + 0.65 * (i / (data.length - 1));
-                ctx.fillStyle = `rgba(74,222,128,${alpha.toFixed(2)})`;
+                const alpha = 0.3 + 0.7 * (i / (data.length - 1));
+                ctx.fillStyle = `rgba(22,101,52,${alpha.toFixed(2)})`;
                 ctx.beginPath(); ctx.roundRect(x, y, bw, barH, [3, 3, 0, 0]); ctx.fill();
                 if (!isMobile || i % 2 === 0) {
-                    ctx.fillStyle = '#6b7a64'; ctx.textAlign = 'center';
+                    ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'center';
                     ctx.font = (isMobile ? '9' : '10') + 'px "DM Sans", -apple-system, sans-serif';
                     const shortSeason = d.season.split('/')[0].slice(2); const nextPart = d.season.split('/')[1] || '';
                     const label = isMobile ? "'" + shortSeason : shortSeason + '/' + nextPart;
