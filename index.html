@@ -1260,13 +1260,15 @@
 
         <div class="summary-box" id="attendanceChartBox" style="display:none;">
             <div class="section-toggle-header" id="attendanceToggle" onclick="toggleSection('attendance')">
-                <h2>Home Attendance Over Time</h2>
+                <h2>Home League Attendance Over Time</h2>
                 <span class="section-chevron">▼</span>
             </div>
             <div class="section-body" id="attendanceBody">
+                <div id="attendanceStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;"></div>
                 <div style="position:relative;">
                     <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
                 </div>
+                <div id="attendanceTapPanel" style="display:none;margin-top:12px;background:var(--bg-elevated);border:1px solid var(--border-primary);border-radius:var(--radius-md);padding:12px 16px;font-size:0.85em;line-height:1.6;"></div>
                 <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-elevated);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
             </div>
         </div>
@@ -1596,6 +1598,8 @@
             const subtitle = team === 'men' ? "Men's Team Match Archive" : "Women's Team Match Archive";
             document.getElementById('headerSubtitle').textContent = subtitle;
             document.title = 'West Didsbury & Chorlton AFC - ' + subtitle;
+            const attTitle = document.querySelector('#attendanceToggle h2');
+            if (attTitle) attTitle.textContent = 'Home League Attendance Over Time';
             MATCHES_DATA = []; GOALS_DATA = []; playerGoals = {}; scorersByDate = {}; playerMilestones = {};
             gsShowAll = false; currentFilter = 'all'; selectedSeason = ''; selectedCompetition = '';
             searchTerm = ''; sortOrder = 'desc'; activeLens = null; lensVenue = 'all'; listCap = 20;
@@ -2416,10 +2420,58 @@
 
         (function() { if (!CanvasRenderingContext2D.prototype.roundRect) { CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) { const rad = Array.isArray(r) ? r[0] : r; this.moveTo(x + rad, y); this.lineTo(x + w - rad, y); this.quadraticCurveTo(x + w, y, x + w, y + rad); this.lineTo(x + w, y + h); this.lineTo(x, y + h); this.lineTo(x, y + rad); this.quadraticCurveTo(x, y, x + rad, y); this.closePath(); return this; }; } })();
 
+        const LEAGUE_COMPS = {
+            men: new Set(['NWCFL Premier Division', 'NWCFL First Division South', 'NWCFL First Division']),
+            women: new Set(['NWWRL Premier', 'NWWRL Division One South'])
+        };
+
         function buildSeasonAverages() {
+            const leagueComps = LEAGUE_COMPS[currentTeam] || LEAGUE_COMPS.men;
             const bySeason = {};
-            MATCHES_DATA.forEach(m => { if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return; const s = m.Season; if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [] }; bySeason[s].total += m.Attendance; bySeason[s].count++; if (m.Attendance > bySeason[s].peak) { bySeason[s].peak = m.Attendance; bySeason[s].peakMatches = [m]; } else if (m.Attendance === bySeason[s].peak) { bySeason[s].peakMatches.push(m); } });
-            return Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0])).map(([season, d]) => ({ season, avg: Math.round(d.total / d.count), count: d.count, peak: d.peak, peakMatches: d.peakMatches }));
+            MATCHES_DATA.forEach(m => {
+                if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return;
+                if (!leagueComps.has((m.Competition || '').trim())) return;
+                const s = m.Season;
+                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [] };
+                bySeason[s].total += m.Attendance; bySeason[s].count++;
+                if (m.Attendance > bySeason[s].peak) { bySeason[s].peak = m.Attendance; bySeason[s].peakMatches = [m]; }
+                else if (m.Attendance === bySeason[s].peak) { bySeason[s].peakMatches.push(m); }
+            });
+            return Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0])).map(([season, d]) => ({ season, avg: Math.round(d.total / d.count), count: d.count, peak: d.peak, peakMatches: d.peakMatches, total: d.total }));
+        }
+
+        function renderAttendanceStats(data) {
+            const statsEl = document.getElementById('attendanceStats');
+            if (!statsEl || data.length === 0) return;
+            const latest = data[data.length - 1];
+            const prev = data.length >= 2 ? data[data.length - 2] : null;
+            const bestAvgSeason = data.reduce((best, d) => d.avg > best.avg ? d : best, data[0]);
+            const bestGate = data.reduce((best, d) => d.peak > best.peak ? d : best, data[0]);
+            const totalGames = data.reduce((s, d) => s + d.count, 0);
+
+            let trendHtml = '';
+            if (prev) {
+                const diff = latest.avg - prev.avg;
+                const pct = Math.abs(Math.round((diff / prev.avg) * 100));
+                const dir = diff >= 0 ? '▲' : '▼';
+                const col = diff >= 0 ? 'var(--win)' : 'var(--loss)';
+                trendHtml = ' <span style="color:' + col + ';font-size:0.8em;font-weight:700;">' + dir + ' ' + pct + '%</span>';
+            }
+
+            const pills = [
+                { label: latest.season + ' avg', value: latest.avg.toLocaleString() + trendHtml, sub: prev ? 'vs ' + prev.avg.toLocaleString() + ' last season' : '' },
+                { label: 'Best season avg', value: bestAvgSeason.avg.toLocaleString(), sub: bestAvgSeason.season },
+                { label: 'Biggest home gate', value: bestGate.peak.toLocaleString(), sub: bestGate.peakMatches[0] ? 'vs ' + bestGate.peakMatches[0].Opposition + ' (' + bestGate.season + ')' : bestGate.season },
+                { label: 'League games tracked', value: totalGames, sub: data.length + ' seasons' }
+            ];
+
+            statsEl.innerHTML = pills.map(p =>
+                '<div style="background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;">' +
+                '<div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:6px;">' + p.label + '</div>' +
+                '<div style="font-family:var(--font-display);font-size:1.35rem;font-weight:800;color:var(--text-bright);line-height:1;">' + p.value + '</div>' +
+                (p.sub ? '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">' + p.sub + '</div>' : '') +
+                '</div>'
+            ).join('');
         }
 
         function drawAttendanceChart() {
@@ -2432,13 +2484,13 @@
             canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
             const ctx = canvas.getContext('2d'); ctx.scale(DPR, DPR);
             const data = buildSeasonAverages(); if (data.length === 0) return;
+            renderAttendanceStats(data);
             const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
             const chartW = W - PAD.left - PAD.right; const chartH = H - PAD.top - PAD.bottom;
             const maxAvg = Math.ceil(Math.max(...data.map(d => d.avg)) / 100) * 100;
             const barW = chartW / data.length; const BAR_GAP = Math.max(2, barW * 0.15);
             const yScale = v => PAD.top + chartH - (v / maxAvg) * chartH;
 
-            // Clear with background
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#fbfbf8';
             ctx.fillRect(0, 0, W, H);
 
@@ -2467,18 +2519,71 @@
                 }
             });
 
-            const tooltip = document.getElementById('attendanceTooltip'); const HOVER_PAD = 4;
-            function getBarHit(mx, my) { for (let i = 0; i < data.length; i++) { const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP; const barH = (data[i].avg / maxAvg) * chartH; const y = PAD.top + chartH - barH; if (mx >= x - HOVER_PAD && mx <= x + bw + HOVER_PAD && my >= y - HOVER_PAD && my <= PAD.top + chartH + HOVER_PAD) return data[i]; } return null; }
-            function showTooltip(clientX, clientY, d) { let peakLine = ''; if (d.peakMatches && d.peakMatches.length > 0) { const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', '); peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' — ' + peakGames; } tooltip.innerHTML = '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' home games' + peakLine; tooltip.style.display = 'block'; const ttW = 230; const left = clientX + 14 + ttW > window.innerWidth ? clientX - ttW - 8 : clientX + 14; tooltip.style.left = left + 'px'; tooltip.style.top = (clientY - 10) + 'px'; }
-            function onMouseMove(e) { const rect = canvas.getBoundingClientRect(); const hit = getBarHit(e.clientX - rect.left, e.clientY - rect.top); if (hit) { showTooltip(e.clientX, e.clientY, hit); canvas.style.cursor = 'pointer'; } else { tooltip.style.display = 'none'; canvas.style.cursor = 'default'; } }
+            const tooltip = document.getElementById('attendanceTooltip');
+            const tapPanel = document.getElementById('attendanceTapPanel');
+            const HOVER_PAD = 4;
+
+            function getBarHit(mx, my) {
+                for (let i = 0; i < data.length; i++) {
+                    const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
+                    const barH = (data[i].avg / maxAvg) * chartH; const y = PAD.top + chartH - barH;
+                    if (mx >= x - HOVER_PAD && mx <= x + bw + HOVER_PAD && my >= y - HOVER_PAD && my <= PAD.top + chartH + HOVER_PAD) return data[i];
+                }
+                return null;
+            }
+
+            function tooltipContent(d) {
+                let peakLine = '';
+                if (d.peakMatches && d.peakMatches.length > 0) {
+                    const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', ');
+                    peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' — ' + peakGames;
+                }
+                return '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' league home games' + peakLine;
+            }
+
+            function showTooltip(clientX, clientY, d) {
+                tooltip.innerHTML = tooltipContent(d);
+                tooltip.style.display = 'block';
+                const ttW = 250;
+                const left = clientX + 14 + ttW > window.innerWidth ? clientX - ttW - 8 : clientX + 14;
+                tooltip.style.left = left + 'px'; tooltip.style.top = (clientY - 10) + 'px';
+            }
+
+            function showTapPanel(d) {
+                tapPanel.innerHTML = tooltipContent(d);
+                tapPanel.style.display = 'block';
+            }
+
+            function onMouseMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                const hit = getBarHit(e.clientX - rect.left, e.clientY - rect.top);
+                if (hit) { showTooltip(e.clientX, e.clientY, hit); canvas.style.cursor = 'pointer'; }
+                else { tooltip.style.display = 'none'; canvas.style.cursor = 'default'; }
+            }
             function onMouseLeave() { tooltip.style.display = 'none'; canvas.style.cursor = 'default'; }
-            function onTouchStart(e) { const rect = canvas.getBoundingClientRect(); const touch = e.touches[0]; const hit = getBarHit(touch.clientX - rect.left, touch.clientY - rect.top); if (hit) { e.preventDefault(); showTooltip(touch.clientX, touch.clientY, hit); } else { tooltip.style.display = 'none'; } }
-            function onTouchEnd() { setTimeout(() => { tooltip.style.display = 'none'; }, 2500); }
-            canvas.removeEventListener('mousemove', canvas._attendanceMove); canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
-            canvas.removeEventListener('touchstart', canvas._attendanceTouch); canvas.removeEventListener('touchend', canvas._attendanceTouchEnd);
-            canvas._attendanceMove = onMouseMove; canvas._attendanceLeave = onMouseLeave; canvas._attendanceTouch = onTouchStart; canvas._attendanceTouchEnd = onTouchEnd;
-            canvas.addEventListener('mousemove', onMouseMove); canvas.addEventListener('mouseleave', onMouseLeave);
-            canvas.addEventListener('touchstart', onTouchStart, { passive: false }); canvas.addEventListener('touchend', onTouchEnd);
+
+            function onTouchStart(e) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const hit = getBarHit(touch.clientX - rect.left, touch.clientY - rect.top);
+                if (hit) { e.preventDefault(); showTapPanel(hit); }
+                else { tapPanel.style.display = 'none'; }
+            }
+
+            document.addEventListener('click', function dismissTap(e) {
+                if (!canvas.contains(e.target) && !tapPanel.contains(e.target)) {
+                    tapPanel.style.display = 'none';
+                    document.removeEventListener('click', dismissTap);
+                }
+            });
+
+            canvas.removeEventListener('mousemove', canvas._attendanceMove);
+            canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
+            canvas.removeEventListener('touchstart', canvas._attendanceTouch);
+            canvas._attendanceMove = onMouseMove; canvas._attendanceLeave = onMouseLeave; canvas._attendanceTouch = onTouchStart;
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseleave', onMouseLeave);
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
         }
     </script>
 </body>
