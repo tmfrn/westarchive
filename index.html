@@ -562,6 +562,10 @@
             gap: 4px;
         }
 
+        .lens-season-nav.active {
+            display: flex;
+        }
+
         .lens-btn.active .lens-season-nav {
             display: flex;
             margin-left: 4px;
@@ -844,6 +848,23 @@
             color: var(--text-muted);
             font-weight: 500;
         }
+
+        .match-season-chip {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            background: var(--accent-surface);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            cursor: pointer;
+            transition: background 0.15s;
+            vertical-align: middle;
+        }
+
+        .match-season-chip:hover { background: rgba(22,101,52,0.12); }
 
         .badge {
             display: inline-block;
@@ -1192,78 +1213,6 @@
             flex-shrink: 0;
         }
 
-        /* ===== SEASON BY SEASON OVERLAY ===== */
-        .sbs-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 40px 20px;
-        }
-        .sbs-overlay.active {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-        }
-        .sbs-modal {
-            background: var(--bg-elevated);
-            border-radius: var(--radius-xl);
-            max-width: 720px;
-            width: 100%;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
-            border: 1px solid var(--border-primary);
-            animation: modalSlideIn 0.3s ease;
-        }
-        .sbs-grid {
-            padding: 20px 24px 28px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-        }
-        .sbs-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: all 0.2s var(--ease);
-        }
-        .sbs-card:hover {
-            border-color: var(--accent-border);
-            background: var(--bg-card-hover);
-            transform: translateY(-2px);
-        }
-        .sbs-season {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text-bright);
-            margin-bottom: 8px;
-        }
-        .sbs-record {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .sbs-record .w { color: var(--win); }
-        .sbs-record .d { color: var(--draw); }
-        .sbs-record .l { color: var(--loss); }
-        .sbs-comp {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        @media (max-width: 768px) {
-            .sbs-overlay { padding: 20px 10px; }
-            .sbs-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-        }
-
         /* ===== SEASON SUMMARY MODAL ===== */
         .season-modal-stats {
             display: grid;
@@ -1535,17 +1484,13 @@
                 <button class="lens-btn" id="lensThisSeason" onclick="activateLens('this-season', this)">
                     <span class="lens-icon">📅</span>
                     <span class="lens-label">This Season</span>
-                    <span class="lens-season-nav" id="seasonNav">
-                        <button class="season-nav-btn" id="seasonPrev" onclick="event.stopPropagation(); stepSeason(-1)">‹</button>
-                        <span class="lens-season-label" id="seasonNavLabel"></span>
-                        <button class="season-nav-btn" id="seasonNext" onclick="event.stopPropagation(); stepSeason(1)">›</button>
-                        <button class="season-nav-summary" onclick="event.stopPropagation(); showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
-                    </span>
                 </button>
-                <button class="lens-btn" id="lensSeasonBySeason" onclick="activateLens('season-by-season', this)">
-                    <span class="lens-icon">📊</span>
-                    <span class="lens-label">Season by Season</span>
-                </button>
+                <div class="lens-season-nav" id="seasonNav">
+                    <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
+                    <span class="lens-season-label" id="seasonNavLabel"></span>
+                    <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
+                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
+                </div>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
                     <span class="lens-icon">🏆</span>
                     <span class="lens-label">Biggest Wins</span>
@@ -1665,16 +1610,6 @@
         </div>
     </div>
 
-    <div class="sbs-overlay" id="sbsOverlay" onclick="if(event.target===this)closeSbsModal()">
-        <div class="sbs-modal">
-            <div class="h2h-header">
-                <h3 id="sbsTitle">Season by Season</h3>
-                <button class="h2h-close" onclick="closeSbsModal()">✕</button>
-            </div>
-            <div class="sbs-grid" id="sbsGrid"></div>
-        </div>
-    </div>
-
     <div class="h2h-overlay" id="seasonOverlay" onclick="if(event.target===this)closeSeasonSummary()">
         <div class="h2h-modal">
             <div class="h2h-header">
@@ -1784,7 +1719,6 @@
             else if (lens === 'ghost-games') { currentFilter = 'lowest-attendance'; selectedSeason = ''; renderMatches(); scrollToResults(); }
             else if (lens === 'on-this-day') { currentFilter = 'on-this-day'; selectedSeason = ''; renderMatches(); scrollToResults(); }
             else if (lens === 'goals-fest') { currentFilter = 'most-goals-total'; selectedSeason = ''; renderMatches(); scrollToResults(); }
-            else if (lens === 'season-by-season') { showSbsModal(); }
             displayCurrentStreak();
         }
 
@@ -1795,6 +1729,7 @@
             document.getElementById('seasonNavLabel').textContent = selectedSeason;
             document.getElementById('seasonPrev').disabled = currentSeasonIndex === 0;
             document.getElementById('seasonNext').disabled = currentSeasonIndex === allSeasons.length - 1;
+            document.getElementById('seasonNav').classList.add('active');
             renderMatches(); scrollToResults();
         }
 
@@ -1811,6 +1746,7 @@
             row.classList.remove('has-active');
             document.getElementById('lensesClear').classList.add('hidden');
             document.getElementById('venuePills').classList.add('hidden');
+            document.getElementById('seasonNav').classList.remove('active');
             currentFilter = 'all'; selectedSeason = ''; selectedCompetition = ''; searchTerm = ''; sortOrder = 'desc';
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').value = '';
@@ -1878,6 +1814,7 @@
             document.getElementById('lensesRow').classList.remove('has-active', 'filter-active');
             document.getElementById('lensesClear').classList.add('hidden');
             document.getElementById('venuePills').classList.add('hidden');
+            document.getElementById('seasonNav').classList.remove('active');
             const fb = document.querySelector('.filter-bar');
             if (fb) { fb.classList.remove('runs-active', 'has-filter'); }
             const sortToggle = document.getElementById('sortToggle');
@@ -2329,9 +2266,11 @@
             const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
             const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
             const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
+            const safeSeason = (match.Season || '').replace(/'/g, "\\'");
+            const seasonChip = match.Season ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
             return '<div class="match-card">' + tagsHtml +
                 '<div class="match-header">' +
-                    '<span class="match-date">' + match.Date + '</span>' +
+                    '<span class="match-date">' + match.Date + seasonChip + '</span>' +
                     '<span>' + resultBadge + venueBadge + '</span>' +
                 '</div>' +
                 '<div class="match-fixture">' +
@@ -2541,40 +2480,6 @@
             scrollToResults();
         }
 
-        function showSbsModal() {
-            const seasons = getSeasons().reverse(); // oldest first
-            document.getElementById('sbsTitle').textContent = "Season by Season — " + (currentTeam === 'women' ? "Women's Team" : "Men's Team");
-            document.getElementById('sbsGrid').innerHTML = seasons.map(season => {
-                const ms = MATCHES_DATA.filter(m => m.Season === season && m.Abandoned !== 'Y');
-                const p = ms.length;
-                const w = ms.filter(m => effectiveResult(m) === 'W').length;
-                const d = ms.filter(m => effectiveResult(m) === 'D').length;
-                const l = ms.filter(m => effectiveResult(m) === 'L').length;
-                const comps = [...new Set(ms.map(m => m.Competition).filter(Boolean))];
-                const leagueComps = LEAGUE_COMPS[currentTeam] || LEAGUE_COMPS.men;
-                const leagueComp = comps.find(c => leagueComps.has(c.trim())) || comps[0] || '';
-                const safeSeason = season.replace(/'/g, "\\'");
-                return '<div class="sbs-card" onclick="closeSbsModal(); showSeasonSummary(\'' + safeSeason + '\')">' +
-                    '<div class="sbs-season">' + season + '</div>' +
-                    '<div class="sbs-record">P' + p + ' <span class="w">W' + w + '</span> <span class="d">D' + d + '</span> <span class="l">L' + l + '</span></div>' +
-                    '<div class="sbs-comp">' + leagueComp + '</div>' +
-                '</div>';
-            }).join('');
-            document.getElementById('sbsOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSbsModal() {
-            document.getElementById('sbsOverlay').classList.remove('active');
-            document.body.style.overflow = '';
-            // Deactivate the lens button since the modal is the whole interaction
-            const btn = document.getElementById('lensSeasonBySeason');
-            if (btn) btn.classList.remove('active');
-            const row = document.getElementById('lensesRow');
-            if (row) { row.classList.remove('has-active'); }
-            document.getElementById('lensesClear').classList.add('hidden');
-            if (activeLens === 'season-by-season') { activeLens = null; }
-        }
 
         function showSeasonSummary(season) {
             if (!season) return;
@@ -2762,7 +2667,7 @@
 
         function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
 
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeSbsModal(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); } });
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
