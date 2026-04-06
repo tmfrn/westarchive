@@ -1444,6 +1444,7 @@
                     <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
                 </div>
                 <div id="attendanceTapPanel" style="display:none;margin-top:12px;background:var(--bg-elevated);border:1px solid var(--border-primary);border-radius:var(--radius-md);padding:12px 16px;font-size:0.85em;line-height:1.6;"></div>
+                <div id="attendanceTable" style="margin-top:20px;"></div>
                 <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-elevated);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
             </div>
         </div>
@@ -1826,6 +1827,7 @@
             if (attToggle) attToggle.classList.remove('open');
             document.getElementById('attendanceStats').innerHTML = '';
             document.getElementById('attendanceTapPanel').style.display = 'none';
+            document.getElementById('attendanceTable').innerHTML = '';
             const oldLegend = document.getElementById('attendanceLegend');
             if (oldLegend) oldLegend.remove();
             attendanceMode = 'league';
@@ -2921,8 +2923,8 @@
                 '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
                 '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #166534;background:transparent;"></span>Peak gate</span>' +
                 '<span style="display:flex;align-items:center;gap:4px;margin-left:auto;">' +
-                '<button style="' + (leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'league\')">League</button>' +
-                '<button style="' + (!leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'all\')">All home</button>' +
+                '<button style="' + (leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'league\')">League only</button>' +
+                '<button style="' + (!leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'all\')">League &amp; cup</button>' +
                 '</span>';
 
             const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
@@ -2969,6 +2971,7 @@
                     if (!d.peak) return;
                     const x = PAD.left + i * barW + BAR_GAP / 2 + (barW - BAR_GAP) / 2;
                     const y = yScale(d.peak);
+                    ctx.save();
                     ctx.beginPath();
                     ctx.arc(x, y, 4.5, 0, Math.PI * 2);
                     ctx.fillStyle = '#ffffff';
@@ -2976,6 +2979,7 @@
                     ctx.strokeStyle = '#166534';
                     ctx.lineWidth = 2;
                     ctx.stroke();
+                    ctx.restore();
                 });
             }
 
@@ -2998,7 +3002,8 @@
                     const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', ');
                     peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' — ' + peakGames;
                 }
-                return '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' league home games' + peakLine;
+                const gamesLabel = attendanceMode === 'league' ? 'league home games' : 'home games (all)';
+                return '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' ' + gamesLabel + peakLine;
             }
 
             function showTooltip(clientX, clientY, d) {
@@ -3037,7 +3042,41 @@
             canvas.addEventListener('mousemove', onMouseMove);
             canvas.addEventListener('mouseleave', onMouseLeave);
             canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+
+            renderAttendanceTable(data);
         }
+
+        function renderAttendanceTable(data) {
+            const el = document.getElementById('attendanceTable');
+            if (!el || data.length === 0) return;
+            const isLeague = attendanceMode === 'league';
+            const gamesCol = isLeague ? 'League games' : 'Home games';
+            const tdBase = 'padding:9px 10px;';
+            const thBase = 'font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);padding:8px 10px;';
+            const rows = data.slice().reverse().map(d => {
+                const peakOpp = d.peakMatches && d.peakMatches.length > 0 ? d.peakMatches[0].Opposition : '—';
+                return '<tr style="border-bottom:1px solid var(--border-subtle);">' +
+                    '<td style="' + tdBase + 'font-weight:700;color:var(--text-bright);white-space:nowrap;">' + d.season + '</td>' +
+                    '<td style="' + tdBase + 'text-align:right;">' + d.count + '</td>' +
+                    '<td style="' + tdBase + 'text-align:right;font-weight:700;color:var(--text-bright);">' + d.avg.toLocaleString() + '</td>' +
+                    '<td style="' + tdBase + 'text-align:right;">' + d.peak.toLocaleString() + '</td>' +
+                    '<td style="' + tdBase + 'color:var(--text-muted);">' + peakOpp + '</td>' +
+                '</tr>';
+            }).join('');
+            el.innerHTML =
+                '<div style="overflow-x:auto;margin-top:4px;">' +
+                '<table style="width:100%;border-collapse:collapse;font-size:0.84rem;font-family:var(--font-body);">' +
+                '<thead><tr style="border-bottom:2px solid var(--border-primary);">' +
+                '<th style="' + thBase + 'text-align:left;">Season</th>' +
+                '<th style="' + thBase + 'text-align:right;">' + gamesCol + '</th>' +
+                '<th style="' + thBase + 'text-align:right;">Avg</th>' +
+                '<th style="' + thBase + 'text-align:right;">Peak</th>' +
+                '<th style="' + thBase + 'text-align:left;">Peak gate vs</th>' +
+                '</tr></thead>' +
+                '<tbody style="color:var(--text-secondary);">' + rows + '</tbody>' +
+                '</table></div>';
+        }
+
         function setAttendanceMode(mode) {
             if (attendanceMode === mode) return;
             attendanceMode = mode;
