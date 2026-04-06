@@ -1192,6 +1192,78 @@
             flex-shrink: 0;
         }
 
+        /* ===== SEASON BY SEASON OVERLAY ===== */
+        .sbs-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .sbs-overlay.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .sbs-modal {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+            border: 1px solid var(--border-primary);
+            animation: modalSlideIn 0.3s ease;
+        }
+        .sbs-grid {
+            padding: 20px 24px 28px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .sbs-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+        }
+        .sbs-card:hover {
+            border-color: var(--accent-border);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+        .sbs-season {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+        }
+        .sbs-record {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .sbs-record .w { color: var(--win); }
+        .sbs-record .d { color: var(--draw); }
+        .sbs-record .l { color: var(--loss); }
+        .sbs-comp {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @media (max-width: 768px) {
+            .sbs-overlay { padding: 20px 10px; }
+            .sbs-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+        }
+
         /* ===== SEASON SUMMARY MODAL ===== */
         .season-modal-stats {
             display: grid;
@@ -1470,6 +1542,10 @@
                         <button class="season-nav-summary" onclick="event.stopPropagation(); showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
                     </span>
                 </button>
+                <button class="lens-btn" id="lensSeasonBySeason" onclick="activateLens('season-by-season', this)">
+                    <span class="lens-icon">📊</span>
+                    <span class="lens-label">Season by Season</span>
+                </button>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
                     <span class="lens-icon">🏆</span>
                     <span class="lens-label">Biggest Wins</span>
@@ -1589,6 +1665,16 @@
         </div>
     </div>
 
+    <div class="sbs-overlay" id="sbsOverlay" onclick="if(event.target===this)closeSbsModal()">
+        <div class="sbs-modal">
+            <div class="h2h-header">
+                <h3 id="sbsTitle">Season by Season</h3>
+                <button class="h2h-close" onclick="closeSbsModal()">✕</button>
+            </div>
+            <div class="sbs-grid" id="sbsGrid"></div>
+        </div>
+    </div>
+
     <div class="h2h-overlay" id="seasonOverlay" onclick="if(event.target===this)closeSeasonSummary()">
         <div class="h2h-modal">
             <div class="h2h-header">
@@ -1698,6 +1784,7 @@
             else if (lens === 'ghost-games') { currentFilter = 'lowest-attendance'; selectedSeason = ''; renderMatches(); scrollToResults(); }
             else if (lens === 'on-this-day') { currentFilter = 'on-this-day'; selectedSeason = ''; renderMatches(); scrollToResults(); }
             else if (lens === 'goals-fest') { currentFilter = 'most-goals-total'; selectedSeason = ''; renderMatches(); scrollToResults(); }
+            else if (lens === 'season-by-season') { showSbsModal(); }
             displayCurrentStreak();
         }
 
@@ -1779,6 +1866,8 @@
             if (attTitle) attTitle.textContent = 'Home League Attendance Over Time';
             MATCHES_DATA = []; GOALS_DATA = []; playerGoals = {}; scorersByDate = {}; playerMilestones = {};
             gsShowAll = false; gsSelectedSeason = ''; currentFilter = 'all'; selectedSeason = ''; selectedCompetition = '';
+            const gsSelEl = document.getElementById('gsSeasonSelect');
+            if (gsSelEl) { gsSelEl.value = ''; gsSelEl.classList.remove('active-filter'); }
             searchTerm = ''; sortOrder = 'desc'; activeLens = null; lensVenue = 'all'; listCap = 20;
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').innerHTML = '<option value="">All Seasons</option>';
@@ -1794,6 +1883,14 @@
             const sortToggle = document.getElementById('sortToggle');
             if (sortToggle) sortToggle.textContent = '📅 Show Oldest First';
             document.getElementById('attendanceChartBox').style.display = 'none';
+            const attBody = document.getElementById('attendanceBody');
+            const attToggle = document.getElementById('attendanceToggle');
+            if (attBody) attBody.classList.remove('open');
+            if (attToggle) attToggle.classList.remove('open');
+            document.getElementById('attendanceStats').innerHTML = '';
+            document.getElementById('attendanceTapPanel').style.display = 'none';
+            const oldLegend = document.getElementById('attendanceLegend');
+            if (oldLegend) oldLegend.remove();
             document.getElementById('goalscorersBox').style.display = 'none';
             document.getElementById('streakBox').style.display = 'none';
             document.getElementById('otdBanner').style.display = 'none';
@@ -2444,6 +2541,41 @@
             scrollToResults();
         }
 
+        function showSbsModal() {
+            const seasons = getSeasons().reverse(); // oldest first
+            document.getElementById('sbsTitle').textContent = "Season by Season — " + (currentTeam === 'women' ? "Women's Team" : "Men's Team");
+            document.getElementById('sbsGrid').innerHTML = seasons.map(season => {
+                const ms = MATCHES_DATA.filter(m => m.Season === season && m.Abandoned !== 'Y');
+                const p = ms.length;
+                const w = ms.filter(m => effectiveResult(m) === 'W').length;
+                const d = ms.filter(m => effectiveResult(m) === 'D').length;
+                const l = ms.filter(m => effectiveResult(m) === 'L').length;
+                const comps = [...new Set(ms.map(m => m.Competition).filter(Boolean))];
+                const leagueComps = LEAGUE_COMPS[currentTeam] || LEAGUE_COMPS.men;
+                const leagueComp = comps.find(c => leagueComps.has(c.trim())) || comps[0] || '';
+                const safeSeason = season.replace(/'/g, "\\'");
+                return '<div class="sbs-card" onclick="closeSbsModal(); showSeasonSummary(\'' + safeSeason + '\')">' +
+                    '<div class="sbs-season">' + season + '</div>' +
+                    '<div class="sbs-record">P' + p + ' <span class="w">W' + w + '</span> <span class="d">D' + d + '</span> <span class="l">L' + l + '</span></div>' +
+                    '<div class="sbs-comp">' + leagueComp + '</div>' +
+                '</div>';
+            }).join('');
+            document.getElementById('sbsOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSbsModal() {
+            document.getElementById('sbsOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            // Deactivate the lens button since the modal is the whole interaction
+            const btn = document.getElementById('lensSeasonBySeason');
+            if (btn) btn.classList.remove('active');
+            const row = document.getElementById('lensesRow');
+            if (row) { row.classList.remove('has-active'); }
+            document.getElementById('lensesClear').classList.add('hidden');
+            if (activeLens === 'season-by-season') { activeLens = null; }
+        }
+
         function showSeasonSummary(season) {
             if (!season) return;
             const seasonMatches = MATCHES_DATA.filter(m => m.Season === season && m.Abandoned !== 'Y');
@@ -2630,7 +2762,7 @@
 
         function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
 
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeSbsModal(); } });
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
@@ -2855,11 +2987,28 @@
             const ctx = canvas.getContext('2d'); ctx.scale(DPR, DPR);
             const data = buildSeasonAverages(); if (data.length === 0) return;
             renderAttendanceStats(data);
+
+            // Render legend above canvas
+            let legendEl = document.getElementById('attendanceLegend');
+            if (!legendEl) {
+                legendEl = document.createElement('div');
+                legendEl.id = 'attendanceLegend';
+                legendEl.style.cssText = 'display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;';
+                container.parentElement.insertBefore(legendEl, container);
+            }
+            legendEl.innerHTML =
+                '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
+                '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(22,101,52,0.8);"></span>Season average</span>' +
+                '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
+                '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #166534;background:transparent;"></span>Peak gate</span>';
+
             const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
             const chartW = W - PAD.left - PAD.right; const chartH = H - PAD.top - PAD.bottom;
-            const maxAvg = Math.ceil(Math.max(...data.map(d => d.avg)) / 100) * 100;
+
+            // Scale y-axis to max of peaks (not averages) so dots always fit
+            const maxVal = Math.ceil(Math.max(...data.map(d => d.peak)) / 100) * 100;
             const barW = chartW / data.length; const BAR_GAP = Math.max(2, barW * 0.15);
-            const yScale = v => PAD.top + chartH - (v / maxAvg) * chartH;
+            const yScale = v => PAD.top + chartH - (v / maxVal) * chartH;
 
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#fbfbf8';
             ctx.fillRect(0, 0, W, H);
@@ -2867,16 +3016,18 @@
             ctx.font = (isMobile ? '10' : '11') + 'px "DM Sans", -apple-system, sans-serif';
             const yTicks = isMobile ? 4 : 5;
             for (let i = 0; i <= yTicks; i++) {
-                const v = Math.round((maxAvg / yTicks) * i); const y = yScale(v);
+                const v = Math.round((maxVal / yTicks) * i); const y = yScale(v);
                 ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#ccc' : '#e8e6df'; ctx.lineWidth = 1;
                 ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
                 ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'right';
                 const label = v >= 1000 ? (v / 1000).toFixed(1).replace('.0','') + 'k' : v.toString();
                 ctx.fillText(label, PAD.left - 5, y + 4);
             }
+
+            // Draw bars
             data.forEach((d, i) => {
                 const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
-                const barH = (d.avg / maxAvg) * chartH; const y = PAD.top + chartH - barH;
+                const barH = (d.avg / maxVal) * chartH; const y = PAD.top + chartH - barH;
                 const alpha = 0.3 + 0.7 * (i / (data.length - 1));
                 ctx.fillStyle = `rgba(22,101,52,${alpha.toFixed(2)})`;
                 ctx.beginPath(); ctx.roundRect(x, y, bw, barH, [3, 3, 0, 0]); ctx.fill();
@@ -2889,6 +3040,22 @@
                 }
             });
 
+            // Draw peak dots (desktop only)
+            if (!isMobile) {
+                data.forEach((d, i) => {
+                    if (!d.peak) return;
+                    const x = PAD.left + i * barW + BAR_GAP / 2 + (barW - BAR_GAP) / 2;
+                    const y = yScale(d.peak);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.strokeStyle = '#166534';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+
             const tooltip = document.getElementById('attendanceTooltip');
             const tapPanel = document.getElementById('attendanceTapPanel');
             const HOVER_PAD = 4;
@@ -2896,7 +3063,7 @@
             function getBarHit(mx, my) {
                 for (let i = 0; i < data.length; i++) {
                     const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
-                    const barH = (data[i].avg / maxAvg) * chartH; const y = PAD.top + chartH - barH;
+                    const barH = (data[i].avg / maxVal) * chartH; const y = PAD.top + chartH - barH;
                     if (mx >= x - HOVER_PAD && mx <= x + bw + HOVER_PAD && my >= y - HOVER_PAD && my <= PAD.top + chartH + HOVER_PAD) return data[i];
                 }
                 return null;
