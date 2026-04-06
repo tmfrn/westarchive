@@ -1828,6 +1828,7 @@
             document.getElementById('attendanceTapPanel').style.display = 'none';
             const oldLegend = document.getElementById('attendanceLegend');
             if (oldLegend) oldLegend.remove();
+            attendanceMode = 'league';
             document.getElementById('goalscorersBox').style.display = 'none';
             document.getElementById('streakBox').style.display = 'none';
             document.getElementById('otdBanner').style.display = 'none';
@@ -2303,12 +2304,13 @@
                 });
             }
             if (selectedCompetition) filtered = filtered.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
+            if (selectedSeason) filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
             if (currentFilter === 'wins') filtered = filtered.filter(m => effectiveResult(m) === 'W' && m.Abandoned !== 'Y');
             else if (currentFilter === 'draws') filtered = filtered.filter(m => effectiveResult(m) === 'D' && m.Abandoned !== 'Y');
             else if (currentFilter === 'losses') filtered = filtered.filter(m => effectiveResult(m) === 'L' && m.Abandoned !== 'Y');
             else if (currentFilter === 'home-games') filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
             else if (currentFilter === 'away-games') filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y');
-            else if (currentFilter === 'season' && selectedSeason) filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
+            else if (currentFilter === 'season') { /* selectedSeason already applied above */ }
             else if (currentFilter === 'biggest-wins') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
             else if (currentFilter === 'biggest-losses') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
             else if (currentFilter === 'most-goals-scored') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
@@ -2832,12 +2834,14 @@
             women: new Set(['NWWRL Premier', 'NWWRL Division One South'])
         };
 
+        let attendanceMode = 'league';
+
         function buildSeasonAverages() {
             const leagueComps = LEAGUE_COMPS[currentTeam] || LEAGUE_COMPS.men;
             const bySeason = {};
             MATCHES_DATA.forEach(m => {
                 if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return;
-                if (!leagueComps.has((m.Competition || '').trim())) return;
+                if (attendanceMode === 'league' && !leagueComps.has((m.Competition || '').trim())) return;
                 const s = m.Season;
                 if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [] };
                 bySeason[s].total += m.Attendance; bySeason[s].count++;
@@ -2869,7 +2873,7 @@
                 { label: latest.season + ' avg', value: latest.avg.toLocaleString() + trendHtml, sub: prev ? 'vs ' + prev.avg.toLocaleString() + ' last season' : '' },
                 { label: 'Best season avg', value: bestAvgSeason.avg.toLocaleString(), sub: bestAvgSeason.season },
                 { label: 'Biggest home gate', value: bestGate.peak.toLocaleString(), sub: bestGate.peakMatches[0] ? 'vs ' + bestGate.peakMatches[0].Opposition + ' (' + bestGate.season + ')' : bestGate.season },
-                { label: 'League games tracked', value: totalGames, sub: data.length + ' seasons' }
+                { label: (attendanceMode === 'league' ? 'League' : 'Home') + ' games tracked', value: totalGames, sub: data.length + ' seasons' }
             ];
 
             statsEl.innerHTML = pills.map(p =>
@@ -2893,19 +2897,33 @@
             const data = buildSeasonAverages(); if (data.length === 0) return;
             renderAttendanceStats(data);
 
-            // Render legend above canvas
+            // Update section header title
+            const attTitle = document.querySelector('#attendanceToggle h2');
+            if (attTitle) attTitle.textContent = attendanceMode === 'league' ? 'Home League Attendance Over Time' : 'Home Attendance Over Time';
+
+            // Render legend + toggle row above canvas
             let legendEl = document.getElementById('attendanceLegend');
             if (!legendEl) {
                 legendEl = document.createElement('div');
                 legendEl.id = 'attendanceLegend';
-                legendEl.style.cssText = 'display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;';
+                legendEl.style.cssText = 'display:flex;align-items:center;gap:16px;margin-bottom:10px;flex-wrap:wrap;';
                 container.parentElement.insertBefore(legendEl, container);
             }
+
+            const leagueActive = attendanceMode === 'league';
+            const btnBase = 'padding:4px 12px;border-radius:100px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all 0.15s;border:1.5px solid;';
+            const btnOn  = btnBase + 'background:var(--accent);color:#fff;border-color:var(--accent);';
+            const btnOff = btnBase + 'background:transparent;color:var(--text-muted);border-color:var(--border-primary);';
+
             legendEl.innerHTML =
                 '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
                 '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(22,101,52,0.8);"></span>Season average</span>' +
                 '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
-                '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #166534;background:transparent;"></span>Peak gate</span>';
+                '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #166534;background:transparent;"></span>Peak gate</span>' +
+                '<span style="display:flex;align-items:center;gap:4px;margin-left:auto;">' +
+                '<button style="' + (leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'league\')">League</button>' +
+                '<button style="' + (!leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'all\')">All home</button>' +
+                '</span>';
 
             const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
             const chartW = W - PAD.left - PAD.right; const chartH = H - PAD.top - PAD.bottom;
@@ -3019,6 +3037,11 @@
             canvas.addEventListener('mousemove', onMouseMove);
             canvas.addEventListener('mouseleave', onMouseLeave);
             canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+        }
+        function setAttendanceMode(mode) {
+            if (attendanceMode === mode) return;
+            attendanceMode = mode;
+            drawAttendanceChart();
         }
     </script>
 </body>
