@@ -2845,12 +2845,14 @@
                 if (m['Home/Away'] !== 'H' || !m.Attendance || m.Abandoned === 'Y') return;
                 if (attendanceMode === 'league' && !leagueComps.has((m.Competition || '').trim())) return;
                 const s = m.Season;
-                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [] };
+                if (!bySeason[s]) bySeason[s] = { total: 0, count: 0, peak: 0, peakMatches: [], lowest: Infinity, lowestMatches: [] };
                 bySeason[s].total += m.Attendance; bySeason[s].count++;
                 if (m.Attendance > bySeason[s].peak) { bySeason[s].peak = m.Attendance; bySeason[s].peakMatches = [m]; }
                 else if (m.Attendance === bySeason[s].peak) { bySeason[s].peakMatches.push(m); }
+                if (m.Attendance < bySeason[s].lowest) { bySeason[s].lowest = m.Attendance; bySeason[s].lowestMatches = [m]; }
+                else if (m.Attendance === bySeason[s].lowest) { bySeason[s].lowestMatches.push(m); }
             });
-            return Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0])).map(([season, d]) => ({ season, avg: Math.round(d.total / d.count), count: d.count, peak: d.peak, peakMatches: d.peakMatches, total: d.total }));
+            return Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0])).map(([season, d]) => ({ season, avg: Math.round(d.total / d.count), count: d.count, peak: d.peak, peakMatches: d.peakMatches, lowest: d.lowest === Infinity ? null : d.lowest, lowestMatches: d.lowestMatches, total: d.total }));
         }
 
         function renderAttendanceStats(data) {
@@ -3054,13 +3056,17 @@
             const tdBase = 'padding:9px 10px;';
             const thBase = 'font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);padding:8px 10px;';
             const rows = data.slice().reverse().map(d => {
-                const peakOpp = d.peakMatches && d.peakMatches.length > 0 ? d.peakMatches[0].Opposition : '—';
+                const peakOpps = d.peakMatches && d.peakMatches.length > 0
+                    ? d.peakMatches.map(m => m.Opposition).join(', ')
+                    : '—';
+                const lowestVal = d.lowest !== null ? d.lowest.toLocaleString() : '—';
                 return '<tr style="border-bottom:1px solid var(--border-subtle);">' +
                     '<td style="' + tdBase + 'font-weight:700;color:var(--text-bright);white-space:nowrap;">' + d.season + '</td>' +
                     '<td style="' + tdBase + 'text-align:right;">' + d.count + '</td>' +
                     '<td style="' + tdBase + 'text-align:right;font-weight:700;color:var(--text-bright);">' + d.avg.toLocaleString() + '</td>' +
                     '<td style="' + tdBase + 'text-align:right;">' + d.peak.toLocaleString() + '</td>' +
-                    '<td style="' + tdBase + 'color:var(--text-muted);">' + peakOpp + '</td>' +
+                    '<td style="' + tdBase + 'color:var(--text-muted);">' + peakOpps + '</td>' +
+                    '<td style="' + tdBase + 'text-align:right;">' + lowestVal + '</td>' +
                 '</tr>';
             }).join('');
             el.innerHTML =
@@ -3072,6 +3078,7 @@
                 '<th style="' + thBase + 'text-align:right;">Avg</th>' +
                 '<th style="' + thBase + 'text-align:right;">Peak</th>' +
                 '<th style="' + thBase + 'text-align:left;">Peak gate vs</th>' +
+                '<th style="' + thBase + 'text-align:right;">Lowest</th>' +
                 '</tr></thead>' +
                 '<tbody style="color:var(--text-secondary);">' + rows + '</tbody>' +
                 '</table></div>';
