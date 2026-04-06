@@ -1469,7 +1469,6 @@
         let GOALS_DATA = [];
         let playerGoals = {};
         let scorersByDate = {};
-        let scorersByKey = {};
         let playerMilestones = {};
         let gsShowAll = false;
         let currentFilter = 'all';
@@ -1817,9 +1816,11 @@
             if (records.highestScore.length > 0 && match['Goals For'] === records.highestScore[0]['Goals For']) tags.push({ text: 'MOST GOALS SCORED (' + match['Goals For'] + ')', isSilver: false });
             if (records.mostGoalsConceded.length > 0 && match['Goals Against'] === records.mostGoalsConceded[0]['Goals Against']) tags.push({ text: 'MOST GOALS CONCEDED (' + match['Goals Against'] + ')', isSilver: false });
             if (records.highestAttendance.length > 0 && match.Attendance && match.Attendance === records.highestAttendance[0].Attendance) tags.push({ text: 'HIGHEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+            else if (match['Home/Away'] === 'H' && match.Attendance && records.highestHomeAttendance && match.Attendance === records.highestHomeAttendance) tags.push({ text: 'HIGHEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+            else if (match['Home/Away'] === 'A' && match.Attendance && records.highestAwayAttendance && match.Attendance === records.highestAwayAttendance) tags.push({ text: 'HIGHEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
             if (records.lowestAttendance.length > 0 && match.Attendance && match.Attendance === records.lowestAttendance[0].Attendance) tags.push({ text: 'LOWEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-            if (match['Home/Away'] === 'H' && match.Attendance) { if (records.highestHomeAttendance && match.Attendance === records.highestHomeAttendance) tags.push({ text: 'HIGHEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false }); if (records.lowestHomeAttendance && match.Attendance === records.lowestHomeAttendance) tags.push({ text: 'LOWEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false }); }
-            if (match['Home/Away'] === 'A' && match.Attendance) { if (records.highestAwayAttendance && match.Attendance === records.highestAwayAttendance) tags.push({ text: 'HIGHEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false }); if (records.lowestAwayAttendance && match.Attendance === records.lowestAwayAttendance) tags.push({ text: 'LOWEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false }); }
+            else if (match['Home/Away'] === 'H' && match.Attendance && records.lowestHomeAttendance && match.Attendance === records.lowestHomeAttendance) tags.push({ text: 'LOWEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+            else if (match['Home/Away'] === 'A' && match.Attendance && records.lowestAwayAttendance && match.Attendance === records.lowestAwayAttendance) tags.push({ text: 'LOWEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
             return tags;
         }
 
@@ -1869,8 +1870,12 @@
         function populateCompetitionFilter() {
             const present = new Set();
             MATCHES_DATA.forEach(m => { const canon = getCanonicalCompetition(m.Competition); if (canon) present.add(canon); });
-            const leagueOrder = ['NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs'];
-            const cupOrder = ['FA Cup','FA Vase','NWCFL League Cup','NWCFL First Division Trophy','Lancashire Challenge Trophy','Manchester Premier Cup'];
+            const leagueOrder = currentTeam === 'women'
+                ? ['NWWRL Premier', 'NWWRL Division One South']
+                : ['NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs'];
+            const cupOrder = currentTeam === 'women'
+                ? ['FA Cup','Lancashire Senior Cup','Lancashire Challenge Cup','Manchester Challenge Cup','Alliance Design and Print Cup','Alliance Design and Print Plate','Argyle Sports Cup','Argyle Sports Kit NW Regional Cup 2018-19','Argyle Sports Kit NW Regional Cup 2022-23']
+                : ['FA Cup','FA Vase','NWCFL League Cup','NWCFL First Division Trophy','Lancashire Challenge Trophy','Manchester Premier Cup'];
             const leagueOptions = leagueOrder.filter(c => present.has(c));
             const cupOptions = cupOrder.filter(c => present.has(c));
             const otherOptions = [...present].filter(c => !leagueOrder.includes(c) && !cupOrder.includes(c)).sort();
@@ -2212,7 +2217,7 @@
             const row = document.getElementById('lensesRow');
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active'); row.classList.remove('filter-active');
-            document.getElementById('lensesClear').classList.remove('hidden');
+            document.getElementById('lensesClear').classList.add('hidden');
             document.querySelector('.filter-bar').classList.remove('has-filter');
             document.getElementById('seasonSelect').value = ''; searchTerm = '';
             document.getElementById('searchInput').value = '';
@@ -2224,7 +2229,8 @@
             const filterBarEl = document.querySelector('.filter-bar');
             if (filterBarEl) { if (streakFilters.includes(filter)) filterBarEl.classList.add('runs-active'); else filterBarEl.classList.remove('runs-active'); }
             if (streakFilters.includes(filter)) {
-                const matches = filterMatches(); renderMatches();
+                renderMatches();
+                const matches = filterMatches();
                 if (matches.length > 0) {
                     const streakValue = document.getElementById('streakValue');
                     const streakContext = document.getElementById('streakContext');
@@ -2335,6 +2341,14 @@
 
         window.addEventListener('resize', () => { const body = document.getElementById('attendanceBody'); if (body && body.classList.contains('open')) drawAttendanceChart(); });
 
+        document.addEventListener('click', function(e) {
+            const canvas = document.getElementById('attendanceCanvas');
+            const tapPanel = document.getElementById('attendanceTapPanel');
+            if (tapPanel && tapPanel.style.display !== 'none' && canvas && !canvas.contains(e.target) && !tapPanel.contains(e.target)) {
+                tapPanel.style.display = 'none';
+            }
+        });
+
         function dismissOTD() { document.getElementById('otdBanner').style.display = 'none'; }
 
         function displayOTDBanner() {
@@ -2370,7 +2384,7 @@
         }
 
         function aggregateGoals() {
-            playerGoals = {}; scorersByDate = {}; scorersByKey = {}; playerMilestones = {};
+            playerGoals = {}; scorersByDate = {}; playerMilestones = {};
             const westGoals = GOALS_DATA.filter(r => r['For/Against'] === 'For' && r['Own Goal'] !== 'Y' && (r['Scorer'] || '').trim()).slice().sort((a, b) => { const da = parseDate(a['Date']), db = parseDate(b['Date']); if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db; });
             const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
             const runningTotals = {}; const milestoneSeen = {};
@@ -2412,10 +2426,6 @@
             const isOpen = body.classList.contains('open');
             if (isOpen) { body.classList.remove('open'); toggle.classList.remove('open'); }
             else { body.classList.add('open'); toggle.classList.add('open'); if (section === 'attendance') drawAttendanceChart(); }
-        }
-
-        function buildAttendanceData() {
-            return MATCHES_DATA.filter(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y').map(m => ({ date: parseDate(m.Date), attendance: m.Attendance, match: m })).filter(d => d.date).sort((a, b) => a.date - b.date);
         }
 
         (function() { if (!CanvasRenderingContext2D.prototype.roundRect) { CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) { const rad = Array.isArray(r) ? r[0] : r; this.moveTo(x + rad, y); this.lineTo(x + w - rad, y); this.quadraticCurveTo(x + w, y, x + w, y + rad); this.lineTo(x + w, y + h); this.lineTo(x, y + h); this.lineTo(x, y + rad); this.quadraticCurveTo(x, y, x + rad, y); this.closePath(); return this; }; } })();
@@ -2569,13 +2579,6 @@
                 if (hit) { e.preventDefault(); showTapPanel(hit); }
                 else { tapPanel.style.display = 'none'; }
             }
-
-            document.addEventListener('click', function dismissTap(e) {
-                if (!canvas.contains(e.target) && !tapPanel.contains(e.target)) {
-                    tapPanel.style.display = 'none';
-                    document.removeEventListener('click', dismissTap);
-                }
-            });
 
             canvas.removeEventListener('mousemove', canvas._attendanceMove);
             canvas.removeEventListener('mouseleave', canvas._attendanceLeave);
