@@ -712,22 +712,6 @@
             pointer-events: none;
         }
 
-        .runs-section {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .runs-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
-        }
-
-        .runs-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
         .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
         .filter-btn {
@@ -1465,22 +1449,6 @@
             </div>
         </div>
 
-        <div class="summary-box" id="attendanceChartBox" style="display:none;">
-            <div class="section-toggle-header" id="attendanceToggle" onclick="toggleSection('attendance')">
-                <h2>Home League Attendance Over Time</h2>
-                <span class="section-chevron">▼</span>
-            </div>
-            <div class="section-body" id="attendanceBody">
-                <div id="attendanceStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;"></div>
-                <div style="position:relative;">
-                    <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
-                </div>
-                <div id="attendanceTapPanel" style="display:none;margin-top:12px;background:var(--bg-elevated);border:1px solid var(--border-primary);border-radius:var(--radius-md);padding:12px 16px;font-size:0.85em;line-height:1.6;"></div>
-                <div id="attendanceTable" style="margin-top:20px;"></div>
-                <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-elevated);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
-            </div>
-        </div>
-
         <div class="summary-box">
             <div class="section-toggle-header" id="summaryToggle" onclick="toggleSection('summary')">
                 <h2>Database Records</h2>
@@ -1507,6 +1475,23 @@
                 <button class="gs-toggle" id="gsToggle" onclick="toggleGoalscorers()">Show all</button>
             </div>
         </div>
+
+        <div class="summary-box" id="attendanceChartBox" style="display:none;">
+            <div class="section-toggle-header" id="attendanceToggle" onclick="toggleSection('attendance')">
+                <h2>Home League Attendance Over Time</h2>
+                <span class="section-chevron">▼</span>
+            </div>
+            <div class="section-body" id="attendanceBody">
+                <div id="attendanceStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;"></div>
+                <div style="position:relative;">
+                    <canvas id="attendanceCanvas" style="width:100%;height:320px;display:block;"></canvas>
+                </div>
+                <div id="attendanceTapPanel" style="display:none;margin-top:12px;background:var(--bg-elevated);border:1px solid var(--border-primary);border-radius:var(--radius-md);padding:12px 16px;font-size:0.85em;line-height:1.6;"></div>
+                <div id="attendanceTable" style="margin-top:20px;"></div>
+                <div id="attendanceTooltip" style="display:none;position:fixed;background:var(--bg-elevated);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82em;font-weight:600;pointer-events:none;z-index:100;line-height:1.5;border:1px solid var(--border-primary);box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
+            </div>
+        </div>
+
 
         <div class="controls">
             <div class="search-bar">
@@ -1542,12 +1527,17 @@
                 </button>
                 <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
                     <span class="lens-icon">⚽</span>
-                    <span class="lens-label">Highest Scoring Games</span>
+                    <span class="lens-label">Highest Scoring</span>
                 </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
                     <span class="lens-icon">🗓</span>
                     <span class="lens-label">On This Day</span>
                 </button>
+                <button class="filter-btn" onclick="setFilter('win-streak', this)">Winning run</button>
+                <button class="filter-btn" onclick="setFilter('draw-streak', this)">Draw run</button>
+                <button class="filter-btn" onclick="setFilter('loss-streak', this)">Losing run</button>
+                <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Unbeaten run</button>
+                <button class="filter-btn" onclick="setFilter('winless-streak', this)">Winless run</button>
                 <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
                     <span class="lens-icon">🎲</span>
                     <span class="lens-label">Random</span>
@@ -1580,17 +1570,6 @@
                     <option value="away-games">Away Only</option>
                 </select>
                 <button class="filter-btn" id="clearFiltersBtn" onclick="clearFilterBar()">✕ Clear</button>
-            </div>
-
-            <div class="runs-section">
-                <div class="runs-label">Runs &amp; Records</div>
-                <div class="runs-buttons">
-                    <button class="filter-btn" onclick="setFilter('win-streak', this)">Longest Winning Run</button>
-                    <button class="filter-btn" onclick="setFilter('draw-streak', this)">Longest Run of Draws</button>
-                    <button class="filter-btn" onclick="setFilter('loss-streak', this)">Longest Losing Run</button>
-                    <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Longest Unbeaten Run</button>
-                    <button class="filter-btn" onclick="setFilter('winless-streak', this)">Longest Winless Run</button>
-                </div>
             </div>
         </div>
 
@@ -2160,6 +2139,7 @@
                 row.classList.remove('has-active'); row.classList.add('filter-active');
                 document.getElementById('lensesClear').classList.add('hidden');
                 document.getElementById('venuePills').classList.add('hidden');
+                document.getElementById('seasonNav').classList.remove('active');
             }
             document.querySelector('.filter-bar').classList.add('has-filter');
         }
@@ -2320,7 +2300,7 @@
             const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
             const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
             const safeSeason = (match.Season || '').replace(/'/g, "\\'");
-            const seasonChip = match.Season ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
+            const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
             return '<div class="match-card">' + tagsHtml +
                 '<div class="match-header">' +
                     '<span class="match-date">' + match.Date + seasonChip + '</span>' +
@@ -2445,14 +2425,14 @@
                 const abandonedInSeason = filtered.filter(m => m.Abandoned === 'Y').length;
                 const abandonedSuffix = abandonedInSeason > 0 ? ' (+' + abandonedInSeason + ' abandoned)' : '';
                 document.getElementById('resultCount').textContent = filtered.length + ' matches in ' + selectedSeason + abandonedSuffix;
-            }
-            const summaryBtn = document.getElementById('seasonSummaryBtn');
-            if (summaryBtn) summaryBtn.style.display = (selectedSeason && currentFilter === 'season') ? 'inline-block' : 'none'; else {
+            } else {
                 const abandonedCount = filtered.filter(m => m.Abandoned === 'Y').length;
                 const abandonedSuffix = abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : '';
                 const playedCount = filtered.length - abandonedCount;
                 document.getElementById('resultCount').textContent = playedCount + ' ' + (playedCount === 1 ? 'match' : 'matches') + ' found' + abandonedSuffix;
             }
+            const summaryBtn = document.getElementById('seasonSummaryBtn');
+            if (summaryBtn) summaryBtn.style.display = (selectedSeason && currentFilter === 'season') ? 'inline-block' : 'none';
             const totalCount = filtered._totalCount;
             let html;
             if (streakFilters.includes(currentFilter) && filtered._allStreaks && filtered._allStreaks.length > 1) {
@@ -2526,7 +2506,7 @@
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active');
             document.getElementById('lensesClear').classList.add('hidden');
-            document.getElementById('seasonSelect').value = ''; document.getElementById('seasonSelect').style.display = '';
+            document.getElementById('seasonSelect').value = '';
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             updateStats([match]);
             document.getElementById('resultCount').textContent = '🎲 Random Match';
