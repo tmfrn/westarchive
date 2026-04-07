@@ -175,26 +175,33 @@
         .otd-banner {
             background: var(--bg-elevated);
             color: var(--text-primary);
-            padding: 20px 32px 16px;
             border-bottom: 1px solid var(--border-primary);
             border-left: 3px solid var(--accent);
         }
-        .otd-header {
+        .otd-summary {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 14px;
+            padding: 13px 32px;
+            cursor: pointer;
+            user-select: none;
         }
-        .otd-icon { font-size: 1.1em; }
+        .otd-summary:hover { background: var(--bg-surface); }
+        .otd-icon { font-size: 1em; flex-shrink: 0; }
         .otd-title {
-            font-family: var(--font-display);
-            font-size: 0.88rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 0.84rem;
+            font-weight: 600;
             color: var(--accent);
             flex: 1;
         }
+        .otd-chevron {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        .otd-banner.open .otd-chevron { transform: rotate(180deg); }
+        .otd-detail { display: none; padding: 0 32px 16px; }
+        .otd-banner.open .otd-detail { display: block; }
         .otd-close {
             background: none;
             border: none;
@@ -204,13 +211,14 @@
             padding: 2px 6px;
             border-radius: 4px;
             line-height: 1;
+            flex-shrink: 0;
         }
         .otd-close:hover { color: var(--text-primary); }
         .otd-matches {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .otd-match {
             display: flex;
@@ -218,7 +226,7 @@
             gap: 10px;
             background: rgba(0,0,0,0.02);
             border-radius: var(--radius-sm);
-            padding: 10px 14px;
+            padding: 9px 12px;
             font-size: 0.86rem;
             flex-wrap: wrap;
             border: 1px solid var(--border-subtle);
@@ -240,20 +248,9 @@
         .otd-match-result.w { background: var(--win-bg); color: var(--win); }
         .otd-match-result.d { background: var(--draw-bg); color: var(--draw); }
         .otd-match-result.l { background: var(--loss-bg); color: var(--loss); }
-        .otd-match-score {
-            font-weight: 700;
-            font-size: 1em;
-            color: var(--text-bright);
-        }
-        .otd-match-opp {
-            color: var(--text-secondary);
-            flex: 1;
-        }
-        .otd-match-comp {
-            color: var(--text-muted);
-            font-size: 0.8em;
-            font-style: italic;
-        }
+        .otd-match-score { font-weight: 700; font-size: 1em; color: var(--text-bright); }
+        .otd-match-opp { color: var(--text-secondary); flex: 1; }
+        .otd-match-comp { color: var(--text-muted); font-size: 0.8em; font-style: italic; }
         .otd-explore {
             background: none;
             border: 1px solid var(--accent-border);
@@ -517,9 +514,34 @@
 
         .lenses-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lenses-group {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .lenses-group-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            white-space: nowrap;
+            padding-top: 2px;
+            min-width: 48px;
+        }
+
+        .lenses-group-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            flex: 1;
         }
 
         .lens-btn {
@@ -553,6 +575,8 @@
 
         .lenses-row.has-active .lens-btn:not(.active) { opacity: 0.35; }
         .lenses-row.has-active .lens-btn:not(.active):hover { opacity: 0.7; }
+        .lenses-row.has-active .filter-btn:not(.active) { opacity: 0.35; }
+        .lenses-row.has-active .filter-btn:not(.active):hover { opacity: 0.7; }
 
         .lens-icon { font-size: 0.95em; }
 
@@ -600,7 +624,8 @@
         }
 
         .lenses-clear {
-            margin-left: auto;
+            align-self: flex-start;
+            margin-left: 0;
             background: none;
             border: none;
             color: var(--text-muted);
@@ -685,6 +710,16 @@
             border-top: 1px solid var(--border-subtle);
         }
 
+        .filter-bar-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            white-space: nowrap;
+            padding-top: 2px;
+        }
+
         .filter-bar select {
             padding: 7px 12px;
             border: 1.5px solid var(--border-primary);
@@ -747,8 +782,12 @@
 
         .stats-bar {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-bar { grid-template-columns: repeat(3, 1fr); }
         }
 
         .stat-item {
@@ -784,8 +823,8 @@
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
-            padding: 22px 24px;
-            margin-bottom: 12px;
+            padding: 18px 20px;
+            margin-bottom: 10px;
             transition: all 0.25s var(--ease);
             position: relative;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -822,7 +861,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             gap: 8px;
         }
@@ -876,7 +915,7 @@
             align-items: center;
             font-weight: 700;
             font-size: 1.05rem;
-            margin-bottom: 14px;
+            margin-bottom: 0;
             color: var(--text-primary);
         }
         .match-fixture .fixture-home {
@@ -900,22 +939,24 @@
         }
 
         .match-details {
-            font-size: 0.84rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
             line-height: 1.6;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 4px;
         }
 
-        .match-details strong { color: var(--text-secondary); }
+        .match-details strong { color: var(--text-muted); font-weight: 600; }
 
         .scorers {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-subtle);
-            font-size: 0.86rem;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-size: 0.84rem;
             color: var(--text-secondary);
         }
 
-        .scorers strong { color: var(--text-primary); }
+        .scorers strong { color: var(--text-secondary); font-weight: 600; }
         .scorers-list { color: var(--text-muted); }
 
         .scorer-link {
@@ -1408,7 +1449,8 @@
             .h2h-extra { grid-template-columns: 1fr; }
             .h2h-extra-item { border-right: none; border-bottom: 1px solid var(--border-primary); }
             .player-match-date { min-width: 70px; font-size: 0.82em; }
-            .otd-banner { padding: 18px 20px 14px; }
+            .otd-summary { padding: 12px 20px; }
+            .otd-detail { padding: 0 20px 14px; }
         }
     </style>
 </head>
@@ -1431,13 +1473,16 @@
         </div>
 
         <div class="otd-banner" id="otdBanner" style="display:none;">
-            <div class="otd-header">
+            <div class="otd-summary" onclick="toggleOTD()">
                 <span class="otd-icon">📅</span>
-                <span class="otd-title">On This Day</span>
-                <button class="otd-close" onclick="dismissOTD()">✕</button>
+                <span class="otd-title" id="otdSummaryText">On This Day</span>
+                <span class="otd-chevron">▼</span>
+                <button class="otd-close" onclick="event.stopPropagation();dismissOTD()">✕</button>
             </div>
-            <div class="otd-matches" id="otdMatches"></div>
-            <button class="otd-explore" onclick="activateLens('on-this-day', document.getElementById('lensOnThisDay'))">See all On This Day matches →</button>
+            <div class="otd-detail">
+                <div class="otd-matches" id="otdMatches"></div>
+                <button class="otd-explore" onclick="activateLens('on-this-day', document.getElementById('lensOnThisDay'))">See all On This Day matches →</button>
+            </div>
         </div>
 
         <div class="streak-box" id="streakBox" style="display: none;">
@@ -1495,53 +1540,63 @@
 
         <div class="controls">
             <div class="search-bar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by opposition, competition, season, or scorer...">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search opponents, scorers, competitions…">
             </div>
 
             <div class="lenses-row" id="lensesRow">
-                <button class="lens-btn" id="lensThisSeason" onclick="activateLens('this-season', this)">
-                    <span class="lens-icon">📅</span>
-                    <span class="lens-label">This Season</span>
-                </button>
-                <div class="lens-season-nav" id="seasonNav">
-                    <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
-                    <span class="lens-season-label" id="seasonNavLabel"></span>
-                    <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
-                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
+                <div class="lenses-group">
+                    <div class="lenses-group-label">Explore</div>
+                    <div class="lenses-group-buttons">
+                        <button class="lens-btn" id="lensThisSeason" onclick="activateLens('this-season', this)">
+                            <span class="lens-icon">📅</span>
+                            <span class="lens-label">This Season</span>
+                        </button>
+                        <div class="lens-season-nav" id="seasonNav">
+                            <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
+                            <span class="lens-season-label" id="seasonNavLabel"></span>
+                            <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
+                            <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
+                        </div>
+                        <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
+                            <span class="lens-icon">🏆</span>
+                            <span class="lens-label">Biggest Wins</span>
+                        </button>
+                        <button class="lens-btn" id="lensBigLosses" onclick="activateLens('big-losses', this)">
+                            <span class="lens-icon">😬</span>
+                            <span class="lens-label">Biggest Losses</span>
+                        </button>
+                        <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
+                            <span class="lens-icon">🏟</span>
+                            <span class="lens-label">Biggest Crowds</span>
+                        </button>
+                        <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
+                            <span class="lens-icon">🪑</span>
+                            <span class="lens-label">Smallest Crowds</span>
+                        </button>
+                        <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
+                            <span class="lens-icon">⚽</span>
+                            <span class="lens-label">Highest Scoring</span>
+                        </button>
+                        <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
+                            <span class="lens-icon">🗓</span>
+                            <span class="lens-label">On This Day</span>
+                        </button>
+                        <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
+                            <span class="lens-icon">🎲</span>
+                            <span class="lens-label">Random</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
-                    <span class="lens-icon">🏆</span>
-                    <span class="lens-label">Biggest Wins</span>
-                </button>
-                <button class="lens-btn" id="lensBigLosses" onclick="activateLens('big-losses', this)">
-                    <span class="lens-icon">😬</span>
-                    <span class="lens-label">Biggest Losses</span>
-                </button>
-                <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
-                    <span class="lens-icon">🏟</span>
-                    <span class="lens-label">Biggest Crowds</span>
-                </button>
-                <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
-                    <span class="lens-icon">🪑</span>
-                    <span class="lens-label">Smallest Crowds</span>
-                </button>
-                <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
-                    <span class="lens-icon">⚽</span>
-                    <span class="lens-label">Highest Scoring</span>
-                </button>
-                <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
-                    <span class="lens-icon">🗓</span>
-                    <span class="lens-label">On This Day</span>
-                </button>
-                <button class="filter-btn" onclick="setFilter('win-streak', this)">Winning run</button>
-                <button class="filter-btn" onclick="setFilter('draw-streak', this)">Draw run</button>
-                <button class="filter-btn" onclick="setFilter('loss-streak', this)">Losing run</button>
-                <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Unbeaten run</button>
-                <button class="filter-btn" onclick="setFilter('winless-streak', this)">Winless run</button>
-                <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
-                    <span class="lens-icon">🎲</span>
-                    <span class="lens-label">Random</span>
-                </button>
+                <div class="lenses-group">
+                    <div class="lenses-group-label">Streaks</div>
+                    <div class="lenses-group-buttons">
+                        <button class="filter-btn" onclick="setFilter('win-streak', this)">Winning run</button>
+                        <button class="filter-btn" onclick="setFilter('draw-streak', this)">Draw run</button>
+                        <button class="filter-btn" onclick="setFilter('loss-streak', this)">Losing run</button>
+                        <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Unbeaten run</button>
+                        <button class="filter-btn" onclick="setFilter('winless-streak', this)">Winless run</button>
+                    </div>
+                </div>
                 <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
             </div>
 
@@ -1552,6 +1607,7 @@
             </div>
 
             <div class="filter-bar">
+                <span class="filter-bar-label">Filters</span>
                 <select id="seasonSelect" onchange="filterBySeason()">
                     <option value="">All Seasons</option>
                 </select>
@@ -1569,6 +1625,7 @@
                     <option value="home-games">Home Only</option>
                     <option value="away-games">Away Only</option>
                 </select>
+                <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">↕ Newest first</button>
                 <button class="filter-btn" id="clearFiltersBtn" onclick="clearFilterBar()">✕ Clear</button>
             </div>
         </div>
@@ -1578,40 +1635,27 @@
                 <div class="result-count" id="resultCount">Loading matches...</div>
                 <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
                     <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)">📋 Season Summary</button>
-                    <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">📅 Show Oldest First</button>
                 </div>
             </div>
             <div class="stats-bar" id="statsBar" style="display: none;">
                 <div class="stat-item">
-                    <div class="stat-label">Matches</div>
+                    <div class="stat-label">Played</div>
                     <div class="stat-value" id="statMatches">0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Wins</div>
-                    <div class="stat-value" id="statWins">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draws</div>
-                    <div class="stat-value" id="statDraws">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Losses</div>
-                    <div class="stat-value" id="statLosses">0</div>
+                    <div class="stat-label">W / D / L</div>
+                    <div class="stat-value" id="statWDL">0 / 0 / 0</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Win %</div>
                     <div class="stat-value" id="statWinPct">0%</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Goals For</div>
-                    <div class="stat-value" id="statGoalsFor">0</div>
+                    <div class="stat-label">Goals</div>
+                    <div class="stat-value" id="statGoals">0 – 0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Goals Against</div>
-                    <div class="stat-value" id="statGoalsAgainst">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Goal Diff</div>
+                    <div class="stat-label">Goal diff</div>
                     <div class="stat-value" id="statGD">0</div>
                 </div>
             </div>
@@ -1777,7 +1821,7 @@
             const rSel = document.getElementById('resultSelect'); const vSel = document.getElementById('venueSelect');
             if (rSel) rSel.value = ''; if (vSel) vSel.value = '';
             const sortToggle = document.getElementById('sortToggle');
-            if (sortToggle) sortToggle.textContent = '📅 Show Oldest First';
+            if (sortToggle) sortToggle.textContent = '↕ Newest first';
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             const fb = document.querySelector('.filter-bar');
             if (fb) { fb.classList.remove('runs-active'); fb.classList.remove('has-filter'); }
@@ -1841,7 +1885,7 @@
             const fb = document.querySelector('.filter-bar');
             if (fb) { fb.classList.remove('runs-active', 'has-filter'); }
             const sortToggle = document.getElementById('sortToggle');
-            if (sortToggle) sortToggle.textContent = '📅 Show Oldest First';
+            if (sortToggle) sortToggle.textContent = '↕ Newest first';
             document.getElementById('attendanceChartBox').style.display = 'none';
             const attBody = document.getElementById('attendanceBody');
             const attToggle = document.getElementById('attendanceToggle');
@@ -1893,7 +1937,7 @@
                 if (hasHomeAttendance) document.getElementById('attendanceChartBox').style.display = 'block';
                 displayOTDBanner();
                 const sortButton = document.getElementById('sortToggle');
-                if (sortButton) sortButton.textContent = '📅 Show Oldest First';
+                if (sortButton) sortButton.textContent = '↕ Newest first';
                 const hasAttendance = MATCHES_DATA.some(m => m.Attendance);
                 ['lensBigCrowds', 'lensGhostGames'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = hasAttendance ? '' : 'none'; });
             } catch (error) {
@@ -1907,21 +1951,24 @@
         function toggleSortOrder() {
             sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
             const button = document.getElementById('sortToggle');
-            if (button) button.textContent = sortOrder === 'desc' ? '📅 Show Oldest First' : '📅 Show Newest First';
+            if (button) button.textContent = sortOrder === 'desc' ? '↕ Newest first' : '↕ Oldest first';
             renderMatches();
         }
 
         function clearFilterBar() {
-            selectedSeason = ''; selectedCompetition = ''; searchTerm = '';
+            selectedSeason = ''; selectedCompetition = ''; searchTerm = ''; sortOrder = 'desc';
             document.getElementById('searchInput').value = '';
             document.getElementById('seasonSelect').value = '';
             document.getElementById('competitionSelect').value = '';
             document.getElementById('resultSelect').value = '';
             document.getElementById('venueSelect').value = '';
             if (['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) currentFilter = 'all';
-            document.querySelector('.filter-bar').classList.remove('has-filter');
+            const fb = document.querySelector('.filter-bar');
+            fb.classList.remove('has-filter'); fb.classList.remove('runs-active');
             document.getElementById('lensesRow').classList.remove('filter-active');
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            const sortToggle = document.getElementById('sortToggle');
+            if (sortToggle) sortToggle.textContent = '↕ Newest first';
             renderMatches();
         }
 
@@ -2391,14 +2438,13 @@
                 const gf = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
                 const ga = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
                 const gd = gf - ga;
+                const draws = validMatches.filter(m => effectiveResult(m) === 'D').length;
+                const losses = validMatches.filter(m => effectiveResult(m) === 'L').length;
                 const winPct = validMatches.length > 0 ? Math.round((wins / validMatches.length) * 100) : 0;
                 document.getElementById('statMatches').textContent = validMatches.length;
-                document.getElementById('statWins').textContent = wins;
-                document.getElementById('statDraws').textContent = validMatches.filter(m => effectiveResult(m) === 'D').length;
-                document.getElementById('statLosses').textContent = validMatches.filter(m => effectiveResult(m) === 'L').length;
+                document.getElementById('statWDL').textContent = wins + ' / ' + draws + ' / ' + losses;
                 document.getElementById('statWinPct').textContent = winPct + '%';
-                document.getElementById('statGoalsFor').textContent = gf;
-                document.getElementById('statGoalsAgainst').textContent = ga;
+                document.getElementById('statGoals').textContent = gf + ' – ' + ga;
                 const gdEl = document.getElementById('statGD');
                 gdEl.textContent = (gd > 0 ? '+' : '') + gd;
                 gdEl.style.color = gd > 0 ? 'var(--win)' : gd < 0 ? 'var(--loss)' : 'var(--text-bright)';
@@ -2459,7 +2505,7 @@
         }
 
         function setFilter(filter, btnElement) {
-            currentFilter = filter; selectedSeason = '';
+            currentFilter = filter; selectedSeason = ''; sortOrder = 'desc';
             const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
             if (streakFilters.includes(filter)) { selectedCompetition = ''; document.getElementById('competitionSelect').value = ''; }
             document.getElementById('venuePills').classList.add('hidden'); lensVenue = 'all'; listCap = 20;
@@ -2501,7 +2547,7 @@
             const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
             const randomIndex = Math.floor(Math.random() * validMatches.length);
             const match = validMatches[randomIndex];
-            currentFilter = 'random'; selectedSeason = ''; activeLens = null;
+            currentFilter = 'random'; selectedSeason = ''; activeLens = null; sortOrder = 'desc';
             const row = document.getElementById('lensesRow');
             row.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
             row.classList.remove('has-active');
@@ -2833,6 +2879,11 @@
 
         function dismissOTD() { document.getElementById('otdBanner').style.display = 'none'; }
 
+        function toggleOTD() {
+            const banner = document.getElementById('otdBanner');
+            banner.classList.toggle('open');
+        }
+
         function displayOTDBanner() {
             const today = new Date(); const todayDay = today.getDate(); const todayMonth = today.getMonth();
             const matches = MATCHES_DATA.filter(m => { if (m.Abandoned === 'Y') return false; const d = parseDate(m.Date); if (!d) return false; return d.getDate() === todayDay && d.getMonth() === todayMonth; }).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return db - da; });
@@ -2847,7 +2898,12 @@
                 const year = (m.Date || '').split('/')[2] || '';
                 return '<div class="otd-match"><span class="otd-match-year">' + year + '</span><span class="otd-match-result ' + result + '">' + effectiveResult(m) + '</span><span class="otd-match-score">' + score + '</span><span class="otd-match-opp">' + opp + '</span><span class="otd-match-comp">' + m.Competition + '</span></div>';
             }).join('');
-            document.getElementById('otdMatches').innerHTML = html; document.getElementById('otdBanner').style.display = 'block';
+            document.getElementById('otdMatches').innerHTML = html;
+            const n = matches.length;
+            const today2 = new Date();
+            const dayMonth = today2.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+            document.getElementById('otdSummaryText').textContent = 'On This Day — ' + n + (n === 1 ? ' match' : ' matches') + ' on ' + dayMonth;
+            document.getElementById('otdBanner').style.display = 'block';
         }
 
         async function fetchGoalsData() {
