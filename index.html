@@ -1066,6 +1066,38 @@
         .h2h-extra-item:nth-child(even) { border-right: none; }
         .h2h-extra-item strong { color: var(--text-primary); }
 
+        .h2h-callout {
+            margin: 0 20px 0;
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-left: 3px solid;
+        }
+        .h2h-callout.never-lost {
+            background: var(--win-bg);
+            color: var(--win);
+            border-color: var(--win);
+        }
+        .h2h-callout.never-beaten {
+            background: var(--draw-bg);
+            color: var(--draw);
+            border-color: var(--draw);
+        }
+        .h2h-callout.unbeaten-run {
+            background: var(--accent-surface);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .h2h-callouts {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+        .h2h-callouts:empty { display: none; }
+
         .h2h-matches {
             padding: 18px 28px 28px;
             max-height: 380px;
@@ -1630,7 +1662,18 @@
             </div>
             <div class="h2h-stats" id="h2hStats"></div>
             <div class="h2h-extra" id="h2hExtra"></div>
+            <div class="h2h-callouts" id="h2hCallouts"></div>
             <div class="h2h-matches" id="h2hMatches"></div>
+        </div>
+    </div>
+
+    <div class="h2h-overlay" id="shootoutOverlay" onclick="if(event.target===this)closeShootoutModal()">
+        <div class="h2h-modal">
+            <div class="h2h-header">
+                <h3>Penalty Shootout Record</h3>
+                <button class="h2h-close" onclick="closeShootoutModal()">✕</button>
+            </div>
+            <div id="shootoutContent" style="padding:20px 28px 28px;"></div>
         </div>
     </div>
 
@@ -2051,6 +2094,10 @@
             const gd = goalsFor - goalsAgainst;
             const winPct = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
             const biggestWin = records.biggestWin[0]; const biggestLoss = records.biggestLoss[0];
+            const shootouts = MATCHES_DATA.filter(m => m.Penalties === 'Y');
+            const shootoutW = shootouts.filter(m => m['Penalty Result'] === 'W').length;
+            const shootoutL = shootouts.filter(m => m['Penalty Result'] === 'L').length;
+            const shootoutValue = shootouts.length === 0 ? 'None on record' : shootouts.length + ' shootouts — W' + shootoutW + ' L' + shootoutL;
             const summaryData = [
                 { label: 'Total Matches', value: totalMatches + (abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : ''), filter: 'all' },
                 { label: 'Wins', value: wins, filter: 'wins' }, { label: 'Draws', value: draws, filter: 'draws' }, { label: 'Losses', value: losses, filter: 'losses' },
@@ -2061,15 +2108,18 @@
                 { label: 'Longest Winning Run', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + records.longestWinStreak[0].Date + ' to ' + records.longestWinStreak[records.longestWinStreak.length - 1].Date + ')' : 'N/A', filter: 'win-streak' },
                 { label: 'Longest Unbeaten Run', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + records.longestUnbeatenStreak[0].Date + ' to ' + records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date + ')' : 'N/A', filter: 'unbeaten-streak' },
                 { label: 'Longest Losing Run', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + records.longestLossStreak[0].Date + ' to ' + records.longestLossStreak[records.longestLossStreak.length - 1].Date + ')' : 'N/A', filter: 'loss-streak' },
-                { label: 'Longest Winless Run', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + records.longestWinlessStreak[0].Date + ' to ' + records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date + ')' : 'N/A', filter: 'winless-streak' }
+                { label: 'Longest Winless Run', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + records.longestWinlessStreak[0].Date + ' to ' + records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date + ')' : 'N/A', filter: 'winless-streak' },
+                { label: 'Penalty Shootouts', value: shootoutValue, filter: null, action: shootouts.length > 0 ? 'showShootoutModal()' : null }
             ];
             const grid = document.getElementById('summaryGrid');
-            grid.innerHTML = summaryData.map(item =>
-                '<div class="summary-item" ' + (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '') + ' style="' + (item.filter ? 'cursor: pointer;' : 'cursor: default;') + '">' +
+            grid.innerHTML = summaryData.map(item => {
+                const clickable = item.filter || item.action;
+                const onclick = item.action ? 'onclick="' + item.action + '"' : (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '');
+                return '<div class="summary-item" ' + onclick + ' style="' + (clickable ? 'cursor: pointer;' : 'cursor: default;') + '">' +
                     '<div class="summary-label">' + item.label + '</div>' +
                     '<div class="summary-value">' + item.value + '</div>' +
-                '</div>'
-            ).join('');
+                '</div>';
+            }).join('');
         }
 
         function populateSeasonFilter() {
@@ -2569,9 +2619,52 @@
             const goalsAgainst = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
             const totalPlayed = validMatches.length;
             const winPct = totalPlayed > 0 ? Math.round((wins / totalPlayed) * 100) : 0;
+
+            // Biggest win / loss
+            const winMatches = validMatches.filter(m => effectiveResult(m) === 'W');
+            const lossMatches = validMatches.filter(m => effectiveResult(m) === 'L');
+            winMatches.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']));
+            lossMatches.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']));
+            const bigWin = winMatches[0];
+            const bigLoss = lossMatches[0];
+            const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + bigWin.Date + ')' : '—';
+            const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '—';
+
             document.getElementById('h2hTitle').textContent = 'vs ' + opposition;
-            document.getElementById('h2hStats').innerHTML = '<div class="h2h-stat wins"><div class="h2h-stat-value">' + wins + '</div><div class="h2h-stat-label">Wins</div></div><div class="h2h-stat draws"><div class="h2h-stat-value">' + draws + '</div><div class="h2h-stat-label">Draws</div></div><div class="h2h-stat losses"><div class="h2h-stat-value">' + losses + '</div><div class="h2h-stat-label">Losses</div></div>';
-            document.getElementById('h2hExtra').innerHTML = '<div class="h2h-extra-item"><strong>Played:</strong> ' + totalPlayed + '</div><div class="h2h-extra-item"><strong>Win Rate:</strong> ' + winPct + '%</div><div class="h2h-extra-item"><strong>Goals For:</strong> ' + goalsFor + '</div><div class="h2h-extra-item"><strong>Goals Against:</strong> ' + goalsAgainst + '</div>';
+            document.getElementById('h2hStats').innerHTML =
+                '<div class="h2h-stat wins"><div class="h2h-stat-value">' + wins + '</div><div class="h2h-stat-label">Wins</div></div>' +
+                '<div class="h2h-stat draws"><div class="h2h-stat-value">' + draws + '</div><div class="h2h-stat-label">Draws</div></div>' +
+                '<div class="h2h-stat losses"><div class="h2h-stat-value">' + losses + '</div><div class="h2h-stat-label">Losses</div></div>';
+            document.getElementById('h2hExtra').innerHTML =
+                '<div class="h2h-extra-item"><strong>Played:</strong> ' + totalPlayed + '</div>' +
+                '<div class="h2h-extra-item"><strong>Win Rate:</strong> ' + winPct + '%</div>' +
+                '<div class="h2h-extra-item"><strong>Goals For:</strong> ' + goalsFor + '</div>' +
+                '<div class="h2h-extra-item"><strong>Goals Against:</strong> ' + goalsAgainst + '</div>' +
+                '<div class="h2h-extra-item"><strong>Biggest Win:</strong> ' + bigWinStr + '</div>' +
+                '<div class="h2h-extra-item"><strong>Biggest Loss:</strong> ' + bigLossStr + '</div>';
+
+            // Callouts — only meaningful with 3+ games
+            const callouts = [];
+            if (totalPlayed >= 3) {
+                if (wins === 0) {
+                    callouts.push('<div class="h2h-callout never-beaten">West have never beaten ' + opposition + ' in ' + totalPlayed + ' meetings</div>');
+                }
+                if (losses === 0) {
+                    callouts.push('<div class="h2h-callout never-lost">West have never lost to ' + opposition + ' in ' + totalPlayed + ' meetings</div>');
+                }
+                // Current unbeaten run (sorted oldest to newest, walk back from most recent)
+                const sorted = [...validMatches].sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return da - db; });
+                let unbeatenRun = 0;
+                for (let i = sorted.length - 1; i >= 0; i--) {
+                    if (effectiveResult(sorted[i]) === 'L') break;
+                    unbeatenRun++;
+                }
+                if (unbeatenRun >= 3 && losses > 0) {
+                    callouts.push('<div class="h2h-callout unbeaten-run">Unbeaten in the last ' + unbeatenRun + ' meetings</div>');
+                }
+            }
+            document.getElementById('h2hCallouts').innerHTML = callouts.join('');
+
             const sorted = [...allMatches].sort((a, b) => { const dateA = parseDate(a.Date), dateB = parseDate(b.Date); if (!dateA || !dateB) return 0; return dateB - dateA; });
             document.getElementById('h2hMatches').innerHTML = '<h4>All Meetings (' + allMatches.length + ')</h4>' + sorted.map(m => {
                 const resultClass = m.Abandoned === 'Y' ? 'a' : effectiveResult(m).toLowerCase();
@@ -2671,7 +2764,62 @@
 
         function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
 
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeShootoutModal(); } });
+
+        function showShootoutModal() {
+            const shootouts = MATCHES_DATA.filter(m => m.Penalties === 'Y')
+                .slice().sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+            const w = shootouts.filter(m => m['Penalty Result'] === 'W').length;
+            const l = shootouts.filter(m => m['Penalty Result'] === 'L').length;
+
+            function parsePenScore(m) {
+                const raw = m['Penalty Score'];
+                if (!raw) return '?';
+                // Stored as date object: day = West goals, month = opp goals
+                const s = raw.toString().trim();
+                const dateParts = s.match(/(\d{1,2})\/(\d{1,2})\/\d{4}/);
+                if (dateParts) return parseInt(dateParts[1], 10) + '–' + parseInt(dateParts[2], 10);
+                // May already be a JS Date serialised differently
+                const isoMatch = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+                if (isoMatch) return parseInt(isoMatch[3], 10) + '–' + parseInt(isoMatch[2], 10);
+                return '?';
+            }
+
+            const rows = shootouts.map(m => {
+                const result = m['Penalty Result'];
+                const isWin = result === 'W';
+                const isLoss = result === 'L';
+                const resultClass = isWin ? 'w' : isLoss ? 'l' : 'd';
+                const resultLabel = isWin ? 'Won' : isLoss ? 'Lost' : '?';
+                const penScore = parsePenScore(m);
+                const score90 = m['Goals For'] + '–' + m['Goals Against'];
+                const venue = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
+                return '<div class="h2h-match-row">' +
+                    '<span class="h2h-match-result ' + resultClass + '">' + resultLabel + '</span>' +
+                    '<span class="h2h-match-date">' + m.Date + '</span>' +
+                    '<span class="h2h-match-score" style="min-width:80px;">' + score90 + ' (pens ' + penScore + ')</span>' +
+                    '<span style="flex:1;font-size:0.82em;color:var(--text-secondary);">' + m.Opposition + ' (' + venue + ')</span>' +
+                    '<span class="h2h-match-comp">' + (m.Competition || '') + '</span>' +
+                '</div>';
+            }).join('');
+
+            document.getElementById('shootoutContent').innerHTML =
+                '<div style="display:flex;gap:24px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-primary);">' +
+                '<div style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--win);">' + w + '</div><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-top:4px;">Won</div></div>' +
+                '<div style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--loss);">' + l + '</div><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-top:4px;">Lost</div></div>' +
+                '<div style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--text-bright);">' + shootouts.length + '</div><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-top:4px;">Total</div></div>' +
+                '</div>' +
+                '<h4 style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">All Shootouts</h4>' +
+                rows;
+
+            document.getElementById('shootoutOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeShootoutModal() {
+            document.getElementById('shootoutOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value;
