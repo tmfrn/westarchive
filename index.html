@@ -991,7 +991,316 @@
 
         .opposition-link:hover { color: var(--accent); }
 
-        /* ===== MODALS (H2H + Player) ===== */
+        /* ===== MATCH TIMELINE BUTTON ===== */
+        .timeline-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 6px 14px;
+            background: var(--accent-surface);
+            border: 1.5px solid var(--accent-border);
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent);
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.15s;
+            letter-spacing: 0.01em;
+        }
+        .timeline-btn:hover {
+            background: rgba(22,101,52,0.12);
+            border-color: var(--accent);
+        }
+
+        /* ===== MATCH TIMELINE MODAL ===== */
+        .timeline-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .timeline-overlay.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .timeline-modal {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl);
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+            border: 1px solid var(--border-primary);
+            animation: modalSlideIn 0.3s ease;
+        }
+        .timeline-modal-header {
+            padding: 22px 28px;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .timeline-modal-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            line-height: 1.2;
+        }
+        .timeline-modal-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .tl-meta-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+        }
+        .tl-meta-pill.win { background: var(--win-bg); color: var(--win); }
+        .tl-meta-pill.loss { background: var(--loss-bg); color: var(--loss); }
+        .tl-meta-pill.draw { background: var(--draw-bg); color: var(--draw); }
+        .tl-meta-pill.home { background: rgba(37,99,235,0.08); color: #2563eb; }
+        .tl-meta-pill.away { background: rgba(147,51,234,0.08); color: #9333ea; }
+        .tl-meta-pill.neutral-v { background: rgba(0,0,0,0.04); color: var(--text-muted); }
+        .tl-meta-pill.info { background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-secondary); }
+        .timeline-modal-close {
+            background: rgba(0,0,0,0.06);
+            border: none;
+            color: var(--text-secondary);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .timeline-modal-close:hover { background: rgba(0,0,0,0.1); }
+        .timeline-modal-body { padding: 20px 28px 28px; }
+
+        /* Timeline track inside modal */
+        .tl-track-wrap { position: relative; margin-bottom: 6px; }
+        .tl-track {
+            position: relative;
+            height: 48px;
+            border-radius: 8px;
+            overflow: visible;
+            background: var(--border-subtle);
+        }
+        .tl-ht-line {
+            position: absolute;
+            top: -8px; bottom: -8px;
+            width: 2px;
+            background: var(--border-primary);
+            z-index: 3;
+            transform: translateX(-50%);
+        }
+        .tl-ht-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        .tl-goal-marker {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 3px;
+            z-index: 4;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+        .tl-goal-marker::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: 3px;
+            border-radius: 2px;
+        }
+        .tl-goal-marker.west::before { background: var(--win); }
+        .tl-goal-marker.opp::before { background: var(--loss); }
+        .tl-goal-dot {
+            position: absolute;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-elevated);
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+        .tl-goal-marker.west .tl-goal-dot { background: var(--win); }
+        .tl-goal-marker.opp .tl-goal-dot { background: var(--loss); }
+        .tl-goal-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-bright);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .tl-goal-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%; left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid transparent;
+            border-top-color: var(--text-bright);
+        }
+        .tl-goal-marker:hover .tl-goal-tooltip { opacity: 1; }
+        .tl-axis {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .tl-axis-tick { font-size: 0.6rem; color: var(--text-muted); font-weight: 500; }
+
+        /* TL legend */
+        .tl-legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .tl-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .tl-legend-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .tl-legend-dot.west { background: var(--win); }
+        .tl-legend-dot.opp { background: var(--loss); }
+        .tl-legend-swatch {
+            width: 14px; height: 9px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .tl-legend-swatch.ahead { background: rgba(22,101,52,0.32); }
+        .tl-legend-swatch.behind { background: rgba(153,27,27,0.30); }
+        .tl-legend-swatch.level { background: rgba(100,100,100,0.14); }
+
+        /* HT strip */
+        .tl-ht-strip {
+            margin: 10px 0 16px;
+            padding: 9px 13px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tl-ht-strip-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            min-width: 24px;
+        }
+        .tl-ht-strip-score {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 0.98rem;
+        }
+        .tl-ht-strip-desc {
+            font-size: 0.76rem;
+            margin-left: 2px;
+        }
+
+        /* Goal log in modal */
+        .tl-log-title {
+            font-size: 0.66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .tl-goal-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.83rem;
+        }
+        .tl-goal-entry:last-child { border-bottom: none; }
+        .tl-ge-min {
+            font-family: var(--font-display);
+            font-weight: 800;
+            color: var(--text-muted);
+            min-width: 34px;
+            font-size: 0.78rem;
+        }
+        .tl-ge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .tl-ge-dot.west { background: var(--win); }
+        .tl-ge-dot.opp { background: var(--loss); }
+        .tl-ge-scorer { flex: 1; font-weight: 600; color: var(--text-primary); }
+        .tl-ge-team { font-size: 0.74rem; color: var(--text-muted); }
+        .tl-ge-score {
+            font-family: var(--font-display);
+            font-weight: 800;
+            color: var(--text-bright);
+            min-width: 34px;
+            text-align: right;
+        }
+        .tl-ge-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 100px;
+            margin-left: 3px;
+        }
+        .tl-ge-badge.pen { background: rgba(30,58,95,0.08); color: #1e3a5f; }
+        .tl-ge-badge.og { background: var(--draw-bg); color: var(--draw); }
+        .tl-no-goals {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.86rem;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        @media (max-width: 600px) {
+            .timeline-overlay { padding: 20px 10px; }
+            .timeline-modal-header { padding: 18px 20px; }
+            .timeline-modal-body { padding: 16px 20px 24px; }
+        }
         .h2h-overlay, .player-overlay {
             display: none;
             position: fixed;
@@ -1663,6 +1972,19 @@
 
         <div class="matches">
             <div id="matchList"></div>
+        </div>
+    </div>
+
+    <div class="timeline-overlay" id="timelineOverlay" onclick="if(event.target===this)closeTimeline()">
+        <div class="timeline-modal">
+            <div class="timeline-modal-header">
+                <div>
+                    <div class="timeline-modal-title" id="timelineTitle"></div>
+                    <div class="timeline-modal-meta" id="timelineMeta"></div>
+                </div>
+                <button class="timeline-modal-close" onclick="closeTimeline()">✕</button>
+            </div>
+            <div class="timeline-modal-body" id="timelineBody"></div>
         </div>
     </div>
 
@@ -2348,6 +2670,8 @@
             const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
             const safeSeason = (match.Season || '').replace(/'/g, "\\'");
             const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
+            const safeDate = (match.Date || '').replace(/'/g, "\\'");
+            const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊 Match Timeline</button>' : '';
             return '<div class="match-card">' + tagsHtml +
                 '<div class="match-header">' +
                     '<span class="match-date">' + match.Date + seasonChip + '</span>' +
@@ -2363,7 +2687,7 @@
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
                     (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
                     (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
-                '</div>' + scorersHtml + notesHtml + '</div>';
+                '</div>' + scorersHtml + notesHtml + tlBtn + '</div>';
         }
 
         function filterMatches() {
@@ -2790,7 +3114,7 @@
 
         function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
 
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeShootoutModal(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeShootoutModal(); closeTimeline(); } });
 
         function showShootoutModal() {
             const shootouts = MATCHES_DATA.filter(m => m.Penalties === 'Y')
@@ -3264,6 +3588,194 @@
                 '</tr></thead>' +
                 '<tbody style="color:var(--text-secondary);">' + rows + '</tbody>' +
                 '</table></div>';
+        }
+
+        function hasTimelineData(match) {
+            if (match.Abandoned === 'Y') return false;
+            if (!['W','D','L'].includes(match.Result)) return false;
+            if (match['HT Goals For'] == null || match['HT Goals Against'] == null) return false;
+            const gf = match['Goals For'] || 0;
+            const ga = match['Goals Against'] || 0;
+            const dateKey = normaliseDateKey(match.Date || '');
+            const scorers = scorersByDate[dateKey];
+            // 0-0 games are valid — no goals needed
+            if (gf === 0 && ga === 0) return true;
+            // must have scorer entries
+            if (!scorers) return false;
+            // goal counts must match
+            if (scorers.west.length !== gf || scorers.opp.length !== ga) return false;
+            // all goals must have valid minutes
+            const allGoals = [...scorers.west, ...scorers.opp];
+            return allGoals.every(g => {
+                const m = (g.minute || '').toString().trim();
+                if (!m || m === '0') return false;
+                const base = m.split('+')[0];
+                return base !== '' && !isNaN(parseInt(base, 10)) && parseInt(base, 10) > 0;
+            });
+        }
+
+        function showMatchTimeline(dateStr) {
+            const match = MATCHES_DATA.find(m => m.Date === dateStr);
+            if (!match || !hasTimelineData(match)) return;
+
+            const gf = match['Goals For'] || 0;
+            const ga = match['Goals Against'] || 0;
+            const htFor = match['HT Goals For'];
+            const htAgainst = match['HT Goals Against'];
+            const dateKey = normaliseDateKey(match.Date || '');
+            const scorers = scorersByDate[dateKey] || { west: [], opp: [] };
+            const isHome = match['Home/Away'] === 'H';
+            const isNeutral = match['Home/Away'] === 'N';
+
+            // Build sorted goal list
+            function parseMin(m) {
+                const s = (m || '').toString().trim();
+                const parts = s.split('+');
+                const base = parseInt(parts[0], 10);
+                return parts[1] ? base + parseInt(parts[1], 10) * 0.5 : base;
+            }
+            const goals = [];
+            scorers.west.forEach(g => goals.push({ minute: g.minute, side: 'west', scorer: g.name, pen: g.pen, og: g.og }));
+            scorers.opp.forEach(g => goals.push({ minute: g.minute, side: 'opp', scorer: g.name, pen: g.pen, og: g.og }));
+            goals.sort((a, b) => parseMin(a.minute) - parseMin(b.minute));
+
+            const totalMins = 95;
+            const htPct = (45 / totalMins) * 100;
+
+            // Score progression for bands
+            let ws = 0, os = 0;
+            const states = [{ min: 0, w: 0, o: 0 }];
+            goals.forEach(g => {
+                if (g.og) { if (g.side === 'west') os++; else ws++; }
+                else { if (g.side === 'west') ws++; else os++; }
+                states.push({ min: parseMin(g.minute), w: ws, o: os });
+            });
+
+            // Band HTML
+            let bandHtml = '';
+            for (let i = 0; i < states.length; i++) {
+                const from = states[i];
+                const to = states[i + 1] || { min: totalMins };
+                const left = Math.min(100, (from.min / totalMins) * 100);
+                const right = Math.min(100, (to.min / totalMins) * 100);
+                const w = right - left;
+                if (w <= 0) continue;
+                let bg = 'transparent';
+                if (from.w > from.o) bg = 'rgba(22,101,52,0.32)';
+                else if (from.o > from.w) bg = 'rgba(153,27,27,0.30)';
+                else if (from.w > 0 || from.o > 0) bg = 'rgba(100,100,100,0.14)';
+                bandHtml += '<div style="position:absolute;top:0;bottom:0;left:' + left + '%;width:' + w + '%;background:' + bg + ';"></div>';
+            }
+
+            // Marker HTML
+            let markerHtml = '';
+            goals.forEach(g => {
+                const pct = Math.min(100, (parseMin(g.minute) / totalMins) * 100);
+                const ogLabel = g.og ? ' (OG)' : '';
+                const penLabel = g.pen ? ' (pen)' : '';
+                const teamLabel = g.side === 'west' ? 'West' : match.Opposition;
+                markerHtml += '<div class="tl-goal-marker ' + g.side + '" style="left:' + pct + '%">' +
+                    '<div class="tl-goal-dot"></div>' +
+                    '<div class="tl-goal-tooltip">' + g.minute + '\' ' + g.scorer + ogLabel + penLabel + ' (' + teamLabel + ')</div>' +
+                    '</div>';
+            });
+
+            // HT display (home-team-first)
+            const htHome = isHome ? htFor : htAgainst;
+            const htAway = isHome ? htAgainst : htFor;
+            const htWest = htFor, htOpp = htAgainst;
+            const htBg = htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.10)';
+            const htCol = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)';
+            const htTextCol = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-primary)';
+            const htDesc = htWest > htOpp ? 'West leading' : htOpp > htWest ? 'West trailing' : 'Level';
+
+            // Goal log
+            let logHtml = '';
+            let lw = 0, lo = 0;
+            goals.forEach(g => {
+                const isOg = g.og;
+                if (isOg) { if (g.side === 'west') lo++; else lw++; }
+                else { if (g.side === 'west') lw++; else lo++; }
+                const isWestGoal = (!isOg && g.side === 'west') || (isOg && g.side === 'opp');
+                const dotCls = isWestGoal ? 'west' : 'opp';
+                const teamName = isWestGoal ? 'West' : match.Opposition;
+                const dispScore = isHome ? lw + '–' + lo : lo + '–' + lw;
+                const ogBadge = g.og ? '<span class="tl-ge-badge og">OG</span>' : '';
+                const penBadge = g.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
+                logHtml += '<div class="tl-goal-entry">' +
+                    '<span class="tl-ge-min">' + g.minute + '\'</span>' +
+                    '<span class="tl-ge-dot ' + dotCls + '"></span>' +
+                    '<span class="tl-ge-scorer">' + g.scorer + ogBadge + penBadge + '</span>' +
+                    '<span class="tl-ge-team">' + teamName + '</span>' +
+                    '<span class="tl-ge-score">' + dispScore + '</span>' +
+                    '</div>';
+            });
+
+            // Result / venue pills
+            const resultCls = match.Result === 'W' ? 'win' : match.Result === 'L' ? 'loss' : 'draw';
+            const resultLabel = match.Result === 'W' ? 'Win' : match.Result === 'L' ? 'Loss' : 'Draw';
+            const venueCls = isHome ? 'home' : isNeutral ? 'neutral-v' : 'away';
+            const venueLabel = isHome ? 'Home' : isNeutral ? 'Neutral' : 'Away';
+
+            // Title: fixture style
+            const homeTeam = isHome ? 'West Didsbury & Chorlton' : match.Opposition;
+            const awayTeam = isHome ? match.Opposition : 'West Didsbury & Chorlton';
+            const homeScore = isHome ? gf : ga;
+            const awayScore = isHome ? ga : gf;
+
+            // Legend: only show level if there are goals
+            const levelLegend = goals.length > 0 ? '<div class="tl-legend-item"><span class="tl-legend-swatch level"></span>Level</div>' : '';
+
+            const bodyHtml =
+                '<div class="tl-legend">' +
+                    '<div class="tl-legend-item"><span class="tl-legend-dot west"></span>West goal</div>' +
+                    '<div class="tl-legend-item"><span class="tl-legend-dot opp"></span>' + match.Opposition + ' goal</div>' +
+                    '<div class="tl-legend-item"><span class="tl-legend-swatch ahead"></span>West ahead</div>' +
+                    '<div class="tl-legend-item"><span class="tl-legend-swatch behind"></span>West behind</div>' +
+                    levelLegend +
+                '</div>' +
+                '<div class="tl-track-wrap">' +
+                    '<div class="tl-track">' +
+                        bandHtml +
+                        '<div class="tl-ht-line" style="left:' + htPct + '%"><div class="tl-ht-label">HT</div></div>' +
+                        markerHtml +
+                    '</div>' +
+                    '<div class="tl-axis">' +
+                        '<span class="tl-axis-tick">0\'</span>' +
+                        '<span class="tl-axis-tick">15\'</span>' +
+                        '<span class="tl-axis-tick">30\'</span>' +
+                        '<span class="tl-axis-tick">45\'</span>' +
+                        '<span class="tl-axis-tick">60\'</span>' +
+                        '<span class="tl-axis-tick">75\'</span>' +
+                        '<span class="tl-axis-tick">90\'</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="tl-ht-strip" style="background:' + htBg + ';">' +
+                    '<span class="tl-ht-strip-label" style="color:' + htCol + ';">HT</span>' +
+                    '<span class="tl-ht-strip-score" style="color:' + htTextCol + ';">' + htHome + ' – ' + htAway + '</span>' +
+                    '<span class="tl-ht-strip-desc" style="color:' + htCol + ';">' + htDesc + '</span>' +
+                '</div>' +
+                '<div style="margin-top:16px;">' +
+                    (goals.length === 0
+                        ? '<div class="tl-no-goals">No goals scored — both teams kept clean sheets.</div>'
+                        : '<div class="tl-log-title">Goal log</div><div>' + logHtml + '</div>'
+                    ) +
+                '</div>';
+
+            document.getElementById('timelineTitle').textContent = homeTeam + ' ' + homeScore + ' – ' + awayScore + ' ' + awayTeam;
+            document.getElementById('timelineMeta').innerHTML =
+                '<span class="tl-meta-pill ' + resultCls + '">' + resultLabel + '</span>' +
+                '<span class="tl-meta-pill ' + venueCls + '">' + venueLabel + '</span>' +
+                '<span class="tl-meta-pill info">' + match.Date + '</span>' +
+                '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>';
+            document.getElementById('timelineBody').innerHTML = bodyHtml;
+            document.getElementById('timelineOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTimeline() {
+            document.getElementById('timelineOverlay').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         function setAttendanceMode(mode) {
