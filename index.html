@@ -1102,8 +1102,8 @@
             overflow: visible;
             background: linear-gradient(
                 to bottom,
-                rgba(26,26,24,0.06) 0%, rgba(26,26,24,0.06) 50%,
-                rgba(107,114,128,0.06) 50%, rgba(107,114,128,0.06) 100%
+                rgba(75,85,99,0.06) 0%, rgba(75,85,99,0.06) 50%,
+                rgba(75,85,99,0.06) 50%, rgba(75,85,99,0.06) 100%
             );
             border: 1px solid var(--border-subtle);
         }
@@ -1122,8 +1122,8 @@
             text-transform: uppercase; letter-spacing: 0.05em;
             padding-left: 5px; white-space: nowrap;
         }
-        .tl-lane-label.west { color: #1a1a18; border-bottom: 1px solid #c8c5bc; background: rgba(26,26,24,0.07); }
-        .tl-lane-label.opp  { color: #6b7280; background: rgba(107,114,128,0.07); }
+        .tl-lane-label.west { color: var(--text-secondary); border-bottom: 1px solid #c8c5bc; background: rgba(75,85,99,0.07); }
+        .tl-lane-label.opp  { color: var(--text-secondary); background: rgba(75,85,99,0.07); }
         /* Centreline */
         .tl-centre-line {
             position: absolute; top: 50%; left: 0; right: 0;
@@ -1151,9 +1151,9 @@
             left: 0; width: 3px; border-radius: 2px;
         }
         .tl-goal-marker.west { bottom: 50%; height: 36px; }
-        .tl-goal-marker.west::before { bottom: 0; height: 100%; background: #1a1a18; border-radius: 2px 2px 0 0; }
+        .tl-goal-marker.west::before { bottom: 0; height: 100%; background: #4b5563; border-radius: 2px 2px 0 0; }
         .tl-goal-marker.opp  { top: 50%; height: 36px; }
-        .tl-goal-marker.opp::before  { top: 0; height: 100%; background: #6b7280; border-radius: 0 0 2px 2px; }
+        .tl-goal-marker.opp::before  { top: 0; height: 100%; background: #4b5563; border-radius: 0 0 2px 2px; }
         /* Red card markers */
         .tl-goal-marker.redcard.west { height: 42px; }
         .tl-goal-marker.redcard.opp  { height: 42px; }
@@ -1164,10 +1164,10 @@
         .tl-goal-marker.yellowcard::before { background: #ca8a04 !important; }
         /* Missed pen — dashed */
         .tl-goal-marker.missedpen.west::before {
-            background: repeating-linear-gradient(to bottom,#1a1a18 0,#1a1a18 4px,transparent 4px,transparent 8px) !important;
+            background: repeating-linear-gradient(to bottom,#4b5563 0,#4b5563 4px,transparent 4px,transparent 8px) !important;
         }
         .tl-goal-marker.missedpen.opp::before {
-            background: repeating-linear-gradient(to bottom,#6b7280 0,#6b7280 4px,transparent 4px,transparent 8px) !important;
+            background: repeating-linear-gradient(to bottom,#4b5563 0,#4b5563 4px,transparent 4px,transparent 8px) !important;
         }
         /* Icons */
         .tl-goal-dot {
@@ -1180,8 +1180,8 @@
         .tl-goal-marker.redcard  .tl-goal-dot { font-size: 10px; }
         .tl-goal-marker.yellowcard .tl-goal-dot { font-size: 10px; }
         .tl-goal-marker.missedpen .tl-goal-dot { font-size: 11px; font-weight: 700; }
-        .tl-goal-marker.missedpen.west .tl-goal-dot { color: #1a1a18; }
-        .tl-goal-marker.missedpen.opp  .tl-goal-dot { color: #6b7280; }
+        .tl-goal-marker.missedpen.west .tl-goal-dot { color: #4b5563; }
+        .tl-goal-marker.missedpen.opp  .tl-goal-dot { color: #4b5563; }
         /* Tooltips */
         .tl-goal-tooltip {
             position: absolute; left: 50%; transform: translateX(-50%);
@@ -1209,8 +1209,8 @@
         .tl-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
         .tl-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); }
         .tl-legend-line { width: 3px; height: 14px; border-radius: 1px; flex-shrink: 0; }
-        .tl-legend-line.west { background: #1a1a18; }
-        .tl-legend-line.opp  { background: #6b7280; }
+        .tl-legend-line.west { background: #4b5563; }
+        .tl-legend-line.opp  { background: #4b5563; }
         .tl-legend-line.rc   { background: #dc2626; }
         .tl-legend-line.yc   { background: #ca8a04; }
         .tl-legend-dash { width: 14px; height: 0; border-top: 2.5px dashed var(--text-muted); flex-shrink: 0; }
@@ -3722,8 +3722,8 @@
                 return side === 'west' ? 'opp' : 'west'; // A: flip — opp(home)=top, west(away)=bottom
             }
             // Display names: top lane = home team, bottom lane = away team
-            const topTeamShort  = westFirst ? 'West' : match.Opposition.split(' ')[0];
-            const botTeamShort  = westFirst ? match.Opposition.split(' ')[0] : 'West';
+            const topTeamShort  = westFirst ? 'WEST' : match.Opposition.substring(0, 4).toUpperCase();
+            const botTeamShort  = westFirst ? match.Opposition.substring(0, 4).toUpperCase() : 'WEST';
             const topTeamFull   = westFirst ? 'West' : match.Opposition;
             const botTeamFull   = westFirst ? match.Opposition : 'West';
 
@@ -3732,14 +3732,38 @@
             const hasYC = events.some(e => e.type === 'yellowcard');
             const hasMP = events.some(e => e.type === 'missedpen');
 
-            const totalMins = 95;
+            // Dynamic time scale: extend beyond 90 if there are stoppage-time events
+            const maxEventMin = events.length > 0 ? Math.max(...events.map(e => parseMin(e.minute))) : 0;
+            const totalMins = Math.max(90, Math.ceil(maxEventMin) + 2);
             const htPct = (45 / totalMins) * 100;
 
-            // ── MARKERS (split-lane) ──
+            // Build axis ticks — always 0 to 90, plus extra if stoppage time
+            let axisTicks = '<span class="tl-axis-tick">0\'</span>' +
+                '<span class="tl-axis-tick">15\'</span>' +
+                '<span class="tl-axis-tick">30\'</span>' +
+                '<span class="tl-axis-tick">45\'</span>' +
+                '<span class="tl-axis-tick">60\'</span>' +
+                '<span class="tl-axis-tick">75\'</span>' +
+                '<span class="tl-axis-tick">90\'</span>';
+            if (totalMins > 93) axisTicks += '<span class="tl-axis-tick">' + totalMins + '\'</span>';
+
+            // ── MARKERS (split-lane) — nudge close events to avoid overlap ──
+            const NUDGE_THRESHOLD = 2.5; // percentage points
+            const placedByLane = { west: [], opp: [] };
             let markerHtml = '';
             events.forEach(e => {
-                const pct = Math.min(98, (parseMin(e.minute) / totalMins) * 100);
+                let pct = (parseMin(e.minute) / totalMins) * 100;
+                pct = Math.max(2, Math.min(98, pct));
                 const lane = displayLane(e.side);
+                // Nudge if too close to a previously placed marker on the same lane
+                const placed = placedByLane[lane];
+                for (let i = 0; i < placed.length; i++) {
+                    if (Math.abs(pct - placed[i]) < NUDGE_THRESHOLD) {
+                        pct = placed[i] + NUDGE_THRESHOLD;
+                        if (pct > 98) pct = 98;
+                    }
+                }
+                placed.push(pct);
                 const team = e.side === 'west' ? 'West' : match.Opposition;
                 if (e.type === 'goal') {
                     const ogL  = e.og  ? ' (OG)'  : '';
@@ -3790,13 +3814,7 @@
                             markerHtml +
                         '</div>' +
                         '<div class="tl-axis">' +
-                            '<span class="tl-axis-tick">0\'</span>' +
-                            '<span class="tl-axis-tick">15\'</span>' +
-                            '<span class="tl-axis-tick">30\'</span>' +
-                            '<span class="tl-axis-tick">45\'</span>' +
-                            '<span class="tl-axis-tick">60\'</span>' +
-                            '<span class="tl-axis-tick">75\'</span>' +
-                            '<span class="tl-axis-tick">90\'</span>' +
+                            axisTicks +
                         '</div>' +
                     '</div>' +
                 '</div>';
