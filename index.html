@@ -1210,9 +1210,9 @@
             border-radius: 2px;
             flex-shrink: 0;
         }
-        .tl-legend-swatch.ahead { background: rgba(22,101,52,0.32); }
-        .tl-legend-swatch.behind { background: rgba(153,27,27,0.30); }
-        .tl-legend-swatch.level { background: rgba(100,100,100,0.14); }
+        .tl-legend-swatch.ahead { background: rgba(22,101,52,0.58); }
+        .tl-legend-swatch.behind { background: rgba(153,27,27,0.55); }
+        .tl-legend-swatch.level { background: repeating-linear-gradient(45deg,rgba(146,64,14,0.50) 0px,rgba(146,64,14,0.50) 3px,transparent 3px,transparent 8px); }
 
         /* HT strip */
         .tl-ht-strip {
@@ -3661,9 +3661,9 @@
                 const w = right - left;
                 if (w <= 0) continue;
                 let bg = 'transparent';
-                if (from.w > from.o) bg = 'rgba(22,101,52,0.32)';
-                else if (from.o > from.w) bg = 'rgba(153,27,27,0.30)';
-                else if (from.w > 0 || from.o > 0) bg = 'rgba(100,100,100,0.14)';
+                if (from.w > from.o) bg = 'rgba(22,101,52,0.58)';
+                else if (from.o > from.w) bg = 'rgba(153,27,27,0.55)';
+                else if (from.w > 0 || from.o > 0) bg = 'repeating-linear-gradient(45deg,rgba(146,64,14,0.50) 0px,rgba(146,64,14,0.50) 3px,transparent 3px,transparent 8px)';
                 bandHtml += '<div style="position:absolute;top:0;bottom:0;left:' + left + '%;width:' + w + '%;background:' + bg + ';"></div>';
             }
 
@@ -3684,7 +3684,7 @@
             const htHome = isHome ? htFor : htAgainst;
             const htAway = isHome ? htAgainst : htFor;
             const htWest = htFor, htOpp = htAgainst;
-            const htBg = htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.10)';
+            const htBg = htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)';
             const htCol = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)';
             const htTextCol = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-primary)';
             const htDesc = htWest > htOpp ? 'West leading' : htOpp > htWest ? 'West trailing' : 'Level';
