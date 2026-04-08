@@ -1202,8 +1202,8 @@
         .tl-goal-marker.opp  .tl-goal-tooltip { top: calc(100% + 20px); }
         .tl-goal-marker.opp  .tl-goal-tooltip::after { bottom: 100%; border-bottom-color: var(--text-bright); }
         .tl-goal-marker:hover .tl-goal-tooltip { opacity: 1; }
-        .tl-axis { display: flex; justify-content: space-between; margin-top: 5px; }
-        .tl-axis-tick { font-size: 0.6rem; color: var(--text-muted); font-weight: 500; }
+        .tl-axis { position: relative; height: 14px; margin-top: 5px; }
+        .tl-axis-tick { position: absolute; font-size: 0.6rem; color: var(--text-muted); font-weight: 500; transform: translateX(-50%); }
 
         /* TL legend */
         .tl-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
@@ -2284,7 +2284,7 @@
                     const match = {};
                     headers.forEach((header, index) => {
                         let value = values[index] || '';
-                        if (['Goals For', 'Goals Against', 'HT Goals For', 'HT Goals Against', 'Attendance'].includes(header)) { value = value && value.trim() !== '' ? parseInt(value) : null; }
+                        if (['Goals For', 'Goals Against', 'HT Goals For', 'HT Goals Against', 'Attendance', 'FT Goals For', 'FT Goals Against'].includes(header)) { value = value && value.trim() !== '' ? parseInt(value) : null; }
                         match[header] = value;
                     });
                     MATCHES_DATA.push(match);
@@ -2661,19 +2661,22 @@
             const venueBadge = match['Home/Away'] === 'H' ? '<span class="badge home">HOME</span>' :
                              match['Home/Away'] === 'N' ? '<span class="badge neutral">NEUTRAL</span>' :
                              '<span class="badge away">AWAY</span>';
-            let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore, displayHtHomeScore, displayHtAwayScore;
+            let displayHomeTeam, displayAwayTeam, displayHomeScore, displayAwayScore, displayHtHomeScore, displayHtAwayScore, displayFtHomeScore, displayFtAwayScore;
+            const isAET = match['Extra Time'] === 'Y';
             if (match.Abandoned === 'Y') {
-                displayHomeScore = 'A'; displayAwayScore = 'A'; displayHtHomeScore = null; displayHtAwayScore = null;
+                displayHomeScore = 'A'; displayAwayScore = 'A'; displayHtHomeScore = null; displayHtAwayScore = null; displayFtHomeScore = null; displayFtAwayScore = null;
                 if (match['Home/Away'] === 'A') { displayHomeTeam = match.Opposition; displayAwayTeam = 'West Didsbury & Chorlton'; }
                 else { displayHomeTeam = 'West Didsbury & Chorlton'; displayAwayTeam = match.Opposition; }
             } else if (match['Home/Away'] === 'A') {
                 displayHomeTeam = match.Opposition; displayAwayTeam = 'West Didsbury & Chorlton';
                 displayHomeScore = match['Goals Against']; displayAwayScore = match['Goals For'];
                 displayHtHomeScore = match['HT Goals Against']; displayHtAwayScore = match['HT Goals For'];
+                displayFtHomeScore = match['FT Goals Against']; displayFtAwayScore = match['FT Goals For'];
             } else {
                 displayHomeTeam = 'West Didsbury & Chorlton'; displayAwayTeam = match.Opposition;
                 displayHomeScore = match['Goals For']; displayAwayScore = match['Goals Against'];
                 displayHtHomeScore = match['HT Goals For']; displayHtAwayScore = match['HT Goals Against'];
+                displayFtHomeScore = match['FT Goals For']; displayFtAwayScore = match['FT Goals Against'];
             }
             const tags = getMatchTags(match);
             const tagsHtml = tags.length > 0 ? '<div class="match-tags">' + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>' : '';
@@ -2722,6 +2725,8 @@
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
                     (match.Venue && match.Venue.trim() ? ' | <strong>Venue:</strong> ' + match.Venue : '') +
                     (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
+                    (isAET && displayFtHomeScore != null ? ' | <strong>FT:</strong> ' + displayFtHomeScore + '-' + displayFtAwayScore : '') +
+                    (isAET ? ' | <strong>AET</strong>' : '') +
                     (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
                 '</div>' + scorersHtml + notesHtml + tlBtn + '</div>';
         }
@@ -3731,21 +3736,25 @@
             const hasRC = events.some(e => e.type === 'redcard');
             const hasYC = events.some(e => e.type === 'yellowcard');
             const hasMP = events.some(e => e.type === 'missedpen');
+            const isAET = match['Extra Time'] === 'Y';
+            const ftFor = match['FT Goals For'];
+            const ftAgainst = match['FT Goals Against'];
 
-            // Dynamic time scale: extend beyond 90 if there are stoppage-time events
+            // Dynamic time scale
             const maxEventMin = events.length > 0 ? Math.max(...events.map(e => parseMin(e.minute))) : 0;
-            const totalMins = Math.max(90, Math.ceil(maxEventMin) + 2);
+            const baseMins = isAET ? 120 : 90;
+            const totalMins = Math.max(baseMins, Math.ceil(maxEventMin) + 2);
             const htPct = (45 / totalMins) * 100;
+            const ftPct = (90 / totalMins) * 100;
 
-            // Build axis ticks — always 0 to 90, plus extra if stoppage time
-            let axisTicks = '<span class="tl-axis-tick">0\'</span>' +
-                '<span class="tl-axis-tick">15\'</span>' +
-                '<span class="tl-axis-tick">30\'</span>' +
-                '<span class="tl-axis-tick">45\'</span>' +
-                '<span class="tl-axis-tick">60\'</span>' +
-                '<span class="tl-axis-tick">75\'</span>' +
-                '<span class="tl-axis-tick">90\'</span>';
-            if (totalMins > 93) axisTicks += '<span class="tl-axis-tick">' + totalMins + '\'</span>';
+            // Build axis ticks — positioned to match the time scale
+            const tickMinutes = isAET ? [0, 15, 30, 45, 60, 75, 90, 105, 120] : [0, 15, 30, 45, 60, 75, 90];
+            if (totalMins > tickMinutes[tickMinutes.length - 1] + 3) tickMinutes.push(totalMins);
+            let axisTicks = tickMinutes.map(t => {
+                const tickPct = (t / totalMins) * 100;
+                const style = t === 0 ? 'left:0;transform:none;' : t === tickMinutes[tickMinutes.length - 1] ? 'left:' + tickPct + '%;transform:translateX(-100%);' : 'left:' + tickPct + '%;';
+                return '<span class="tl-axis-tick" style="' + style + '">' + t + '\'</span>';
+            }).join('');
 
             // ── MARKERS (split-lane) — nudge close events to avoid overlap ──
             const NUDGE_THRESHOLD = 2.5; // percentage points
@@ -3790,17 +3799,18 @@
                 }
             });
 
-            // ── LEGEND ──
-            const legendHtml =
+            // ── LEGEND (only for special events — lane labels identify teams) ──
+            const needsLegend = hasRC || hasYC || hasMP;
+            const legendHtml = needsLegend ?
                 '<div class="tl-legend">' +
-                    '<div class="tl-legend-item"><span class="tl-legend-line west"></span>' + topTeamFull + '</div>' +
-                    '<div class="tl-legend-item"><span class="tl-legend-line opp"></span>' + botTeamFull + '</div>' +
                     (hasRC ? '<div class="tl-legend-item"><span class="tl-legend-line rc"></span>Red card</div>' : '') +
                     (hasYC ? '<div class="tl-legend-item"><span class="tl-legend-line yc"></span>Yellow card</div>' : '') +
                     (hasMP ? '<div class="tl-legend-item"><span class="tl-legend-dash"></span>Missed pen</div>' : '') +
-                '</div>';
+                '</div>' : '';
 
             // ── TRACK (split-lane) ──
+            const ftLineHtml = isAET ? '<div class="tl-ht-line" style="left:' + ftPct + '%"><div class="tl-ht-label">FT</div></div>' : '';
+            const etZoneHtml = isAET ? '<div style="position:absolute;top:0;bottom:0;left:' + ftPct + '%;right:0;background:repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(0,0,0,0.03) 4px,rgba(0,0,0,0.03) 8px);z-index:1;border-radius:0 8px 8px 0;pointer-events:none;"></div>' : '';
             const trackHtml =
                 '<div class="tl-wrap">' +
                     '<div class="tl-track-outer">' +
@@ -3811,6 +3821,8 @@
                             '</div>' +
                             '<div class="tl-centre-line"></div>' +
                             '<div class="tl-ht-line" style="left:' + htPct + '%"><div class="tl-ht-label">HT</div></div>' +
+                            ftLineHtml +
+                            etZoneHtml +
                             markerHtml +
                         '</div>' +
                         '<div class="tl-axis">' +
@@ -3834,13 +3846,41 @@
                     '<span class="tl-ht-strip-desc" style="color:' + htCol + ';">' + htDesc + '</span>' +
                 '</div>';
 
+            // ── FT STRIP (AET matches only) ──
+            let ftStrip = '';
+            if (isAET && ftFor != null && ftAgainst != null) {
+                const ftHome = westFirst ? ftFor : ftAgainst;
+                const ftAway = westFirst ? ftAgainst : ftFor;
+                const ftWest = ftFor, ftOpp = ftAgainst;
+                const ftBg      = ftWest > ftOpp ? 'rgba(22,101,52,0.12)' : ftOpp > ftWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)';
+                const ftCol     = ftWest > ftOpp ? 'var(--win)' : ftOpp > ftWest ? 'var(--loss)' : 'var(--text-muted)';
+                const ftTextCol = ftWest > ftOpp ? 'var(--win)' : ftOpp > ftWest ? 'var(--loss)' : 'var(--text-primary)';
+                const ftDesc    = ftWest > ftOpp ? 'West leading' : ftOpp > ftWest ? 'West trailing' : 'Level';
+                ftStrip =
+                    '<div class="tl-ht-strip" style="background:' + ftBg + ';">' +
+                        '<span class="tl-ht-strip-label" style="color:' + ftCol + ';">FT (90\')</span>' +
+                        '<span class="tl-ht-strip-score" style="color:' + ftTextCol + ';">' + ftHome + ' – ' + ftAway + '</span>' +
+                        '<span class="tl-ht-strip-desc" style="color:' + ftCol + ';">' + ftDesc + '</span>' +
+                    '</div>';
+            } else if (isAET) {
+                ftStrip =
+                    '<div class="tl-ht-strip" style="background:rgba(100,100,100,0.08);">' +
+                        '<span class="tl-ht-strip-label" style="color:var(--text-muted);">FT (90\')</span>' +
+                        '<span class="tl-ht-strip-score" style="color:var(--text-muted);">? – ?</span>' +
+                        '<span class="tl-ht-strip-desc" style="color:var(--text-muted);">Score not recorded</span>' +
+                    '</div>';
+            }
+
             // ── FOTMOB-STYLE EVENT LOG ──
             // Left column (tl-er-west CSS) = home team, Right column (tl-er-opp CSS) = away team
             let lw = 0, lo = 0;
             let logRows = '';
             const htHomeScore = westFirst ? htFor : htAgainst;
             const htAwayScore = westFirst ? htAgainst : htFor;
+            const ftHomeScore = (isAET && ftFor != null) ? (westFirst ? ftFor : ftAgainst) : null;
+            const ftAwayScore = (isAET && ftAgainst != null) ? (westFirst ? ftAgainst : ftFor) : null;
             let htInserted = false;
+            let ftInserted = !isAET; // skip FT insertion for non-AET matches
 
             events.forEach(e => {
                 // Insert HT row before first second-half event
@@ -3852,6 +3892,17 @@
                             '<div class="tl-ht-row-score" style="color:' + htTextCol + ';">' + htHomeScore + '–' + htAwayScore + '</div>' +
                         '</div>';
                     htInserted = true;
+                }
+                // Insert FT row before first extra-time event (AET matches)
+                if (!ftInserted && parseMin(e.minute) > 90) {
+                    const ftLabel = ftHomeScore != null ? ftHomeScore + '–' + ftAwayScore : '?–?';
+                    logRows +=
+                        '<div class="tl-ht-row">' +
+                            '<div></div>' +
+                            '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">FT</div>' +
+                            '<div class="tl-ht-row-score" style="color:var(--text-primary);">' + ftLabel + '</div>' +
+                        '</div>';
+                    ftInserted = true;
                 }
 
                 let leftCell = '', rightCell = '';
@@ -3926,6 +3977,16 @@
                         '<div class="tl-ht-row-score" style="color:' + htTextCol + ';">' + htHomeScore + '–' + htAwayScore + '</div>' +
                     '</div>';
             }
+            // If AET and all events were before 90, still insert FT row
+            if (!ftInserted && isAET && events.length > 0) {
+                const ftLabel = ftHomeScore != null ? ftHomeScore + '–' + ftAwayScore : '?–?';
+                logRows +=
+                    '<div class="tl-ht-row">' +
+                        '<div></div>' +
+                        '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">FT</div>' +
+                        '<div class="tl-ht-row-score" style="color:var(--text-primary);">' + ftLabel + '</div>' +
+                    '</div>';
+            }
 
             // ── RESULT / VENUE PILLS ──
             const resultCls   = match.Result === 'W' ? 'win' : match.Result === 'L' ? 'loss' : 'draw';
@@ -3943,6 +4004,7 @@
                 legendHtml +
                 trackHtml +
                 htStrip +
+                ftStrip +
                 '<div style="margin-top:16px;">' +
                     '<div class="tl-log-title">Match events</div>' +
                     (events.length === 0
@@ -3955,6 +4017,7 @@
             document.getElementById('timelineMeta').innerHTML =
                 '<span class="tl-meta-pill ' + resultCls + '">' + resultLabel + '</span>' +
                 '<span class="tl-meta-pill ' + venueCls + '">' + venueLabel + '</span>' +
+                (isAET ? '<span class="tl-meta-pill info">After Extra Time</span>' : '') +
                 '<span class="tl-meta-pill info">' + match.Date + '</span>' +
                 '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>' +
                 (match.Venue && match.Venue.trim() ? '<span class="tl-meta-pill info">📍 ' + match.Venue + '</span>' : '');
