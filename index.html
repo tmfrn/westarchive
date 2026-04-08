@@ -1158,6 +1158,10 @@
         .tl-goal-marker.redcard.west { height: 42px; }
         .tl-goal-marker.redcard.opp  { height: 42px; }
         .tl-goal-marker.redcard::before { background: #dc2626 !important; }
+        /* Yellow card markers */
+        .tl-goal-marker.yellowcard.west { height: 42px; }
+        .tl-goal-marker.yellowcard.opp  { height: 42px; }
+        .tl-goal-marker.yellowcard::before { background: #ca8a04 !important; }
         /* Missed pen — dashed */
         .tl-goal-marker.missedpen.west::before {
             background: repeating-linear-gradient(to bottom,#1a1a18 0,#1a1a18 4px,transparent 4px,transparent 8px) !important;
@@ -1174,6 +1178,7 @@
         .tl-goal-marker.west .tl-goal-dot { top: -16px; }
         .tl-goal-marker.opp  .tl-goal-dot { bottom: -16px; }
         .tl-goal-marker.redcard  .tl-goal-dot { font-size: 10px; }
+        .tl-goal-marker.yellowcard .tl-goal-dot { font-size: 10px; }
         .tl-goal-marker.missedpen .tl-goal-dot { font-size: 11px; font-weight: 700; }
         .tl-goal-marker.missedpen.west .tl-goal-dot { color: #1a1a18; }
         .tl-goal-marker.missedpen.opp  .tl-goal-dot { color: #6b7280; }
@@ -1207,6 +1212,7 @@
         .tl-legend-line.west { background: #1a1a18; }
         .tl-legend-line.opp  { background: #6b7280; }
         .tl-legend-line.rc   { background: #dc2626; }
+        .tl-legend-line.yc   { background: #ca8a04; }
         .tl-legend-dash { width: 14px; height: 0; border-top: 2.5px dashed var(--text-muted); flex-shrink: 0; }
 
         /* HT strip */
@@ -1270,6 +1276,7 @@
         }
         .tl-er-icon { font-size: 13px; flex-shrink: 0; }
         .tl-er-icon.rc { color: #dc2626; }
+        .tl-er-icon.yc { color: #ca8a04; }
         .tl-er-icon.mp.west { color: #1a1a18; }
         .tl-er-icon.mp.opp  { color: #6b7280; }
         .tl-er-name {
@@ -2073,9 +2080,15 @@
             men: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=2008440999&single=true&output=csv',
             women: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=1577136919&single=true&output=csv'
         };
+        const EVENTS_CSV_URLS = {
+            men: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=EVENTS_GID_MEN&single=true&output=csv',
+            women: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=EVENTS_GID_WOMEN&single=true&output=csv'
+        };
 
         let MATCHES_DATA = [];
         let GOALS_DATA = [];
+        let EVENTS_DATA = [];
+        let eventsByDate = {};
         let playerGoals = {};
         let scorersByDate = {};
         let playerMilestones = {};
@@ -2211,7 +2224,7 @@
             document.title = 'West Didsbury & Chorlton AFC - ' + subtitle;
             const attTitle = document.querySelector('#attendanceToggle h2');
             if (attTitle) attTitle.textContent = 'Home League Attendance Over Time';
-            MATCHES_DATA = []; GOALS_DATA = []; playerGoals = {}; scorersByDate = {}; playerMilestones = {};
+            MATCHES_DATA = []; GOALS_DATA = []; EVENTS_DATA = []; playerGoals = {}; scorersByDate = {}; playerMilestones = {}; eventsByDate = {};
             gsShowAll = false; gsSelectedSeason = ''; currentFilter = 'all'; selectedSeason = ''; selectedCompetition = '';
             const gsSelEl = document.getElementById('gsSeasonSelect');
             if (gsSelEl) { gsSelEl.value = ''; gsSelEl.classList.remove('active-filter'); }
@@ -2248,7 +2261,7 @@
             document.getElementById('matchList').innerHTML = '';
             document.getElementById('resultCount').textContent = 'Loading matches...';
             fetchToken++;
-            fetchMatchData(); fetchGoalsData();
+            fetchMatchData(); fetchGoalsData(); fetchEventsData();
         }
 
         async function fetchMatchData() {
@@ -2638,7 +2651,7 @@
             const penResult = match['Penalty Result'] || '';
             let penScore = '';
             const rawPenScore = (match['Penalty Score'] || '').trim();
-            if (rawPenScore) { const parts = rawPenScore.split('/'); if (parts.length >= 2) { penScore = parseInt(parts[0], 10) + '-' + parseInt(parts[1], 10); } }
+            if (rawPenScore) { penScore = rawPenScore.replace('-', '–'); }
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                               (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW</span><span class="badge pens-win">WON ON PENS</span>' :
                               (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW</span><span class="badge pens-loss">LOST ON PENS</span>' :
@@ -2707,6 +2720,7 @@
                 '<div class="match-details">' +
                     '<strong>Competition:</strong> ' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') +
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
+                    (match.Venue && match.Venue.trim() ? ' | <strong>Venue:</strong> ' + match.Venue : '') +
                     (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
                     (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
                 '</div>' + scorersHtml + notesHtml + tlBtn + '</div>';
@@ -3147,14 +3161,7 @@
             function parsePenScore(m) {
                 const raw = m['Penalty Score'];
                 if (!raw) return '?';
-                // Stored as date object: day = West goals, month = opp goals
-                const s = raw.toString().trim();
-                const dateParts = s.match(/(\d{1,2})\/(\d{1,2})\/\d{4}/);
-                if (dateParts) return parseInt(dateParts[1], 10) + '–' + parseInt(dateParts[2], 10);
-                // May already be a JS Date serialised differently
-                const isoMatch = s.match(/(\d{4})-(\d{2})-(\d{2})/);
-                if (isoMatch) return parseInt(isoMatch[3], 10) + '–' + parseInt(isoMatch[2], 10);
-                return '?';
+                return raw.toString().trim().replace('-', '–');
             }
 
             const rows = shootouts.map(m => {
@@ -3211,7 +3218,7 @@
             renderMatches();
         });
 
-        fetchMatchData(); fetchGoalsData();
+        fetchMatchData(); fetchGoalsData(); fetchEventsData();
 
         window.addEventListener('resize', () => { const body = document.getElementById('attendanceBody'); if (body && body.classList.contains('open')) drawAttendanceChart(); });
 
@@ -3236,11 +3243,11 @@
             if (matches.length === 0) return;
             const html = matches.map(m => {
                 const result = effectiveResult(m).toLowerCase();
-                const isHome = m['Home/Away'] === 'H';
+                const isHome = m['Home/Away'] !== 'A';
                 const gf = m['Goals For'] !== null && m['Goals For'] !== undefined ? m['Goals For'] : '-';
                 const ga = m['Goals Against'] !== null && m['Goals Against'] !== undefined ? m['Goals Against'] : '-';
                 const score = isHome ? gf + '–' + ga : ga + '–' + gf;
-                const opp = isHome ? 'vs ' + m.Opposition : '@ ' + m.Opposition;
+                const opp = m['Home/Away'] === 'H' ? 'vs ' + m.Opposition : m['Home/Away'] === 'N' ? 'vs ' + m.Opposition + ' (N)' : '@ ' + m.Opposition;
                 const year = (m.Date || '').split('/')[2] || '';
                 return '<div class="otd-match"><span class="otd-match-year">' + year + '</span><span class="otd-match-result ' + result + '">' + effectiveResult(m) + '</span><span class="otd-match-score">' + score + '</span><span class="otd-match-opp">' + opp + '</span><span class="otd-match-comp">' + m.Competition + '</span></div>';
             }).join('');
@@ -3265,6 +3272,44 @@
                 for (let i = 1; i < lines.length; i++) { if (!lines[i].trim()) continue; const values = parseCSVLine(lines[i]); const row = {}; headers.forEach((h, idx) => { row[h] = values[idx] || ''; }); GOALS_DATA.push(row); }
                 aggregateGoals(); populateGsSeasonSelect(); renderGoalscorers(); renderMatches();
             } catch (error) { console.error('Error fetching goals data:', error); }
+        }
+
+        async function fetchEventsData() {
+            const myToken = fetchToken;
+            try {
+                const response = await fetch(EVENTS_CSV_URLS[currentTeam]);
+                if (!response.ok) throw new Error('Events sheet returned ' + response.status);
+                const csvText = await response.text();
+                if (!csvText || csvText.includes('<!DOCTYPE')) throw new Error('Invalid events data');
+                const lines = csvText.split('\n').filter(l => l.trim()); const headers = parseCSVLine(lines[0]);
+                if (myToken !== fetchToken) return;
+                EVENTS_DATA = []; eventsByDate = {};
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const values = parseCSVLine(lines[i]);
+                    const row = {}; headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+                    EVENTS_DATA.push(row);
+                }
+                aggregateEvents(); renderMatches();
+            } catch (error) { console.warn('Events sheet not available yet:', error.message); }
+        }
+
+        function aggregateEvents() {
+            eventsByDate = {};
+            EVENTS_DATA.forEach(row => {
+                const dateKey = normaliseDateKey(row['Date'] || '');
+                if (!dateKey) return;
+                if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
+                const team = (row['Team'] || '').trim();
+                const side = team === 'West' ? 'west' : 'opp';
+                eventsByDate[dateKey].push({
+                    player: (row['Player'] || '').trim(),
+                    minute: (row['Minute'] || '').toString().trim(),
+                    type: (row['Event Type'] || '').trim(),
+                    side: side,
+                    notes: (row['Notes'] || '').trim()
+                });
+            });
         }
 
         function aggregateGoals() {
@@ -3648,6 +3693,7 @@
             const scorers = scorersByDate[dateKey] || { west: [], opp: [] };
             const isHome = match['Home/Away'] === 'H';
             const isNeutral = match['Home/Away'] === 'N';
+            const westFirst = isHome || isNeutral;
 
             function parseMin(m) {
                 const s = (m || '').toString().trim();
@@ -3656,18 +3702,21 @@
                 return parts[1] ? base + parseInt(parts[1], 10) * 0.5 : base;
             }
 
-            // Build sorted event list — goals now, red cards + missed pens ready for future data
+            // Build sorted event list from goals + events sheets
             const events = [];
             scorers.west.forEach(g => events.push({ minute: g.minute, type: 'goal', side: 'west', scorer: g.name, pen: g.pen, og: g.og }));
             scorers.opp.forEach(g =>  events.push({ minute: g.minute, type: 'goal', side: 'opp',  scorer: g.name, pen: g.pen, og: g.og }));
-            // Red cards: wire up when data available
-            // (match.redCards || []).forEach(rc => events.push({ minute: rc.minute, type: 'redcard', side: rc.side, player: rc.player }));
-            // Missed pens: wire up when data available
-            // (match.missedPens || []).forEach(mp => events.push({ minute: mp.minute, type: 'missedpen', side: mp.side, player: mp.player }));
+            const matchEvents = eventsByDate[dateKey] || [];
+            matchEvents.forEach(ev => {
+                if (ev.type === 'Red Card') events.push({ minute: ev.minute, type: 'redcard', side: ev.side, player: ev.player });
+                else if (ev.type === 'Yellow Card') events.push({ minute: ev.minute, type: 'yellowcard', side: ev.side, player: ev.player });
+                else if (ev.type === 'Missed Penalty') events.push({ minute: ev.minute, type: 'missedpen', side: ev.side, player: ev.player });
+            });
             events.sort((a, b) => parseMin(a.minute) - parseMin(b.minute));
 
             const goals = events.filter(e => e.type === 'goal');
             const hasRC = events.some(e => e.type === 'redcard');
+            const hasYC = events.some(e => e.type === 'yellowcard');
             const hasMP = events.some(e => e.type === 'missedpen');
 
             const totalMins = 95;
@@ -3697,6 +3746,12 @@
                         '<div class="tl-goal-dot">✕</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Missed pen · ' + team + '</div>' +
                         '</div>';
+                } else if (e.type === 'yellowcard') {
+                    const team = e.side === 'west' ? 'West' : match.Opposition;
+                    markerHtml += '<div class="tl-goal-marker yellowcard ' + e.side + '" style="left:' + pct + '%">' +
+                        '<div class="tl-goal-dot">🟨</div>' +
+                        '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Yellow card · ' + team + '</div>' +
+                        '</div>';
                 }
             });
 
@@ -3708,6 +3763,7 @@
                     '<div class="tl-legend-item"><span class="tl-legend-line west"></span>West</div>' +
                     '<div class="tl-legend-item"><span class="tl-legend-line opp"></span>' + match.Opposition + '</div>' +
                     (hasRC ? '<div class="tl-legend-item"><span class="tl-legend-line rc"></span>Red card</div>' : '') +
+                    (hasYC ? '<div class="tl-legend-item"><span class="tl-legend-line yc"></span>Yellow card</div>' : '') +
                     (hasMP ? '<div class="tl-legend-item"><span class="tl-legend-dash"></span>Missed pen</div>' : '') +
                 '</div>';
 
@@ -3737,8 +3793,8 @@
                 '</div>';
 
             // ── HT STRIP ──
-            const htHome = isHome ? htFor : htAgainst;
-            const htAway = isHome ? htAgainst : htFor;
+            const htHome = westFirst ? htFor : htAgainst;
+            const htAway = westFirst ? htAgainst : htFor;
             const htWest = htFor, htOpp = htAgainst;
             const htBg      = htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)';
             const htCol     = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)';
@@ -3754,68 +3810,8 @@
             // ── FOTMOB-STYLE EVENT LOG ──
             let lw = 0, lo = 0;
             let logRows = '';
-
-            events.forEach(e => {
-                let westCell = '', oppCell = '', minCell = '';
-                const minLabel = e.minute + '\'';
-
-                if (e.type === 'goal') {
-                    const isOg = e.og;
-                    if (isOg) { e.side === 'west' ? lo++ : lw++; }
-                    else      { e.side === 'west' ? lw++ : lo++; }
-                    const isWestGoal = (!isOg && e.side === 'west') || (isOg && e.side === 'opp');
-                    const dispScore  = isHome ? lw + '–' + lo : lo + '–' + lw;
-                    const ogBadge    = e.og  ? '<span class="tl-ge-badge og">OG</span>'  : '';
-                    const penBadge   = e.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
-
-                    if (isWestGoal) {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
-                                   '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
-                                   '<span class="tl-er-icon">⚽</span>';
-                    } else {
-                        oppCell  = '<span class="tl-er-icon">⚽</span>' +
-                                   '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
-                    }
-
-                } else if (e.type === 'redcard') {
-                    const dispScore = isHome ? lw + '–' + lo : lo + '–' + lw;
-                    if (e.side === 'west') {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
-                                   '<span class="tl-er-name">' + e.player + '</span>' +
-                                   '<span class="tl-er-icon rc">🟥</span>';
-                    } else {
-                        oppCell  = '<span class="tl-er-icon rc">🟥</span>' +
-                                   '<span class="tl-er-name">' + e.player + '</span>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
-                    }
-
-                } else if (e.type === 'missedpen') {
-                    const dispScore = isHome ? lw + '–' + lo : lo + '–' + lw;
-                    if (e.side === 'west') {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
-                                   '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
-                                   '<span class="tl-er-icon mp west">✕</span>';
-                    } else {
-                        oppCell  = '<span class="tl-er-icon mp opp">✕</span>' +
-                                   '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
-                    }
-                }
-
-                logRows +=
-                    '<div class="tl-event-row">' +
-                        '<div class="tl-er-west">' + westCell + '</div>' +
-                        '<div class="tl-er-min">' + minLabel + '</div>' +
-                        '<div class="tl-er-opp">'  + oppCell  + '</div>' +
-                    '</div>';
-            });
-
-            // Insert HT divider at the right point in the log
-            // Re-build with HT row inserted between last pre-HT and first post-HT event
-            lw = 0; lo = 0; logRows = '';
-            const htHomeScore = isHome ? htFor : htAgainst;
-            const htAwayScore = isHome ? htAgainst : htFor;
+            const htHomeScore = westFirst ? htFor : htAgainst;
+            const htAwayScore = westFirst ? htAgainst : htFor;
             let htInserted = false;
 
             events.forEach(e => {
@@ -3838,7 +3834,7 @@
                     if (isOg) { e.side === 'west' ? lo++ : lw++; }
                     else      { e.side === 'west' ? lw++ : lo++; }
                     const isWestGoal = (!isOg && e.side === 'west') || (isOg && e.side === 'opp');
-                    const dispScore  = isHome ? lw + '–' + lo : lo + '–' + lw;
+                    const dispScore  = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     const ogBadge    = e.og  ? '<span class="tl-ge-badge og">OG</span>'  : '';
                     const penBadge   = e.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
                     if (isWestGoal) {
@@ -3851,7 +3847,7 @@
                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
                 } else if (e.type === 'redcard') {
-                    const dispScore = isHome ? lw + '–' + lo : lo + '–' + lw;
+                    const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     if (e.side === 'west') {
                         westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<span class="tl-er-name">' + e.player + '</span>' +
@@ -3861,8 +3857,19 @@
                                    '<span class="tl-er-name">' + e.player + '</span>' +
                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
+                } else if (e.type === 'yellowcard') {
+                    const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
+                    if (e.side === 'west') {
+                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
+                                   '<span class="tl-er-name dimmed">' + e.player + '</span>' +
+                                   '<span class="tl-er-icon yc">🟨</span>';
+                    } else {
+                        oppCell  = '<span class="tl-er-icon yc">🟨</span>' +
+                                   '<span class="tl-er-name dimmed">' + e.player + '</span>' +
+                                   '<span class="tl-er-score">' + dispScore + '</span>';
+                    }
                 } else if (e.type === 'missedpen') {
-                    const dispScore = isHome ? lw + '–' + lo : lo + '–' + lw;
+                    const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     if (e.side === 'west') {
                         westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
@@ -3882,7 +3889,7 @@
                     '</div>';
             });
 
-            // If all goals were first half, still insert HT row at the end of first-half events
+            // If all events were first half, still insert HT row at the end
             if (!htInserted && events.length > 0) {
                 logRows +=
                     '<div class="tl-ht-row">' +
@@ -3899,10 +3906,10 @@
             const venueLabel  = isHome ? 'Home' : isNeutral ? 'Neutral' : 'Away';
 
             // ── TITLE ──
-            const homeTeam  = isHome ? 'West Didsbury & Chorlton' : match.Opposition;
-            const awayTeam  = isHome ? match.Opposition : 'West Didsbury & Chorlton';
-            const homeScore = isHome ? gf : ga;
-            const awayScore = isHome ? ga : gf;
+            const homeTeam  = westFirst ? 'West Didsbury & Chorlton' : match.Opposition;
+            const awayTeam  = westFirst ? match.Opposition : 'West Didsbury & Chorlton';
+            const homeScore = westFirst ? gf : ga;
+            const awayScore = westFirst ? ga : gf;
 
             const bodyHtml =
                 legendHtml +
@@ -3911,7 +3918,7 @@
                 '<div style="margin-top:16px;">' +
                     '<div class="tl-log-title">Match events</div>' +
                     (events.length === 0
-                        ? '<div class="tl-no-goals">No goals scored — both teams kept clean sheets.</div>'
+                        ? '<div class="tl-no-goals">No match events recorded.</div>'
                         : '<div>' + logRows + '</div>'
                     ) +
                 '</div>';
@@ -3921,7 +3928,8 @@
                 '<span class="tl-meta-pill ' + resultCls + '">' + resultLabel + '</span>' +
                 '<span class="tl-meta-pill ' + venueCls + '">' + venueLabel + '</span>' +
                 '<span class="tl-meta-pill info">' + match.Date + '</span>' +
-                '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>';
+                '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>' +
+                (match.Venue && match.Venue.trim() ? '<span class="tl-meta-pill info">📍 ' + match.Venue + '</span>' : '');
             document.getElementById('timelineBody').innerHTML = bodyHtml;
             document.getElementById('timelineOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
