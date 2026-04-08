@@ -3714,6 +3714,19 @@
             });
             events.sort((a, b) => parseMin(a.minute) - parseMin(b.minute));
 
+            // Map data side (west/opp) to display lane (top/left vs bottom/right)
+            // Convention: home team = top lane / left column, away team = bottom / right
+            // For away matches, West is the away team so goes bottom/right
+            function displayLane(side) {
+                if (westFirst) return side; // H/N: west=top, opp=bottom
+                return side === 'west' ? 'opp' : 'west'; // A: flip — opp(home)=top, west(away)=bottom
+            }
+            // Display names: top lane = home team, bottom lane = away team
+            const topTeamShort  = westFirst ? 'West' : match.Opposition.split(' ')[0];
+            const botTeamShort  = westFirst ? match.Opposition.split(' ')[0] : 'West';
+            const topTeamFull   = westFirst ? 'West' : match.Opposition;
+            const botTeamFull   = westFirst ? match.Opposition : 'West';
+
             const goals = events.filter(e => e.type === 'goal');
             const hasRC = events.some(e => e.type === 'redcard');
             const hasYC = events.some(e => e.type === 'yellowcard');
@@ -3726,29 +3739,27 @@
             let markerHtml = '';
             events.forEach(e => {
                 const pct = Math.min(98, (parseMin(e.minute) / totalMins) * 100);
+                const lane = displayLane(e.side);
+                const team = e.side === 'west' ? 'West' : match.Opposition;
                 if (e.type === 'goal') {
                     const ogL  = e.og  ? ' (OG)'  : '';
                     const penL = e.pen ? ' (pen)' : '';
-                    const team = e.side === 'west' ? 'West' : match.Opposition;
-                    markerHtml += '<div class="tl-goal-marker ' + e.side + '" style="left:' + pct + '%">' +
+                    markerHtml += '<div class="tl-goal-marker ' + lane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">⚽</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.scorer + ogL + penL + ' · ' + team + '</div>' +
                         '</div>';
                 } else if (e.type === 'redcard') {
-                    const team = e.side === 'west' ? 'West' : match.Opposition;
-                    markerHtml += '<div class="tl-goal-marker redcard ' + e.side + '" style="left:' + pct + '%">' +
+                    markerHtml += '<div class="tl-goal-marker redcard ' + lane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">🟥</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Red card · ' + team + '</div>' +
                         '</div>';
                 } else if (e.type === 'missedpen') {
-                    const team = e.side === 'west' ? 'West' : match.Opposition;
-                    markerHtml += '<div class="tl-goal-marker missedpen ' + e.side + '" style="left:' + pct + '%">' +
+                    markerHtml += '<div class="tl-goal-marker missedpen ' + lane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">✕</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Missed pen · ' + team + '</div>' +
                         '</div>';
                 } else if (e.type === 'yellowcard') {
-                    const team = e.side === 'west' ? 'West' : match.Opposition;
-                    markerHtml += '<div class="tl-goal-marker yellowcard ' + e.side + '" style="left:' + pct + '%">' +
+                    markerHtml += '<div class="tl-goal-marker yellowcard ' + lane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">🟨</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Yellow card · ' + team + '</div>' +
                         '</div>';
@@ -3756,12 +3767,10 @@
             });
 
             // ── LEGEND ──
-            const westShortName = 'West';
-            const oppShortName  = match.Opposition.split(' ')[0];
             const legendHtml =
                 '<div class="tl-legend">' +
-                    '<div class="tl-legend-item"><span class="tl-legend-line west"></span>West</div>' +
-                    '<div class="tl-legend-item"><span class="tl-legend-line opp"></span>' + match.Opposition + '</div>' +
+                    '<div class="tl-legend-item"><span class="tl-legend-line west"></span>' + topTeamFull + '</div>' +
+                    '<div class="tl-legend-item"><span class="tl-legend-line opp"></span>' + botTeamFull + '</div>' +
                     (hasRC ? '<div class="tl-legend-item"><span class="tl-legend-line rc"></span>Red card</div>' : '') +
                     (hasYC ? '<div class="tl-legend-item"><span class="tl-legend-line yc"></span>Yellow card</div>' : '') +
                     (hasMP ? '<div class="tl-legend-item"><span class="tl-legend-dash"></span>Missed pen</div>' : '') +
@@ -3773,8 +3782,8 @@
                     '<div class="tl-track-outer">' +
                         '<div class="tl-track">' +
                             '<div class="tl-lane-labels">' +
-                                '<div class="tl-lane-label west">' + westShortName + '</div>' +
-                                '<div class="tl-lane-label opp">' + oppShortName + '</div>' +
+                                '<div class="tl-lane-label west">' + topTeamShort + '</div>' +
+                                '<div class="tl-lane-label opp">' + botTeamShort + '</div>' +
                             '</div>' +
                             '<div class="tl-centre-line"></div>' +
                             '<div class="tl-ht-line" style="left:' + htPct + '%"><div class="tl-ht-label">HT</div></div>' +
@@ -3808,6 +3817,7 @@
                 '</div>';
 
             // ── FOTMOB-STYLE EVENT LOG ──
+            // Left column (tl-er-west CSS) = home team, Right column (tl-er-opp CSS) = away team
             let lw = 0, lo = 0;
             let logRows = '';
             const htHomeScore = westFirst ? htFor : htAgainst;
@@ -3826,66 +3836,66 @@
                     htInserted = true;
                 }
 
-                let westCell = '', oppCell = '';
+                let leftCell = '', rightCell = '';
                 const minLabel = e.minute + '\'';
+                const isLeft = displayLane(e.side) === 'west'; // 'west' CSS class = top/left = home position
 
                 if (e.type === 'goal') {
                     const isOg = e.og;
                     if (isOg) { e.side === 'west' ? lo++ : lw++; }
                     else      { e.side === 'west' ? lw++ : lo++; }
-                    const isWestGoal = (!isOg && e.side === 'west') || (isOg && e.side === 'opp');
                     const dispScore  = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     const ogBadge    = e.og  ? '<span class="tl-ge-badge og">OG</span>'  : '';
                     const penBadge   = e.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
-                    if (isWestGoal) {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
+                    if (isLeft) {
+                        leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
                                    '<span class="tl-er-icon">⚽</span>';
                     } else {
-                        oppCell  = '<span class="tl-er-icon">⚽</span>' +
-                                   '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
+                        rightCell = '<span class="tl-er-icon">⚽</span>' +
+                                    '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
+                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
                 } else if (e.type === 'redcard') {
                     const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
-                    if (e.side === 'west') {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
+                    if (isLeft) {
+                        leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<span class="tl-er-name">' + e.player + '</span>' +
                                    '<span class="tl-er-icon rc">🟥</span>';
                     } else {
-                        oppCell  = '<span class="tl-er-icon rc">🟥</span>' +
-                                   '<span class="tl-er-name">' + e.player + '</span>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
+                        rightCell = '<span class="tl-er-icon rc">🟥</span>' +
+                                    '<span class="tl-er-name">' + e.player + '</span>' +
+                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
                 } else if (e.type === 'yellowcard') {
                     const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
-                    if (e.side === 'west') {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
+                    if (isLeft) {
+                        leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<span class="tl-er-name dimmed">' + e.player + '</span>' +
                                    '<span class="tl-er-icon yc">🟨</span>';
                     } else {
-                        oppCell  = '<span class="tl-er-icon yc">🟨</span>' +
-                                   '<span class="tl-er-name dimmed">' + e.player + '</span>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
+                        rightCell = '<span class="tl-er-icon yc">🟨</span>' +
+                                    '<span class="tl-er-name dimmed">' + e.player + '</span>' +
+                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
                 } else if (e.type === 'missedpen') {
                     const dispScore = westFirst ? lw + '–' + lo : lo + '–' + lw;
-                    if (e.side === 'west') {
-                        westCell = '<span class="tl-er-score">' + dispScore + '</span>' +
+                    if (isLeft) {
+                        leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
-                                   '<span class="tl-er-icon mp west">✕</span>';
+                                   '<span class="tl-er-icon mp">✕</span>';
                     } else {
-                        oppCell  = '<span class="tl-er-icon mp opp">✕</span>' +
-                                   '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
-                                   '<span class="tl-er-score">' + dispScore + '</span>';
+                        rightCell = '<span class="tl-er-icon mp">✕</span>' +
+                                    '<span class="tl-er-name dimmed">' + e.player + ' missed pen</span>' +
+                                    '<span class="tl-er-score">' + dispScore + '</span>';
                     }
                 }
 
                 logRows +=
                     '<div class="tl-event-row">' +
-                        '<div class="tl-er-west">' + westCell + '</div>' +
+                        '<div class="tl-er-west">' + leftCell + '</div>' +
                         '<div class="tl-er-min">' + minLabel + '</div>' +
-                        '<div class="tl-er-opp">'  + oppCell  + '</div>' +
+                        '<div class="tl-er-opp">'  + rightCell  + '</div>' +
                     '</div>';
             });
 
