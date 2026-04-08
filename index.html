@@ -1135,20 +1135,19 @@
             width: 3px;
             border-radius: 2px;
         }
-        .tl-goal-marker.west::before { background: var(--win); }
-        .tl-goal-marker.opp::before { background: var(--loss); }
+        .tl-goal-marker.west::before { background: #1e293b; }
+        .tl-goal-marker.opp::before { background: #3b6fd4; }
         .tl-goal-dot {
             position: absolute;
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            border: 2px solid var(--bg-elevated);
-            top: -5px;
+            font-size: 11px;
+            line-height: 1;
+            top: -18px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 5;
+            pointer-events: none;
+            user-select: none;
         }
-        .tl-goal-marker.west .tl-goal-dot { background: var(--win); }
-        .tl-goal-marker.opp .tl-goal-dot { background: var(--loss); }
         .tl-goal-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -1203,16 +1202,16 @@
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .tl-legend-dot.west { background: var(--win); }
-        .tl-legend-dot.opp { background: var(--loss); }
+        .tl-legend-dot.west { background: #1e293b; }
+        .tl-legend-dot.opp { background: #3b6fd4; }
         .tl-legend-swatch {
             width: 14px; height: 9px;
             border-radius: 2px;
             flex-shrink: 0;
         }
-        .tl-legend-swatch.ahead { background: rgba(22,101,52,0.58); }
-        .tl-legend-swatch.behind { background: rgba(153,27,27,0.55); }
-        .tl-legend-swatch.level { background: repeating-linear-gradient(45deg,rgba(146,64,14,0.50) 0px,rgba(146,64,14,0.50) 3px,transparent 3px,transparent 8px); }
+        .tl-legend-swatch.ahead { background: #1e293b; }
+        .tl-legend-swatch.behind { background: #3b6fd4; }
+        .tl-legend-swatch.level { background: repeating-linear-gradient(45deg,rgba(100,100,100,0.45) 0px,rgba(100,100,100,0.45) 3px,transparent 3px,transparent 8px); }
 
         /* HT strip */
         .tl-ht-strip {
@@ -1266,8 +1265,8 @@
             font-size: 0.78rem;
         }
         .tl-ge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .tl-ge-dot.west { background: var(--win); }
-        .tl-ge-dot.opp { background: var(--loss); }
+        .tl-ge-dot.west { background: #1e293b; }
+        .tl-ge-dot.opp { background: #3b6fd4; }
         .tl-ge-scorer { flex: 1; font-weight: 600; color: var(--text-primary); }
         .tl-ge-team { font-size: 0.74rem; color: var(--text-muted); }
         .tl-ge-score {
@@ -3661,9 +3660,9 @@
                 const w = right - left;
                 if (w <= 0) continue;
                 let bg = 'transparent';
-                if (from.w > from.o) bg = 'rgba(22,101,52,0.58)';
-                else if (from.o > from.w) bg = 'rgba(153,27,27,0.55)';
-                else if (from.w > 0 || from.o > 0) bg = 'repeating-linear-gradient(45deg,rgba(146,64,14,0.50) 0px,rgba(146,64,14,0.50) 3px,transparent 3px,transparent 8px)';
+                if (from.w > from.o) bg = 'rgba(30,41,59,0.72)';
+                else if (from.o > from.w) bg = 'rgba(59,111,212,0.65)';
+                else bg = 'repeating-linear-gradient(45deg,rgba(100,100,100,0.32) 0px,rgba(100,100,100,0.32) 3px,transparent 3px,transparent 8px)';
                 bandHtml += '<div style="position:absolute;top:0;bottom:0;left:' + left + '%;width:' + w + '%;background:' + bg + ';"></div>';
             }
 
@@ -3675,7 +3674,7 @@
                 const penLabel = g.pen ? ' (pen)' : '';
                 const teamLabel = g.side === 'west' ? 'West' : match.Opposition;
                 markerHtml += '<div class="tl-goal-marker ' + g.side + '" style="left:' + pct + '%">' +
-                    '<div class="tl-goal-dot"></div>' +
+                    '<div class="tl-goal-dot">⚽</div>' +
                     '<div class="tl-goal-tooltip">' + g.minute + '\' ' + g.scorer + ogLabel + penLabel + ' (' + teamLabel + ')</div>' +
                     '</div>';
             });
