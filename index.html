@@ -3883,8 +3883,9 @@
             let ftInserted = !isAET; // skip FT insertion for non-AET matches
 
             events.forEach(e => {
-                // Insert HT row before first second-half event
-                if (!htInserted && parseMin(e.minute) > 45) {
+                // Insert HT row before first second-half event (base minute >= 46)
+                const eBase = parseInt((e.minute || '').toString().split('+')[0], 10) || 0;
+                if (!htInserted && eBase >= 46) {
                     logRows +=
                         '<div class="tl-ht-row">' +
                             '<div></div>' +
@@ -3893,8 +3894,8 @@
                         '</div>';
                     htInserted = true;
                 }
-                // Insert FT row before first extra-time event (AET matches)
-                if (!ftInserted && parseMin(e.minute) > 90) {
+                // Insert FT row before first extra-time event (base minute >= 91)
+                if (!ftInserted && eBase >= 91) {
                     const ftLabel = ftHomeScore != null ? ftHomeScore + '–' + ftAwayScore : '?–?';
                     logRows +=
                         '<div class="tl-ht-row">' +
