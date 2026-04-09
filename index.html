@@ -909,6 +909,70 @@
         .badge.home { background: rgba(37,99,235,0.08); color: #2563eb; }
         .badge.away { background: rgba(147,51,234,0.08); color: #9333ea; }
         .badge.neutral { background: rgba(0,0,0,0.04); color: var(--text-muted); }
+        .badge.friendly { background: rgba(14,116,144,0.10); color: #0e7490; border: 1px solid rgba(14,116,144,0.22); }
+        .badge.null-void { background: rgba(120,53,15,0.09); color: #92400e; border: 1px solid rgba(120,53,15,0.20); }
+
+        /* ===== FRIENDLY & NULL-AND-VOID CARD TREATMENTS ===== */
+        .match-card.is-friendly {
+            border-color: rgba(14,116,144,0.25);
+            background: rgba(14,116,144,0.025);
+        }
+        .match-card.is-friendly:hover {
+            border-color: rgba(14,116,144,0.45);
+            background: rgba(14,116,144,0.04);
+        }
+        .match-card.is-null-void {
+            border-color: rgba(120,53,15,0.22);
+            background: rgba(120,53,15,0.025);
+        }
+        .match-card.is-null-void:hover {
+            border-color: rgba(120,53,15,0.40);
+            background: rgba(120,53,15,0.04);
+        }
+
+        /* Banner that runs along the top of the card */
+        .match-type-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 6px 12px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            margin: -18px -20px 14px;
+        }
+        .match-type-banner.friendly-banner {
+            background: rgba(14,116,144,0.10);
+            color: #0e7490;
+            border-bottom: 1px solid rgba(14,116,144,0.18);
+        }
+        .match-type-banner.null-void-banner {
+            background: rgba(120,53,15,0.09);
+            color: #92400e;
+            border-bottom: 1px solid rgba(120,53,15,0.18);
+        }
+        .match-type-banner-icon { font-size: 0.85rem; }
+        .match-type-banner-note {
+            margin-left: auto;
+            font-weight: 400;
+            font-size: 0.68rem;
+            opacity: 0.75;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* Muted score for non-counting matches */
+        .match-card.is-friendly .match-score,
+        .match-card.is-null-void .match-score {
+            opacity: 0.65;
+        }
+
+        /* H2H row markers */
+        .h2h-match-result.friendly { background: rgba(14,116,144,0.15); color: #0e7490; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
+        .h2h-match-result.null-void { background: rgba(120,53,15,0.12); color: #92400e; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
+        .h2h-match-row.non-counting { opacity: 0.7; }
 
         .match-fixture {
             display: flex;
@@ -2290,7 +2354,7 @@
                     MATCHES_DATA.push(match);
                 }
                 calculateRecords(); populateSummary(); populateSeasonFilter(); populateCompetitionFilter(); displayCurrentStreak(); renderMatches();
-                const hasHomeAttendance = MATCHES_DATA.some(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y');
+                const hasHomeAttendance = MATCHES_DATA.some(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y' && !isNonCounting(m));
                 if (hasHomeAttendance) document.getElementById('attendanceChartBox').style.display = 'block';
                 displayOTDBanner();
                 const sortButton = document.getElementById('sortToggle');
@@ -2365,9 +2429,17 @@
 
         function effectiveResult(m) { if (m.Penalties === 'Y') return 'D'; return m.Result; }
 
+        // Returns true for friendlies and null-&-void matches — these must not count towards any records
+        function isNonCounting(m) {
+            const t = (m['Match Type'] || '').trim();
+            return t === 'Friendly' || t === 'Null & Void';
+        }
+        function isFriendly(m) { return (m['Match Type'] || '').trim() === 'Friendly'; }
+        function isNullVoid(m) { return (m['Match Type'] || '').trim() === 'Null & Void'; }
+
         function calculateCurrentStreak() {
             if (MATCHES_DATA.length === 0) return null;
-            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
             const sortedMatches = [...validMatches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
             if (sortedMatches.length === 0) return null;
             const latestMatch = sortedMatches[sortedMatches.length - 1];
@@ -2393,7 +2465,7 @@
 
         function renderFormGuide() {
             const el = document.getElementById('formGuide'); if (!el) return;
-            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
             const sorted = [...validMatches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
             const last5 = sorted.slice(-5);
             if (last5.length === 0) { el.style.display = 'none'; return; }
@@ -2427,7 +2499,7 @@
         }
 
         function calculateRecords() {
-            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
             records.biggestWin = validMatches.filter(m => effectiveResult(m) === 'W').sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])).slice(0, 20);
             records.biggestLoss = validMatches.filter(m => effectiveResult(m) === 'L').sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])).slice(0, 20);
             records.highestScore = [...validMatches].sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, 20);
@@ -2451,6 +2523,8 @@
 
         function getMatchTags(match) {
             const tags = [];
+            if (isNonCounting(match)) return tags; // friendlies and null-&-void matches earn no record tags
+            if (match.Abandoned === 'Y') return tags;
             if (match.Opposition === 'Maine Road' && effectiveResult(match) === 'W') tags.push({ text: '🏆 M21 IS OURS', isSilver: false });
             if (records.biggestWin.length > 0 && effectiveResult(match) === 'W') { const margin = match['Goals For'] - match['Goals Against']; const recordMargin = records.biggestWin[0]['Goals For'] - records.biggestWin[0]['Goals Against']; if (margin === recordMargin) tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false }); }
             if (records.biggestLoss.length > 0 && effectiveResult(match) === 'L') { const margin = match['Goals Against'] - match['Goals For']; const recordMargin = records.biggestLoss[0]['Goals Against'] - records.biggestLoss[0]['Goals For']; if (margin === recordMargin) tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false }); }
@@ -2466,9 +2540,11 @@
         }
 
         function populateSummary() {
-            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
             const totalMatches = validMatches.length;
-            const abandonedCount = MATCHES_DATA.length - totalMatches;
+            const abandonedCount = MATCHES_DATA.filter(m => m.Abandoned === 'Y').length;
+            const friendlyCount = MATCHES_DATA.filter(m => isFriendly(m)).length;
+            const nullVoidCount = MATCHES_DATA.filter(m => isNullVoid(m)).length;
             const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
             const draws = validMatches.filter(m => effectiveResult(m) === 'D').length;
             const losses = validMatches.filter(m => effectiveResult(m) === 'L').length;
@@ -2481,8 +2557,12 @@
             const shootoutW = shootouts.filter(m => m['Penalty Result'] === 'W').length;
             const shootoutL = shootouts.filter(m => m['Penalty Result'] === 'L').length;
             const shootoutValue = shootouts.length === 0 ? 'None on record' : shootouts.length + ' shootouts — W' + shootoutW + ' L' + shootoutL;
+            const extras = [];
+            if (abandonedCount > 0) extras.push(abandonedCount + ' abandoned');
+            if (friendlyCount > 0) extras.push(friendlyCount + ' friendly');
+            if (nullVoidCount > 0) extras.push(nullVoidCount + ' null & void');
             const summaryData = [
-                { label: 'Total Matches', value: totalMatches + (abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : ''), filter: 'all' },
+                { label: 'Total Matches', value: totalMatches + (extras.length > 0 ? ' (+' + extras.join(', ') + ')' : ''), filter: 'all' },
                 { label: 'Wins', value: wins, filter: 'wins' }, { label: 'Draws', value: draws, filter: 'draws' }, { label: 'Losses', value: losses, filter: 'losses' },
                 { label: 'Win Rate', value: winPct + '%', filter: null },
                 { label: 'Goal Difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
@@ -2652,7 +2732,12 @@
             let penScore = '';
             const rawPenScore = (match['Penalty Score'] || '').trim();
             if (rawPenScore) { penScore = rawPenScore.replace('-', '–'); }
+            const matchIsFriendly = isFriendly(match);
+            const matchIsNullVoid = isNullVoid(match);
+            const matchIsNonCounting = matchIsFriendly || matchIsNullVoid;
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
+                              matchIsFriendly ? '<span class="badge friendly">FRIENDLY</span>' :
+                              matchIsNullVoid ? '<span class="badge null-void">NULL &amp; VOID</span>' :
                               (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW</span><span class="badge pens-win">WON ON PENS</span>' :
                               (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW</span><span class="badge pens-loss">LOST ON PENS</span>' :
                               effectiveResult(match) === 'W' ? '<span class="badge win">WIN</span>' :
@@ -2681,6 +2766,7 @@
             const tags = getMatchTags(match);
             const tagsHtml = tags.length > 0 ? '<div class="match-tags">' + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>' : '';
             let scorersHtml = '';
+            // Show scorers for non-counting matches but suppress milestone notes
             if (match.Abandoned !== 'Y') {
                 const dateKey = normaliseDateKey(match.Date || '');
                 const matchScorers = scorersByDate[dateKey];
@@ -2695,7 +2781,8 @@
                         if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
                         if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
                     }
-                    if (westResult.milestones.length > 0) {
+                    // Only show milestone notes for counting matches
+                    if (!matchIsNonCounting && westResult.milestones.length > 0) {
                         const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? '⭐' : '🎯'; return icon + ' ' + m.name + '\'s ' + label; });
                         scorersHtml += '<div class="milestone-note">' + notes.join(' &nbsp;·&nbsp; ') + '</div>';
                     }
@@ -2710,7 +2797,16 @@
             const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
             const safeDate = (match.Date || '').replace(/'/g, "\\'");
             const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊 Match Timeline</button>' : '';
-            return '<div class="match-card">' + tagsHtml +
+            // Banner for non-counting matches
+            let typeBanner = '';
+            if (matchIsFriendly) {
+                typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">🤝</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
+            } else if (matchIsNullVoid) {
+                const nvComp = match.Competition ? match.Competition + ' · ' : '';
+                typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
+            }
+            const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
+            return '<div class="' + cardClass + '">' + typeBanner + tagsHtml +
                 '<div class="match-header">' +
                     '<span class="match-date">' + match.Date + seasonChip + '</span>' +
                     '<span>' + resultBadge + venueBadge + '</span>' +
@@ -2749,24 +2845,24 @@
             }
             if (selectedCompetition) filtered = filtered.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition);
             if (selectedSeason) filtered = filtered.filter(m => m.Season && m.Season.trim() === selectedSeason);
-            if (currentFilter === 'wins') filtered = filtered.filter(m => effectiveResult(m) === 'W' && m.Abandoned !== 'Y');
-            else if (currentFilter === 'draws') filtered = filtered.filter(m => effectiveResult(m) === 'D' && m.Abandoned !== 'Y');
-            else if (currentFilter === 'losses') filtered = filtered.filter(m => effectiveResult(m) === 'L' && m.Abandoned !== 'Y');
-            else if (currentFilter === 'home-games') filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y');
-            else if (currentFilter === 'away-games') filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y');
+            if (currentFilter === 'wins') filtered = filtered.filter(m => effectiveResult(m) === 'W' && m.Abandoned !== 'Y' && !isNonCounting(m));
+            else if (currentFilter === 'draws') filtered = filtered.filter(m => effectiveResult(m) === 'D' && m.Abandoned !== 'Y' && !isNonCounting(m));
+            else if (currentFilter === 'losses') filtered = filtered.filter(m => effectiveResult(m) === 'L' && m.Abandoned !== 'Y' && !isNonCounting(m));
+            else if (currentFilter === 'home-games') filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y' && !isNonCounting(m));
+            else if (currentFilter === 'away-games') filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y' && !isNonCounting(m));
             else if (currentFilter === 'season') { /* selectedSeason already applied above */ }
-            else if (currentFilter === 'biggest-wins') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-            else if (currentFilter === 'biggest-losses') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-            else if (currentFilter === 'most-goals-scored') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
-            else if (currentFilter === 'most-goals-conceded') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap); filtered._totalCount = base.length; }
-            else if (currentFilter === 'most-goals-total') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-            else if (currentFilter === 'highest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => b.Attendance - a.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
-            else if (currentFilter === 'lowest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => a.Attendance - b.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
-            else if (currentFilter === 'win-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'W');
-            else if (currentFilter === 'draw-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'D');
-            else if (currentFilter === 'loss-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'L');
-            else if (currentFilter === 'unbeaten-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
-            else if (currentFilter === 'winless-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y'), m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
+            else if (currentFilter === 'biggest-wins') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+            else if (currentFilter === 'biggest-losses') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+            else if (currentFilter === 'most-goals-scored') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
+            else if (currentFilter === 'most-goals-conceded') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap); filtered._totalCount = base.length; }
+            else if (currentFilter === 'most-goals-total') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+            else if (currentFilter === 'highest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => b.Attendance - a.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
+            else if (currentFilter === 'lowest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => a.Attendance - b.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
+            else if (currentFilter === 'win-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W');
+            else if (currentFilter === 'draw-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'D');
+            else if (currentFilter === 'loss-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L');
+            else if (currentFilter === 'unbeaten-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
+            else if (currentFilter === 'winless-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
             else if (currentFilter === 'on-this-day') { const today = new Date(); const todayDay = today.getDate(); const todayMonth = today.getMonth(); filtered = filtered.filter(m => { const matchDate = parseDate(m.Date); if (!matchDate) return false; return matchDate.getDate() === todayDay && matchDate.getMonth() === todayMonth; }); }
             const skipDateSortFilters = ['biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'];
             if (!skipDateSortFilters.includes(currentFilter)) {
@@ -2798,7 +2894,7 @@
             const showStatsFilters = ['all', 'season', 'home-games', 'away-games', 'wins', 'draws', 'losses'];
             if (showStatsFilters.includes(currentFilter)) {
                 statsBar.style.display = 'grid';
-                const validMatches = matches.filter(m => m.Abandoned !== 'Y');
+                const validMatches = matches.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
                 const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
                 const gf = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
                 const ga = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
@@ -2909,7 +3005,7 @@
         }
 
         function showRandomMatch() {
-            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
             const randomIndex = Math.floor(Math.random() * validMatches.length);
             const match = validMatches[randomIndex];
             currentFilter = 'random'; selectedSeason = ''; activeLens = null; sortOrder = 'desc';
@@ -2928,7 +3024,7 @@
 
         function showSeasonSummary(season) {
             if (!season) return;
-            const seasonMatches = MATCHES_DATA.filter(m => m.Season === season && m.Abandoned !== 'Y');
+            const seasonMatches = MATCHES_DATA.filter(m => m.Season === season && m.Abandoned !== 'Y' && !isNonCounting(m));
             if (seasonMatches.length === 0) return;
 
             const p = seasonMatches.length;
@@ -2936,11 +3032,13 @@
             const d = seasonMatches.filter(m => effectiveResult(m) === 'D').length;
             const l = seasonMatches.filter(m => effectiveResult(m) === 'L').length;
 
-            // Top scorer this season
+            // Top scorer this season (counting matches only)
+            const nonCountingDateKeys = new Set(MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || '')));
             const seasonGoals = {};
             GOALS_DATA.forEach(r => {
                 if (!r['Scorer'] || r['For/Against'] !== 'For' || r['Own Goal'] === 'Y') return;
                 const dk = normaliseDateKey(r['Date'] || '');
+                if (nonCountingDateKeys.has(dk)) return;
                 const match = MATCHES_DATA.find(m => normaliseDateKey(m.Date || '') === dk);
                 if (!match || match.Season !== season) return;
                 const name = r['Scorer'].trim();
@@ -3000,7 +3098,7 @@
         }
 
         function showH2H(opposition) {
-            const validMatches = MATCHES_DATA.filter(m => m.Opposition === opposition && m.Abandoned !== 'Y');
+            const validMatches = MATCHES_DATA.filter(m => m.Opposition === opposition && m.Abandoned !== 'Y' && !isNonCounting(m));
             const allMatches = MATCHES_DATA.filter(m => m.Opposition === opposition);
             if (allMatches.length === 0) return;
             const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
@@ -3058,10 +3156,14 @@
 
             const sorted = [...allMatches].sort((a, b) => { const dateA = parseDate(a.Date), dateB = parseDate(b.Date); if (!dateA || !dateB) return 0; return dateB - dateA; });
             document.getElementById('h2hMatches').innerHTML = '<h4>All Meetings (' + allMatches.length + ')</h4>' + sorted.map(m => {
-                const resultClass = m.Abandoned === 'Y' ? 'a' : effectiveResult(m).toLowerCase();
-                const resultLetter = m.Abandoned === 'Y' ? 'A' : effectiveResult(m);
+                const isF = isFriendly(m);
+                const isNV = isNullVoid(m);
+                const isNC = isF || isNV;
+                const resultClass = m.Abandoned === 'Y' ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : effectiveResult(m).toLowerCase();
+                const resultLetter = m.Abandoned === 'Y' ? 'A' : isF ? 'F' : isNV ? 'N/V' : effectiveResult(m);
                 const score = m.Abandoned === 'Y' ? 'A-A' : m['Goals For'] + '-' + m['Goals Against'];
-                return '<div class="h2h-match-row"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '</span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + (m.Competition || '') + '</span></div>';
+                const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · Null &amp; Void' : 'Null &amp; Void') : (m.Competition || '');
+                return '<div class="h2h-match-row' + (isNC ? ' non-counting' : '') + '"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '</span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + compStr + '</span></div>';
             }).join('');
             document.getElementById('h2hOverlay').classList.add('active'); document.body.style.overflow = 'hidden';
         }
@@ -3069,7 +3171,15 @@
         function closeH2H() { document.getElementById('h2hOverlay').classList.remove('active'); document.body.style.overflow = ''; }
 
         function showPlayerModal(name) {
-            const goals = GOALS_DATA.filter(r => r['Scorer'] && r['Scorer'].trim() === name && r['For/Against'] === 'For' && r['Own Goal'] !== 'Y');
+            const nonCountingDateKeys = new Set(
+                MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || ''))
+            );
+            // Career goals: exclude non-counting matches
+            const goals = GOALS_DATA.filter(r => {
+                if (!(r['Scorer'] && r['Scorer'].trim() === name)) return false;
+                if (r['For/Against'] !== 'For' || r['Own Goal'] === 'Y') return false;
+                return !nonCountingDateKeys.has(normaliseDateKey(r['Date'] || ''));
+            });
             if (goals.length === 0) return;
 
             // By season
@@ -3112,7 +3222,7 @@
             const matchGoals = {};
             goals.forEach(r => { const dk = normaliseDateKey(r['Date'] || ''); if (dk) matchGoals[dk] = (matchGoals[dk] || 0) + 1; });
             const matchRows = Object.entries(matchGoals).map(([dateKey, goalsInMatch]) => {
-                const match = MATCHES_DATA.find(m => m.Abandoned !== 'Y' && normaliseDateKey(m.Date || '') === dateKey);
+                const match = MATCHES_DATA.find(m => m.Abandoned !== 'Y' && !isNonCounting(m) && normaliseDateKey(m.Date || '') === dateKey);
                 return { match, goalsInMatch };
             }).filter(r => r.match);
             matchRows.sort((a, b) => { const da = parseDate(a.match.Date), db = parseDate(b.match.Date); if (!da || !db) return 0; return db - da; });
@@ -3247,14 +3357,17 @@
             const matches = MATCHES_DATA.filter(m => { if (m.Abandoned === 'Y') return false; const d = parseDate(m.Date); if (!d) return false; return d.getDate() === todayDay && d.getMonth() === todayMonth; }).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return db - da; });
             if (matches.length === 0) return;
             const html = matches.map(m => {
-                const result = effectiveResult(m).toLowerCase();
+                const isF = isFriendly(m); const isNV = isNullVoid(m);
+                const result = (isF || isNV) ? (isF ? 'friendly' : 'null-void') : effectiveResult(m).toLowerCase();
+                const resultLabel = isF ? 'F' : isNV ? 'N/V' : effectiveResult(m);
                 const isHome = m['Home/Away'] !== 'A';
                 const gf = m['Goals For'] !== null && m['Goals For'] !== undefined ? m['Goals For'] : '-';
                 const ga = m['Goals Against'] !== null && m['Goals Against'] !== undefined ? m['Goals Against'] : '-';
                 const score = isHome ? gf + '–' + ga : ga + '–' + gf;
                 const opp = m['Home/Away'] === 'H' ? 'vs ' + m.Opposition : m['Home/Away'] === 'N' ? 'vs ' + m.Opposition + ' (N)' : '@ ' + m.Opposition;
                 const year = (m.Date || '').split('/')[2] || '';
-                return '<div class="otd-match"><span class="otd-match-year">' + year + '</span><span class="otd-match-result ' + result + '">' + effectiveResult(m) + '</span><span class="otd-match-score">' + score + '</span><span class="otd-match-opp">' + opp + '</span><span class="otd-match-comp">' + m.Competition + '</span></div>';
+                const comp = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · N&V' : 'Null & Void') : m.Competition;
+                return '<div class="otd-match"><span class="otd-match-year">' + year + '</span><span class="otd-match-result ' + result + '">' + resultLabel + '</span><span class="otd-match-score">' + score + '</span><span class="otd-match-opp">' + opp + '</span><span class="otd-match-comp">' + comp + '</span></div>';
             }).join('');
             document.getElementById('otdMatches').innerHTML = html;
             const n = matches.length;
@@ -3319,7 +3432,15 @@
 
         function aggregateGoals() {
             playerGoals = {}; scorersByDate = {}; playerMilestones = {};
-            const westGoals = GOALS_DATA.filter(r => r['For/Against'] === 'For' && r['Own Goal'] !== 'Y' && (r['Scorer'] || '').trim()).slice().sort((a, b) => { const da = parseDate(a['Date']), db = parseDate(b['Date']); if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db; });
+            // Build a set of date keys for non-counting matches (friendly / null & void)
+            const nonCountingDateKeys = new Set(
+                MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || ''))
+            );
+            // playerGoals and playerMilestones only count goals from counting matches
+            const westGoals = GOALS_DATA.filter(r => {
+                if (r['For/Against'] !== 'For' || r['Own Goal'] === 'Y' || !(r['Scorer'] || '').trim()) return false;
+                return !nonCountingDateKeys.has(normaliseDateKey(r['Date'] || ''));
+            }).slice().sort((a, b) => { const da = parseDate(a['Date']), db = parseDate(b['Date']); if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db; });
             const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
             const runningTotals = {}; const milestoneSeen = {};
             westGoals.forEach(r => {
@@ -3327,10 +3448,12 @@
                 runningTotals[name] = (runningTotals[name] || 0) + 1; const total = runningTotals[name]; const seenKey = name + '|' + total;
                 if (MILESTONES.has(total) && !milestoneSeen[seenKey]) { milestoneSeen[seenKey] = true; const matchKey = name + '|' + dateKey + '|' + minute; if (!playerMilestones[matchKey]) playerMilestones[matchKey] = total; }
             });
+            // playerGoals tally: counting matches only
             GOALS_DATA.forEach(row => {
                 const dateKey = normaliseDateKey(row['Date'] || ''); const forAgainst = row['For/Against']; const isOG = row['Own Goal'] === 'Y';
                 const name = (row['Scorer'] || '').trim(); const minute = (row['Minute'] || '').trim(); const isPen = row['Penalty'] === 'Y';
-                if (forAgainst === 'For' && !isOG && name) playerGoals[name] = (playerGoals[name] || 0) + 1;
+                if (forAgainst === 'For' && !isOG && name && !nonCountingDateKeys.has(dateKey)) playerGoals[name] = (playerGoals[name] || 0) + 1;
+                // scorersByDate includes ALL matches (so scorers show on friendly/null-void cards)
                 if (!name) return;
                 const entry = { name, minute, pen: isPen, og: isOG };
                 if (dateKey) { if (!scorersByDate[dateKey]) scorersByDate[dateKey] = { west: [], opp: [] }; if (forAgainst === 'For') scorersByDate[dateKey].west.push(entry); else scorersByDate[dateKey].opp.push(entry); }
