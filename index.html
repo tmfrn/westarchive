@@ -32,8 +32,6 @@
             --draw-bg: rgba(75,85,99,0.10);
             --loss: #991b1b;
             --loss-bg: rgba(153,27,27,0.08);
-            --pens-win-bg: rgba(22,101,52,0.06);
-            --pens-loss-bg: rgba(153,27,27,0.06);
             --font-display: 'Bricolage Grotesque', 'Georgia', serif;
             --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --radius-sm: 6px;
@@ -749,7 +747,6 @@
         pointer-events: none;
     }
 
-    .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .filter-btn {
         padding: 7px 14px;
@@ -906,8 +903,6 @@
     .badge.loss { background: var(--loss-bg); color: var(--loss); }
     .badge.draw { background: var(--draw-bg); color: var(--draw); }
     .badge.abandoned { background: rgba(107,122,100,0.3); color: var(--text-muted); }
-    .badge.pens-win { background: var(--pens-win-bg); color: var(--win); border: 1px solid rgba(22,101,52,0.2); }
-    .badge.pens-loss { background: var(--pens-loss-bg); color: var(--loss); border: 1px solid rgba(153,27,27,0.2); }
     .badge.home { background: rgba(37,99,235,0.08); color: #2563eb; }
     .badge.away { background: rgba(147,51,234,0.08); color: #9333ea; }
     .badge.neutral { background: rgba(0,0,0,0.04); color: var(--text-muted); }
@@ -1354,10 +1349,6 @@
         font-family: var(--font-display); font-weight: 800;
         font-size: 0.78rem; color: var(--text-bright);
         white-space: nowrap;
-    }
-    .tl-er-sub {
-        font-size: 0.7rem; color: var(--text-muted); font-weight: 400;
-        margin-top: 1px; line-height: 1;
     }
     .tl-er-nameblock { display: flex; flex-direction: column; }
     /* HT divider row */
@@ -2227,7 +2218,7 @@
     let selectedSeason = '';
     let selectedCompetition = '';
     let searchTerm = '';
-    let records = { biggestWin: [], biggestLoss: [], highestScore: [], mostGoalsConceded: [], highestAttendance: [], lowestAttendance: [], longestWinStreak: [], longestDrawStreak: [], longestLossStreak: [], longestUnbeatenStreak: [], longestWinlessStreak: [], highestHomeAttendance: null, lowestHomeAttendance: null, highestAwayAttendance: null, lowestAwayAttendance: null, cleanSheets: 0, failedToScore: 0 };
+    let records = { biggestWin: [], biggestLoss: [], highestScore: [], mostGoalsConceded: [], highestAttendance: [], lowestAttendance: [], longestWinStreak: [], longestDrawStreak: [], longestLossStreak: [], longestUnbeatenStreak: [], longestWinlessStreak: [], highestHomeAttendance: null, lowestHomeAttendance: null, highestAwayAttendance: null, lowestAwayAttendance: null };
     let sortOrder = 'desc';
     let activeLens = null;
     let listCap = 20;
@@ -2345,6 +2336,11 @@
 
     function switchTeam(team) {
         if (team === currentTeam) return;
+        // Close any open modals before switching
+        ['seasonOverlay','h2hOverlay','playerOverlay','shootoutOverlay','timelineOverlay'].forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.body.style.overflow = '';
         currentTeam = team;
         document.getElementById('tabMen').classList.toggle('active', team === 'men');
         document.getElementById('tabWomen').classList.toggle('active', team === 'women');
@@ -2448,7 +2444,7 @@
         document.getElementById('competitionSelect').value = '';
         document.getElementById('resultSelect').value = '';
         document.getElementById('venueSelect').value = '';
-        if (['wins','draws','losses','home-games','away-games','season'].includes(currentFilter)) currentFilter = 'all';
+        if (['wins','draws','losses','home-games','away-games','season','on-this-day','random'].includes(currentFilter)) currentFilter = 'all';
         const fb = document.querySelector('.filter-bar');
         fb.classList.remove('has-filter'); fb.classList.remove('runs-active');
         document.getElementById('lensesRow').classList.remove('filter-active');
@@ -2587,8 +2583,6 @@
         records.lowestHomeAttendance = homeMatches.length ? Math.min(...homeMatches.map(m => m.Attendance)) : null;
         records.highestAwayAttendance = awayMatches.length ? Math.max(...awayMatches.map(m => m.Attendance)) : null;
         records.lowestAwayAttendance = awayMatches.length ? Math.min(...awayMatches.map(m => m.Attendance)) : null;
-        records.cleanSheets = validMatches.filter(m => m['Goals Against'] === 0).length;
-        records.failedToScore = validMatches.filter(m => m['Goals For'] === 0).length;
         records.longestWinStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'W');
         records.longestDrawStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'D');
         records.longestLossStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L');
@@ -2716,6 +2710,7 @@
         if (streakFilters.includes(currentFilter)) currentFilter = 'all';
         if (!filterBarIsActive()) { document.querySelector('.filter-bar').classList.remove('has-filter'); document.getElementById('lensesRow').classList.remove('filter-active'); }
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        displayCurrentStreak();
         renderMatches();
     }
 
@@ -2727,6 +2722,7 @@
         if (selectedSeason) currentFilter = 'season'; else if (currentFilter === 'season') currentFilter = 'all';
         if (!filterBarIsActive()) { document.querySelector('.filter-bar').classList.remove('has-filter'); document.getElementById('lensesRow').classList.remove('filter-active'); }
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        displayCurrentStreak();
         renderMatches();
         if (selectedSeason) document.getElementById('resultCount').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -2739,6 +2735,7 @@
         else { if (['wins', 'draws', 'losses'].includes(currentFilter)) currentFilter = 'all'; }
         if (!filterBarIsActive()) { document.querySelector('.filter-bar').classList.remove('has-filter'); document.getElementById('lensesRow').classList.remove('filter-active'); }
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        displayCurrentStreak();
         renderMatches();
     }
 
@@ -2750,6 +2747,7 @@
         else { if (['home-games', 'away-games'].includes(currentFilter)) currentFilter = 'all'; }
         if (!filterBarIsActive()) { document.querySelector('.filter-bar').classList.remove('has-filter'); document.getElementById('lensesRow').classList.remove('filter-active'); }
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        displayCurrentStreak();
         renderMatches();
     }
 
@@ -2863,7 +2861,7 @@
                 }
             }
         }
-        const notesHtml = match.Notes ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes + '</span></div>' : '';
+        const notesHtml = match.Notes ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>' : '';
         const safeOpp = match.Opposition.replace(/'/g, "\\'");
         const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
@@ -3068,12 +3066,17 @@
                 const streakValue = document.getElementById('streakValue');
                 const streakContext = document.getElementById('streakContext');
                 const streakLabel = document.querySelector('.streak-label');
-                const startDate = matches[0].Date; const endDate = matches[matches.length - 1].Date;
                 const streakTypeMap = { 'win-streak': 'Longest Winning Run', 'draw-streak': 'Longest Run of Draws', 'loss-streak': 'Longest Losing Run', 'unbeaten-streak': 'Longest Unbeaten Run', 'winless-streak': 'Longest Winless Run' };
                 const gameWord = matches.length === 1 ? 'game' : 'games';
                 streakLabel.textContent = streakTypeMap[filter] || filter;
                 streakValue.textContent = matches.length + ' ' + gameWord;
-                streakContext.textContent = startDate + ' to ' + endDate;
+                const allStreaks = matches._allStreaks || [matches];
+                if (allStreaks.length > 1) {
+                    streakContext.textContent = allStreaks.length + ' joint-longest occurrences';
+                } else {
+                    const startDate = matches[0].Date; const endDate = matches[matches.length - 1].Date;
+                    streakContext.textContent = startDate + ' to ' + endDate;
+                }
                 streakBox.style.display = 'block';
             } else { streakBox.style.display = 'none'; }
         } else { displayCurrentStreak(); renderMatches(); }
@@ -3082,6 +3085,7 @@
 
     function showRandomMatch() {
         const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        if (validMatches.length === 0) return;
         const randomIndex = Math.floor(Math.random() * validMatches.length);
         const match = validMatches[randomIndex];
         currentFilter = 'random'; selectedSeason = ''; activeLens = null; sortOrder = 'desc';
