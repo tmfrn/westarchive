@@ -27,8 +27,8 @@
             --accent-border: rgba(22,101,52,0.18);
             --win: #166534;
             --win-bg: rgba(22,101,52,0.08);
-            --draw: #92400e;
-            --draw-bg: rgba(146,64,14,0.08);
+            --draw: #4b5563;
+            --draw-bg: rgba(75,85,99,0.10);
             --loss: #991b1b;
             --loss-bg: rgba(153,27,27,0.08);
             --pens-win-bg: rgba(22,101,52,0.06);
@@ -1381,7 +1381,7 @@
             padding: 1px 5px; border-radius: 100px; margin-left: 3px;
         }
         .tl-ge-badge.pen { background: rgba(30,58,95,0.08); color: #1e3a5f; }
-        .tl-ge-badge.og  { background: var(--draw-bg); color: var(--draw); }
+        .tl-ge-badge.og  { background: rgba(124,45,18,0.10); color: #7c2d12; }
         .tl-no-goals {
             padding: 24px; text-align: center;
             color: var(--text-muted); font-size: 0.86rem;
@@ -2429,6 +2429,16 @@
 
         function effectiveResult(m) { if (m.Penalties === 'Y') return 'D'; return m.Result; }
 
+        // Penalty scores are stored as date serial values in Sheets (e.g. 5–4 stored as 5th April = "2026-04-05")
+        // Extract month and day integers as the two sides of the score
+        function parsePenScore(raw) {
+            if (!raw) return null;
+            const s = raw.toString().trim();
+            const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (isoMatch) return parseInt(isoMatch[2], 10) + '\u2013' + parseInt(isoMatch[3], 10);
+            return s.replace(/-/g, '\u2013');
+        }
+
         // Returns true for friendlies and null-&-void matches — these must not count towards any records
         function isNonCounting(m) {
             const t = (m['Match Type'] || '').trim();
@@ -2566,8 +2576,8 @@
                 { label: 'Wins', value: wins, filter: 'wins' }, { label: 'Draws', value: draws, filter: 'draws' }, { label: 'Losses', value: losses, filter: 'losses' },
                 { label: 'Win Rate', value: winPct + '%', filter: null },
                 { label: 'Goal Difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
-                { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '-' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + biggestWin.Date + ')' : 'N/A', filter: 'biggest-wins' },
-                { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '-' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + biggestLoss.Date + ')' : 'N/A', filter: 'biggest-losses' },
+                { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '–' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + biggestWin.Date + ')' : 'N/A', filter: 'biggest-wins' },
+                { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '–' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + biggestLoss.Date + ')' : 'N/A', filter: 'biggest-losses' },
                 { label: 'Longest Winning Run', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + records.longestWinStreak[0].Date + ' to ' + records.longestWinStreak[records.longestWinStreak.length - 1].Date + ')' : 'N/A', filter: 'win-streak' },
                 { label: 'Longest Unbeaten Run', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + records.longestUnbeatenStreak[0].Date + ' to ' + records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date + ')' : 'N/A', filter: 'unbeaten-streak' },
                 { label: 'Longest Losing Run', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + records.longestLossStreak[0].Date + ' to ' + records.longestLossStreak[records.longestLossStreak.length - 1].Date + ')' : 'N/A', filter: 'loss-streak' },
@@ -2729,9 +2739,7 @@
         function renderMatchCard(match) {
             const hasPens = match['Penalties'] === 'Y';
             const penResult = match['Penalty Result'] || '';
-            let penScore = '';
-            const rawPenScore = (match['Penalty Score'] || '').trim();
-            if (rawPenScore) { penScore = rawPenScore.replace('-', '–'); }
+            const penScore = parsePenScore(match['Penalty Score']) || '';
             const matchIsFriendly = isFriendly(match);
             const matchIsNullVoid = isNullVoid(match);
             const matchIsNonCounting = matchIsFriendly || matchIsNullVoid;
@@ -2820,8 +2828,8 @@
                     '<strong>Competition:</strong> ' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') +
                     (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
                     (match.Venue && match.Venue.trim() ? ' | <strong>Venue:</strong> ' + match.Venue : '') +
-                    (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '-' + displayHtAwayScore : '') +
-                    (isAET && displayFtHomeScore != null ? ' | <strong>FT:</strong> ' + displayFtHomeScore + '-' + displayFtAwayScore : '') +
+                    (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '–' + displayHtAwayScore : '') +
+                    (isAET && displayFtHomeScore != null ? ' | <strong>FT:</strong> ' + displayFtHomeScore + '–' + displayFtAwayScore : '') +
                     (isAET ? ' | <strong>AET</strong>' : '') +
                     (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
                 '</div>' + scorersHtml + notesHtml + tlBtn + '</div>';
@@ -3161,9 +3169,11 @@
                 const isNC = isF || isNV;
                 const resultClass = m.Abandoned === 'Y' ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : effectiveResult(m).toLowerCase();
                 const resultLetter = m.Abandoned === 'Y' ? 'A' : isF ? 'F' : isNV ? 'N/V' : effectiveResult(m);
-                const score = m.Abandoned === 'Y' ? 'A-A' : m['Goals For'] + '-' + m['Goals Against'];
+                const score = m.Abandoned === 'Y' ? 'A–A' : m['Goals For'] + '–' + m['Goals Against'];
                 const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · Null &amp; Void' : 'Null &amp; Void') : (m.Competition || '');
-                return '<div class="h2h-match-row' + (isNC ? ' non-counting' : '') + '"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '</span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + compStr + '</span></div>';
+                const venueLabel = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
+                const venueStyle = 'display:inline-block;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;' + (m['Home/Away'] === 'H' ? 'background:rgba(37,99,235,0.10);color:#2563eb;' : m['Home/Away'] === 'N' ? 'background:rgba(0,0,0,0.06);color:var(--text-muted);' : 'background:rgba(147,51,234,0.10);color:#9333ea;');
+                return '<div class="h2h-match-row' + (isNC ? ' non-counting' : '') + '"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '<span style="' + venueStyle + '">' + venueLabel + '</span></span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + compStr + '</span></div>';
             }).join('');
             document.getElementById('h2hOverlay').classList.add('active'); document.body.style.overflow = 'hidden';
         }
@@ -3256,7 +3266,7 @@
                 const homeTeam = match['Home/Away'] === 'A' ? match.Opposition : 'West Didsbury & Chorlton';
                 const awayTeam = match['Home/Away'] === 'A' ? 'West Didsbury & Chorlton' : match.Opposition;
                 const goalLabel = goalsInMatch === 1 ? '1 goal' : goalsInMatch + ' goals';
-                return '<div class="player-match-row"><span class="player-match-result ' + result + '">' + resultLetter + '</span><span class="player-match-date">' + match.Date + '</span><span class="player-match-opposition">' + homeTeam + ' v ' + awayTeam + '</span><span class="player-match-score">' + homeScore + '-' + awayScore + '</span><span class="player-match-goals">⚽ ' + goalLabel + '</span></div>';
+                return '<div class="player-match-row"><span class="player-match-result ' + result + '">' + resultLetter + '</span><span class="player-match-date">' + match.Date + '</span><span class="player-match-opposition">' + homeTeam + ' v ' + awayTeam + '</span><span class="player-match-score">' + homeScore + '–' + awayScore + '</span><span class="player-match-goals">⚽ ' + goalLabel + '</span></div>';
             }).join('');
 
             document.getElementById('playerOverlay').classList.add('active');
@@ -3273,10 +3283,8 @@
             const w = shootouts.filter(m => m['Penalty Result'] === 'W').length;
             const l = shootouts.filter(m => m['Penalty Result'] === 'L').length;
 
-            function parsePenScore(m) {
-                const raw = m['Penalty Score'];
-                if (!raw) return '?';
-                return raw.toString().trim().replace('-', '–');
+            function parsePenScoreLocal(m) {
+                return parsePenScore(m['Penalty Score']) || '?';
             }
 
             const rows = shootouts.map(m => {
@@ -3285,7 +3293,7 @@
                 const isLoss = result === 'L';
                 const resultClass = isWin ? 'w' : isLoss ? 'l' : 'd';
                 const resultLabel = isWin ? 'Won' : isLoss ? 'Lost' : '?';
-                const penScore = parsePenScore(m);
+                const penScore = parsePenScoreLocal(m);
                 const score90 = m['Goals For'] + '–' + m['Goals Against'];
                 const venue = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
                 return '<div class="h2h-match-row">' +
@@ -3872,7 +3880,7 @@
 
             // Build axis ticks — positioned to match the time scale
             const tickMinutes = isAET ? [0, 15, 30, 45, 60, 75, 90, 105, 120] : [0, 15, 30, 45, 60, 75, 90];
-            if (totalMins > tickMinutes[tickMinutes.length - 1] + 3) tickMinutes.push(totalMins);
+            if (totalMins > tickMinutes[tickMinutes.length - 1] + 8) tickMinutes.push(totalMins);
             let axisTicks = tickMinutes.map(t => {
                 const tickPct = (t / totalMins) * 100;
                 const style = t === 0 ? 'left:0;transform:none;' : t === tickMinutes[tickMinutes.length - 1] ? 'left:' + tickPct + '%;transform:translateX(-100%);' : 'left:' + tickPct + '%;';
@@ -3994,6 +4002,27 @@
                     '</div>';
             }
 
+            // ── PENALTY SHOOTOUT STRIP ──
+            let pensStrip = '';
+            if (match.Penalties === 'Y') {
+                const penResult = match['Penalty Result'];
+                const penScore = parsePenScore(match['Penalty Score']);
+                const isWest = penResult === 'W';
+                const penBg  = isWest ? 'rgba(22,101,52,0.12)' : 'rgba(153,27,27,0.12)';
+                const penCol = isWest ? 'var(--win)' : 'var(--loss)';
+                const penDesc = isWest ? 'West won on penalties' : 'West lost on penalties';
+                const homeTeamWon = (westFirst && isWest) || (!westFirst && !isWest);
+                const penHomeScore = homeTeamWon ? (penScore ? penScore.split('–')[0] : '?') : (penScore ? penScore.split('–')[1] : '?');
+                const penAwayScore = homeTeamWon ? (penScore ? penScore.split('–')[1] : '?') : (penScore ? penScore.split('–')[0] : '?');
+                const penScoreDisplay = penScore ? penHomeScore + ' – ' + penAwayScore : '? – ?';
+                pensStrip =
+                    '<div class="tl-ht-strip" style="background:' + penBg + ';margin-top:4px;">' +
+                        '<span class="tl-ht-strip-label" style="color:' + penCol + ';">Pens</span>' +
+                        '<span class="tl-ht-strip-score" style="color:' + penCol + ';">' + penScoreDisplay + '</span>' +
+                        '<span class="tl-ht-strip-desc" style="color:' + penCol + ';">' + penDesc + '</span>' +
+                    '</div>';
+            }
+
             // ── FOTMOB-STYLE EVENT LOG ──
             // Left column (tl-er-west CSS) = home team, Right column (tl-er-opp CSS) = away team
             let lw = 0, lo = 0;
@@ -4040,6 +4069,9 @@
                     const dispScore  = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     const ogBadge    = e.og  ? '<span class="tl-ge-badge og">OG</span>'  : '';
                     const penBadge   = e.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
+                    // OG benefits the opposite team — display in the benefiting team's column
+                    const displaySide = isOg ? (e.side === 'west' ? 'opp' : 'west') : e.side;
+                    const isLeft = displayLane(displaySide) === 'west';
                     if (isLeft) {
                         leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                    '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
@@ -4129,6 +4161,7 @@
                 trackHtml +
                 htStrip +
                 ftStrip +
+                pensStrip +
                 '<div style="margin-top:16px;">' +
                     '<div class="tl-log-title">Match events</div>' +
                     (events.length === 0
