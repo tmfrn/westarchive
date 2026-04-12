@@ -3914,7 +3914,9 @@
                 if (e.type === 'goal') {
                     const ogL  = e.og  ? ' (OG)'  : '';
                     const penL = e.pen ? ' (pen)' : '';
-                    // Own goals benefit the opposite team — show marker in their lane
+                    // OG: marker appears on the scoring player's actual team lane (flipped from e.side)
+                    // e.side='west' (For/Against='For') = Prestwich player = opp lane
+                    // e.side='opp'  (For/Against='Against') = West player = west lane
                     const markerLane = e.og ? displayLane(e.side === 'west' ? 'opp' : 'west') : lane;
                     markerHtml += '<div class="tl-goal-marker ' + markerLane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">⚽</div>' +
@@ -4072,12 +4074,17 @@
 
                 if (e.type === 'goal') {
                     const isOg = e.og;
-                    if (isOg) { e.side === 'west' ? lo++ : lw++; }
-                    else      { e.side === 'west' ? lw++ : lo++; }
+                    // An OG goes in favour of the opposite team from the scorer's side
+                    // For/Against='For', OG=Y => Prestwich player put it in West's net => West score (lw++)
+                    // For/Against='Against', OG=Y => West player put it in West's net => Opp score (lo++)
+                    // i.e. same as a normal goal: side=west -> lw++, side=opp -> lo++
+                    if (e.side === 'west') { lw++; } else { lo++; }
                     const dispScore  = westFirst ? lw + '–' + lo : lo + '–' + lw;
                     const ogBadge    = e.og  ? '<span class="tl-ge-badge og">OG</span>'  : '';
                     const penBadge   = e.pen ? '<span class="tl-ge-badge pen">Pen</span>' : '';
-                    // OG benefits the opposite team — display in the benefiting team's column
+                    // OG: show in the scorer's team column (the player who put it in), but flipped
+                    // because the scorer's team column is the team that CONCEDED it.
+                    // e.side='west' means For/Against='For' = Prestwich OG = show on Prestwich's side (opp lane)
                     const displaySide = isOg ? (e.side === 'west' ? 'opp' : 'west') : e.side;
                     const isLeft = displayLane(displaySide) === 'west';
                     if (isLeft) {
