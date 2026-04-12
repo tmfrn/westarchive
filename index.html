@@ -2634,6 +2634,8 @@
                 document.getElementById('lensesClear').classList.add('hidden');
                 document.getElementById('venuePills').classList.add('hidden');
                 document.getElementById('seasonNav').classList.remove('active');
+            } else {
+                listCap = 20;
             }
             document.querySelector('.filter-bar').classList.add('has-filter');
         }
@@ -3479,10 +3481,14 @@
             // Build per-season goals if a season is selected
             let displayGoals;
             if (gsSelectedSeason) {
+                const nonCountingDateKeys = new Set(
+                    MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || ''))
+                );
                 const seasonGoals = {};
                 GOALS_DATA.forEach(r => {
                     if (!r['Scorer'] || r['For/Against'] !== 'For' || r['Own Goal'] === 'Y') return;
                     const dk = normaliseDateKey(r['Date'] || '');
+                    if (nonCountingDateKeys.has(dk)) return;
                     const match = MATCHES_DATA.find(m => normaliseDateKey(m.Date || '') === dk);
                     if (!match || match.Season !== gsSelectedSeason) return;
                     const name = r['Scorer'].trim();
@@ -3908,7 +3914,9 @@
                 if (e.type === 'goal') {
                     const ogL  = e.og  ? ' (OG)'  : '';
                     const penL = e.pen ? ' (pen)' : '';
-                    markerHtml += '<div class="tl-goal-marker ' + lane + '" style="left:' + pct + '%">' +
+                    // Own goals benefit the opposite team — show marker in their lane
+                    const markerLane = e.og ? displayLane(e.side === 'west' ? 'opp' : 'west') : lane;
+                    markerHtml += '<div class="tl-goal-marker ' + markerLane + '" style="left:' + pct + '%">' +
                         '<div class="tl-goal-dot">⚽</div>' +
                         '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.scorer + ogL + penL + ' · ' + team + '</div>' +
                         '</div>';
