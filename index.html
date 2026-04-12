@@ -1427,12 +1427,12 @@
         }
 
         .h2h-header, .player-header {
-            padding: 24px 28px;
+            padding: 20px 24px;
             background: var(--bg-card);
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             border-bottom: 1px solid var(--border-primary);
         }
 
@@ -1571,106 +1571,204 @@
 
         /* ===== PLAYER MODAL SPECIFICS ===== */
         .player-total {
-            padding: 20px 28px;
-            border-bottom: 1px solid var(--border-primary);
+            padding: 6px 0 0;
             display: flex;
             align-items: baseline;
-            gap: 12px;
+            gap: 10px;
         }
         .player-total-number {
             font-family: var(--font-display);
-            font-size: 2.6rem;
-            font-weight: 800;
+            font-size: 2.8rem;
+            font-weight: 900;
             color: var(--accent-deep);
             line-height: 1;
+            letter-spacing: -0.03em;
         }
         .player-total-label { font-size: 0.86rem; color: var(--text-muted); font-weight: 500; }
 
-        .player-seasons {
-            padding: 14px 28px;
+        /* Season bars */
+        .player-season-bars {
+            padding: 16px 24px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             border-bottom: 1px solid var(--border-primary);
+        }
+        .player-season-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .player-season-bar-label {
+            width: 46px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .player-season-bar-track {
+            flex: 1;
+            height: 7px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .player-season-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--accent);
+            opacity: 0.5;
+            transition: width 0.3s ease;
+        }
+        .player-season-bar-fill.peak { opacity: 1; }
+        .player-season-bar-count {
+            width: 22px;
+            text-align: right;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .player-season-bar-count.peak { color: var(--accent-deep); font-weight: 800; }
+
+        /* Competition pills */
+        .player-comps {
+            padding: 14px 24px 16px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-primary);
         }
-
-        .player-season-chip {
+        .player-comp-chip {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
             border-radius: 100px;
-            padding: 4px 12px;
-            font-size: 0.78rem;
+            padding: 3px 10px;
+            font-size: 0.76rem;
             font-weight: 600;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
-
-        .player-season-chip .chip-goals {
-            background: var(--accent);
-            color: #fff;
+        .player-comp-chip .chip-goals {
+            background: var(--bg-primary);
             border-radius: 10px;
-            padding: 1px 7px;
+            padding: 1px 6px;
             font-size: 0.88em;
             font-weight: 700;
+            color: var(--text-muted);
         }
 
+        /* Milestones */
+        .player-milestones {
+            padding: 14px 24px 16px;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .player-milestone-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .player-milestone-item:last-child { border-bottom: none; }
+        .player-milestone-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            background: var(--accent-surface);
+            border: 1.5px solid var(--accent-border);
+        }
+        .player-milestone-badge.first {
+            background: #fefce8;
+            border-color: #fde047;
+        }
+        .player-milestone-text { padding-top: 2px; }
+        .player-milestone-label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1.3;
+        }
+        .player-milestone-meta {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Match list */
         .player-matches {
-            padding: 18px 28px 28px;
-            max-height: 400px;
+            max-height: 380px;
             overflow-y: auto;
         }
-
-        .player-matches h4 {
-            font-size: 0.78rem;
+        .player-matches-header {
+            padding: 14px 24px 10px;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 12px;
+            letter-spacing: 0.08em;
         }
-
         .player-match-row {
             display: flex;
             align-items: center;
-            padding: 9px 0;
+            padding: 9px 24px;
             border-bottom: 1px solid var(--border-subtle);
-            font-size: 0.86rem;
+            font-size: 0.84rem;
             gap: 8px;
         }
         .player-match-row:last-child { border-bottom: none; }
-
         .player-match-result {
             display: inline-flex;
-            width: 22px; height: 22px;
+            width: 20px; height: 20px;
             align-items: center;
             justify-content: center;
-            border-radius: 5px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--bg-primary);
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 800;
             flex-shrink: 0;
         }
-        .player-match-result.w { background: var(--win); color: #fff; }
+        .player-match-result.w { background: var(--win);  color: #fff; }
         .player-match-result.d { background: var(--draw); color: #fff; }
         .player-match-result.l { background: var(--loss); color: #fff; }
-
-        .player-match-date { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
-        .player-match-opposition { font-weight: 600; color: var(--text-primary); flex: 1; }
-        .player-match-score { font-weight: 800; color: var(--text-bright); min-width: 44px; text-align: center; flex-shrink: 0; font-family: var(--font-display); }
-
+        .player-match-date   { color: var(--text-muted); min-width: 80px; flex-shrink: 0; font-size: 0.8rem; }
+        .player-match-opposition { font-weight: 600; color: var(--text-primary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .player-match-score  { font-weight: 800; color: var(--text-bright); min-width: 36px; text-align: center; flex-shrink: 0; font-family: var(--font-display); }
         .player-match-goals {
             background: var(--accent-surface);
             border: 1px solid var(--accent-border);
             border-radius: 100px;
-            padding: 2px 9px;
-            font-size: 0.76rem;
+            padding: 1px 8px;
+            font-size: 0.73rem;
             font-weight: 700;
             color: var(--accent-deep);
             white-space: nowrap;
             flex-shrink: 0;
         }
+        .player-show-more {
+            display: block;
+            width: 100%;
+            padding: 11px 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-family: var(--font-body);
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .player-show-more:hover { color: var(--text-secondary); }
 
         /* ===== SEASON SUMMARY MODAL ===== */
         .season-modal-stats {
@@ -1784,46 +1882,6 @@
             font-size: 0.78rem;
             color: var(--text-muted);
             font-style: italic;
-        }
-
-        /* ===== PLAYER MODAL: competition breakdown ===== */
-        .player-comps {
-            padding: 12px 28px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            border-top: 1px solid var(--border-primary);
-        }
-        .player-comp-chip {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            padding: 3px 10px;
-            font-size: 0.76rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .player-comp-chip .chip-goals {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: 1px 6px;
-            font-size: 0.88em;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }
-        .player-milestone-row {
-            margin: 0 28px 12px;
-            padding: 8px 12px;
-            background: var(--draw-bg);
-            border-left: 3px solid var(--draw);
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            font-size: 0.78rem;
-            color: var(--draw);
-            font-weight: 600;
-            line-height: 1.6;
         }
 
         /* ===== SCROLLBARS ===== */
@@ -2118,16 +2176,18 @@
     <div class="player-overlay" id="playerOverlay" onclick="if(event.target===this)closePlayerModal()">
         <div class="player-modal">
             <div class="player-header">
-                <h3 id="playerModalTitle">Player</h3>
+                <div>
+                    <h3 id="playerModalTitle">Player</h3>
+                    <div class="player-total">
+                        <span class="player-total-number" id="playerTotalGoals"></span>
+                        <span class="player-total-label">goals for West Didsbury &amp; Chorlton</span>
+                    </div>
+                </div>
                 <button class="player-close" onclick="closePlayerModal()">✕</button>
             </div>
-            <div class="player-total">
-                <div class="player-total-number" id="playerTotalGoals"></div>
-                <div class="player-total-label">goals for West Didsbury & Chorlton</div>
-            </div>
-            <div class="player-seasons" id="playerSeasons"></div>
+            <div class="player-season-bars" id="playerSeasonBars"></div>
             <div class="player-comps" id="playerComps"></div>
-            <div id="playerMilestones"></div>
+            <div class="player-milestones" id="playerMilestones" style="display:none;"></div>
             <div class="player-matches" id="playerMatches"></div>
         </div>
     </div>
@@ -2435,7 +2495,7 @@
             if (!raw) return null;
             const s = raw.toString().trim();
             const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-            if (isoMatch) return parseInt(isoMatch[2], 10) + '\u2013' + parseInt(isoMatch[3], 10);
+            if (isoMatch) return parseInt(isoMatch[3], 10) + '\u2013' + parseInt(isoMatch[2], 10);
             return s.replace(/-/g, '\u2013');
         }
 
@@ -2748,8 +2808,8 @@
             const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                               matchIsFriendly ? '<span class="badge friendly">FRIENDLY</span>' :
                               matchIsNullVoid ? '<span class="badge null-void">NULL &amp; VOID</span>' :
-                              (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW</span><span class="badge pens-win">WON ON PENS</span>' :
-                              (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW</span><span class="badge pens-loss">LOST ON PENS</span>' :
+                              (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW – WON ON PENS</span>' :
+                              (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW – LOST ON PENS</span>' :
                               effectiveResult(match) === 'W' ? '<span class="badge win">WIN</span>' :
                               effectiveResult(match) === 'L' ? '<span class="badge loss">LOSS</span>' :
                               '<span class="badge draw">DRAW</span>';
@@ -3186,7 +3246,7 @@
             const nonCountingDateKeys = new Set(
                 MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || ''))
             );
-            // Career goals: exclude non-counting matches
+            // Career goals: exclude non-counting matches and own goals
             const goals = GOALS_DATA.filter(r => {
                 if (!(r['Scorer'] && r['Scorer'].trim() === name)) return false;
                 if (r['For/Against'] !== 'For' || r['Own Goal'] === 'Y') return false;
@@ -3203,6 +3263,7 @@
                 bySeason[s] = (bySeason[s] || 0) + 1;
             });
             const seasonsSorted = Object.entries(bySeason).sort((a, b) => a[0].localeCompare(b[0]));
+            const maxSeasonGoals = Math.max(...seasonsSorted.map(([, c]) => c));
 
             // By competition
             const byComp = {};
@@ -3214,7 +3275,7 @@
             });
             const compsSorted = Object.entries(byComp).sort((a, b) => b[1] - a[1]);
 
-            // Milestones for this player
+            // Milestones
             const milestoneList = [];
             goals.forEach(r => {
                 const dk = normaliseDateKey(r['Date'] || '');
@@ -3239,40 +3300,86 @@
             }).filter(r => r.match);
             matchRows.sort((a, b) => { const da = parseDate(a.match.Date), db = parseDate(b.match.Date); if (!da || !db) return 0; return db - da; });
 
+            // ── Render ──
             document.getElementById('playerModalTitle').textContent = name;
             document.getElementById('playerTotalGoals').textContent = goals.length;
 
-            document.getElementById('playerSeasons').innerHTML = seasonsSorted.map(([season, count]) =>
-                '<div class="player-season-chip">' + season + '<span class="chip-goals">' + count + '</span></div>'
-            ).join('');
+            // Season bars
+            document.getElementById('playerSeasonBars').innerHTML = seasonsSorted.map(([season, count]) => {
+                const pct = Math.round((count / maxSeasonGoals) * 100);
+                const isPeak = count === maxSeasonGoals;
+                const shortSeason = season.length > 5 ? season.slice(2) : season;
+                return '<div class="player-season-bar-row">' +
+                    '<div class="player-season-bar-label">' + shortSeason + '</div>' +
+                    '<div class="player-season-bar-track"><div class="player-season-bar-fill' + (isPeak ? ' peak' : '') + '" style="width:' + pct + '%"></div></div>' +
+                    '<div class="player-season-bar-count' + (isPeak ? ' peak' : '') + '">' + count + '</div>' +
+                '</div>';
+            }).join('');
 
+            // Competition pills
             document.getElementById('playerComps').innerHTML = compsSorted.map(([comp, count]) =>
                 '<div class="player-comp-chip">' + comp + '<span class="chip-goals">' + count + '</span></div>'
             ).join('');
 
+            // Milestones
             const milestonesEl = document.getElementById('playerMilestones');
             if (milestoneList.length > 0) {
                 const icon = ms => ms === 1 ? '⭐' : '🎯';
-                milestonesEl.innerHTML = '<div class="player-milestone-row">' +
-                    milestoneList.map(ms => icon(ms.milestone) + ' ' + ms.label + (ms.opp ? ' vs ' + ms.opp : '') + (ms.date ? ' (' + ms.date + ')' : '')).join('<br>') +
-                    '</div>';
+                milestonesEl.innerHTML = milestoneList.map(ms =>
+                    '<div class="player-milestone-item">' +
+                        '<div class="player-milestone-badge' + (ms.milestone === 1 ? ' first' : '') + '">' + icon(ms.milestone) + '</div>' +
+                        '<div class="player-milestone-text">' +
+                            '<div class="player-milestone-label">' + ms.label + '</div>' +
+                            '<div class="player-milestone-meta">' + (ms.opp ? 'vs ' + ms.opp + ' · ' : '') + ms.date + '</div>' +
+                        '</div>' +
+                    '</div>'
+                ).join('');
+                milestonesEl.style.display = '';
             } else {
                 milestonesEl.innerHTML = '';
+                milestonesEl.style.display = 'none';
             }
 
-            document.getElementById('playerMatches').innerHTML = '<h4>Goals in ' + matchRows.length + ' matches</h4>' + matchRows.map(({ match, goalsInMatch }) => {
-                const result = effectiveResult(match).toLowerCase();
-                const resultLetter = effectiveResult(match);
-                const homeScore = match['Home/Away'] === 'A' ? match['Goals Against'] : match['Goals For'];
-                const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
-                const homeTeam = match['Home/Away'] === 'A' ? match.Opposition : 'West Didsbury & Chorlton';
-                const awayTeam = match['Home/Away'] === 'A' ? 'West Didsbury & Chorlton' : match.Opposition;
-                const goalLabel = goalsInMatch === 1 ? '1 goal' : goalsInMatch + ' goals';
-                return '<div class="player-match-row"><span class="player-match-result ' + result + '">' + resultLetter + '</span><span class="player-match-date">' + match.Date + '</span><span class="player-match-opposition">' + homeTeam + ' v ' + awayTeam + '</span><span class="player-match-score">' + homeScore + '–' + awayScore + '</span><span class="player-match-goals">⚽ ' + goalLabel + '</span></div>';
-            }).join('');
+            // Match list with show-more toggle
+            const MATCH_CAP = 6;
+            function renderMatchList() {
+                const rows = matchRows.map(({ match, goalsInMatch }, i) => {
+                    const result = effectiveResult(match).toLowerCase();
+                    const resultLetter = effectiveResult(match);
+                    const vsLabel = match['Home/Away'] === 'A' ? '@ ' + match.Opposition : 'vs ' + match.Opposition;
+                    const homeScore = match['Home/Away'] === 'A' ? match['Goals Against'] : match['Goals For'];
+                    const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
+                    const goalLabel = goalsInMatch === 1 ? '⚽ 1' : '⚽ ' + goalsInMatch;
+                    const hidden = i >= MATCH_CAP ? ' style="display:none;"' : '';
+                    return '<div class="player-match-row"' + hidden + '>' +
+                        '<span class="player-match-result ' + result + '">' + resultLetter + '</span>' +
+                        '<span class="player-match-date">' + match.Date + '</span>' +
+                        '<span class="player-match-opposition">' + vsLabel + '</span>' +
+                        '<span class="player-match-score">' + homeScore + '–' + awayScore + '</span>' +
+                        '<span class="player-match-goals">' + goalLabel + '</span>' +
+                    '</div>';
+                }).join('');
+                const toggleBtn = matchRows.length > MATCH_CAP
+                    ? '<button class="player-show-more" onclick="togglePlayerMatchList(this,' + matchRows.length + ')">Show all ' + matchRows.length + ' matches</button>'
+                    : '';
+                return '<div class="player-matches-header">Goals in ' + matchRows.length + ' ' + (matchRows.length === 1 ? 'match' : 'matches') + '</div>' + rows + toggleBtn;
+            }
+            document.getElementById('playerMatches').innerHTML = renderMatchList();
+            document.getElementById('playerMatches')._showAll = false;
 
             document.getElementById('playerOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        function togglePlayerMatchList(btn, total) {
+            const container = document.getElementById('playerMatches');
+            const showAll = !container._showAll;
+            container._showAll = showAll;
+            const rows = container.querySelectorAll('.player-match-row');
+            btn.textContent = showAll ? 'Show less' : 'Show all ' + total + ' matches';
+            rows.forEach((row, i) => {
+                if (i >= 6) row.style.display = showAll ? '' : 'none';
+            });
         }
 
         function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
@@ -3453,7 +3560,7 @@
                 if (r['For/Against'] !== 'For' || r['Own Goal'] === 'Y' || !(r['Scorer'] || '').trim()) return false;
                 return !nonCountingDateKeys.has(normaliseDateKey(r['Date'] || ''));
             }).slice().sort((a, b) => { const da = parseDate(a['Date']), db = parseDate(b['Date']); if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db; });
-            const MILESTONES = new Set([1, 10, 25, 50, 75, 100, 150, 200]);
+            const MILESTONES = new Set([1, 10, 25, 50, 100, 200, 300]);
             const runningTotals = {}; const milestoneSeen = {};
             westGoals.forEach(r => {
                 const name = r['Scorer'].trim(); const dateKey = normaliseDateKey(r['Date'] || ''); const minute = (r['Minute'] || '').toString().trim();
@@ -4152,7 +4259,10 @@
 
             // ── RESULT / VENUE PILLS ──
             const resultCls   = match.Result === 'W' ? 'win' : match.Result === 'L' ? 'loss' : 'draw';
-            const resultLabel = match.Result === 'W' ? 'Win' : match.Result === 'L' ? 'Loss' : 'Draw';
+            const resultLabel = match.Result === 'W' ? 'Win' : match.Result === 'L' ? 'Loss'
+                              : (match.Penalties === 'Y' && match['Penalty Result'] === 'W') ? 'Draw – Won on pens'
+                              : (match.Penalties === 'Y' && match['Penalty Result'] === 'L') ? 'Draw – Lost on pens'
+                              : 'Draw';
             const venueCls    = isHome ? 'home' : isNeutral ? 'neutral-v' : 'away';
             const venueLabel  = isHome ? 'Home' : isNeutral ? 'Neutral' : 'Away';
 
