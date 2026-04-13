@@ -2536,14 +2536,12 @@
 
     function effectiveResult(m) { if (m.Penalties === 'Y') return 'D'; return m.Result; }
 
-    // Penalty scores are stored as date serial values in Sheets (e.g. 5–4 stored as 5th April = "2026-04-05")
-    // Extract month and day integers as the two sides of the score
-    function parsePenScore(raw) {
-        if (!raw) return null;
-        const s = raw.toString().trim();
-        const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (isoMatch) return parseInt(isoMatch[3], 10) + '\u2013' + parseInt(isoMatch[2], 10);
-        return s.replace(/-/g, '\u2013');
+    // Returns "X–Y" penalty score string from the two dedicated columns, or null if not available
+    function penScoreStr(m) {
+        const f = m['Penalty Score For'];
+        const a = m['Penalty Score Against'];
+        if (f == null || a == null || f === '' || a === '') return null;
+        return f + '\u2013' + a;
     }
 
     // Returns true for friendlies and null-&-void matches — these must not count towards any records
@@ -2864,7 +2862,7 @@
     function renderMatchCard(match) {
         const hasPens = match['Penalties'] === 'Y';
         const penResult = match['Penalty Result'] || '';
-        const penScore = parsePenScore(match['Penalty Score']) || '';
+        const penScore = penScoreStr(match) || '';
         const matchIsFriendly = isFriendly(match);
         const matchIsNullVoid = isNullVoid(match);
         const matchIsNonCounting = matchIsFriendly || matchIsNullVoid;
@@ -3483,7 +3481,7 @@
         const l = shootouts.filter(m => m['Penalty Result'] === 'L').length;
 
         function parsePenScoreLocal(m) {
-            return parsePenScore(m['Penalty Score']) || '?';
+            return penScoreStr(m) || '?';
         }
 
         const rows = shootouts.map(m => {
@@ -4215,7 +4213,7 @@
         let pensStrip = '';
         if (match.Penalties === 'Y') {
             const penResult = match['Penalty Result'];
-            const penScore = parsePenScore(match['Penalty Score']);
+            const penScore = penScoreStr(match);
             const isWest = penResult === 'W';
             const penBg  = isWest ? 'rgba(22,101,52,0.12)' : 'rgba(153,27,27,0.12)';
             const penCol = isWest ? 'var(--win)' : 'var(--loss)';
@@ -4350,7 +4348,7 @@
         // Pen result row at end of log
         if (match.Penalties === 'Y') {
             const prResult = match['Penalty Result'];
-            const prScore  = parsePenScore(match['Penalty Score']);
+            const prScore  = penScoreStr(match);
             const prIsWest = prResult === 'W';
             const prCol    = prIsWest ? 'var(--win)' : 'var(--loss)';
             const prBg     = prIsWest ? 'rgba(22,101,52,0.10)' : 'rgba(153,27,27,0.10)';
