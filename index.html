@@ -409,6 +409,15 @@
         background: var(--bg-card-hover);
     }
 
+    .summary-item.non-clickable {
+        cursor: default;
+        opacity: 0.75;
+    }
+    .summary-item.non-clickable:hover {
+        border-color: var(--border-subtle);
+        background: var(--bg-card);
+    }
+
     .summary-label {
         font-size: 0.7rem;
         font-weight: 600;
@@ -746,6 +755,7 @@
         opacity: 0.35;
         pointer-events: none;
     }
+    #clearFiltersBtn:not(.visible) { display: none; }
 
 
     .filter-btn {
@@ -992,11 +1002,13 @@
     }
     .match-score {
         font-family: var(--font-display);
-        font-size: 1.3em;
+        font-size: 1.6em;
+        font-weight: 800;
         color: var(--text-bright);
         padding: 0 16px;
         white-space: nowrap;
         flex: 0 0 auto;
+        letter-spacing: -0.02em;
     }
 
     .match-details {
@@ -1704,12 +1716,17 @@
         overflow-y: auto;
     }
     .player-matches-header {
-        padding: 14px 24px 10px;
+        padding: 10px 24px;
         font-size: 0.72rem;
         font-weight: 700;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        position: sticky;
+        top: 0;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        z-index: 1;
     }
     .player-match-row {
         display: flex;
@@ -1877,7 +1894,41 @@
         font-style: italic;
     }
 
-    /* ===== SCROLLBARS ===== */
+    .controls.loading {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+    .result-count.loading::after {
+        content: '';
+        display: inline-block;
+        width: 14px; height: 14px;
+        border: 2px solid var(--border-primary);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .active-filter-banner {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        padding: 9px 14px; margin-bottom: 16px;
+        background: var(--accent-surface); border: 1px solid var(--accent-border);
+        border-radius: var(--radius-md);
+        font-size: 0.78rem; font-weight: 600; color: var(--accent-deep);
+    }
+    .active-filter-chip {
+        background: var(--accent); color: #fff;
+        border-radius: 100px; padding: 2px 10px;
+        font-size: 0.74rem; font-weight: 700;
+    }
+    .active-filter-clear {
+        margin-left: auto; background: none; border: none;
+        color: var(--accent); font-size: 0.74rem; font-weight: 700;
+        cursor: pointer; padding: 2px 6px; font-family: var(--font-body);
+        text-decoration: underline; text-underline-offset: 2px;
+    }
+    .active-filter-clear:hover { color: var(--accent-deep); }
     .h2h-matches::-webkit-scrollbar,
     .player-matches::-webkit-scrollbar { width: 6px; }
     .h2h-matches::-webkit-scrollbar-track,
@@ -1937,7 +1988,7 @@
         </div>
         <div class="otd-detail">
             <div class="otd-matches" id="otdMatches"></div>
-            <button class="otd-explore" onclick="activateLens('on-this-day', document.getElementById('lensOnThisDay'))">See all On This Day matches →</button>
+            <button class="otd-explore" onclick="activateLens('on-this-day', document.getElementById('lensOnThisDay')); setTimeout(function(){ const btn=document.getElementById('lensOnThisDay'); btn.style.transition='box-shadow 0.1s'; btn.style.boxShadow='0 0 0 3px var(--accent)'; setTimeout(function(){ btn.style.boxShadow=''; }, 600); }, 100);">See all On This Day matches →</button>
         </div>
     </div>
 
@@ -2046,11 +2097,11 @@
             <div class="lenses-group">
                 <div class="lenses-group-label">Streaks</div>
                 <div class="lenses-group-buttons">
-                    <button class="filter-btn" onclick="setFilter('win-streak', this)">Winning run</button>
-                    <button class="filter-btn" onclick="setFilter('draw-streak', this)">Draw run</button>
-                    <button class="filter-btn" onclick="setFilter('loss-streak', this)">Losing run</button>
-                    <button class="filter-btn" onclick="setFilter('unbeaten-streak', this)">Unbeaten run</button>
-                    <button class="filter-btn" onclick="setFilter('winless-streak', this)">Winless run</button>
+                    <button class="filter-btn" id="btnWinStreak" onclick="setFilter('win-streak', this)">Winning run</button>
+                    <button class="filter-btn" id="btnDrawStreak" onclick="setFilter('draw-streak', this)">Draw run</button>
+                    <button class="filter-btn" id="btnLossStreak" onclick="setFilter('loss-streak', this)">Losing run</button>
+                    <button class="filter-btn" id="btnUnbeatenStreak" onclick="setFilter('unbeaten-streak', this)">Unbeaten run</button>
+                    <button class="filter-btn" id="btnWinlessStreak" onclick="setFilter('winless-streak', this)">Winless run</button>
                 </div>
             </div>
             <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
@@ -2063,7 +2114,6 @@
         </div>
 
         <div class="filter-bar">
-            <span class="filter-bar-label">Filters</span>
             <select id="seasonSelect" onchange="filterBySeason()">
                 <option value="">All Seasons</option>
             </select>
@@ -2118,6 +2168,7 @@
     </div>
 
     <div class="matches">
+        <div id="activeFilterBanner" style="display:none;"></div>
         <div id="matchList"></div>
     </div>
 </div>
@@ -2393,6 +2444,8 @@
         const errorBanner = document.getElementById('errorBanner');
         errorBanner.style.display = 'none';
         document.getElementById('resultCount').textContent = 'Loading matches...';
+        document.getElementById('resultCount').classList.add('loading');
+        document.querySelector('.controls').classList.add('loading');
         const myToken = fetchToken;
         try {
             const response = await fetch(CSV_URLS[currentTeam]);
@@ -2415,6 +2468,8 @@
                 MATCHES_DATA.push(match);
             }
             calculateRecords(); populateSummary(); populateSeasonFilter(); populateCompetitionFilter(); displayCurrentStreak(); renderMatches();
+            document.getElementById('resultCount').classList.remove('loading');
+            document.querySelector('.controls').classList.remove('loading');
             const hasHomeAttendance = MATCHES_DATA.some(m => m['Home/Away'] === 'H' && m.Attendance && m.Abandoned !== 'Y' && !isNonCounting(m));
             if (hasHomeAttendance) document.getElementById('attendanceChartBox').style.display = 'block';
             displayOTDBanner();
@@ -2425,6 +2480,8 @@
         } catch (error) {
             console.error('Error fetching match data:', error);
             document.getElementById('resultCount').textContent = 'Failed to load match data';
+            document.getElementById('resultCount').classList.remove('loading');
+            document.querySelector('.controls').classList.remove('loading');
             document.getElementById('errorMessage').textContent = 'Error loading match data: ' + error.message;
             errorBanner.style.display = 'block';
         }
@@ -2588,6 +2645,20 @@
         records.longestLossStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L');
         records.longestUnbeatenStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
         records.longestWinlessStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
+        // Update streak button hints
+        const hintMap = [
+            ['btnWinStreak',     records.longestWinStreak,      'Winning run'],
+            ['btnDrawStreak',    records.longestDrawStreak,     'Draw run'],
+            ['btnLossStreak',    records.longestLossStreak,     'Losing run'],
+            ['btnUnbeatenStreak',records.longestUnbeatenStreak, 'Unbeaten run'],
+            ['btnWinlessStreak', records.longestWinlessStreak,  'Winless run'],
+        ];
+        hintMap.forEach(([id, streak, label]) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            const n = streak.length;
+            btn.innerHTML = n > 0 ? label + ' <span style="opacity:0.55;font-weight:600;">· ' + n + '</span>' : label;
+        });
     }
 
     function getMatchTags(match) {
@@ -2647,7 +2718,7 @@
         grid.innerHTML = summaryData.map(item => {
             const clickable = item.filter || item.action;
             const onclick = item.action ? 'onclick="' + item.action + '"' : (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '');
-            return '<div class="summary-item" ' + onclick + ' style="' + (clickable ? 'cursor: pointer;' : 'cursor: default;') + '">' +
+            return '<div class="summary-item' + (clickable ? '' : ' non-clickable') + '" ' + onclick + '>' +
                 '<div class="summary-label">' + item.label + '</div>' +
                 '<div class="summary-value">' + item.value + '</div>' +
             '</div>';
@@ -3014,6 +3085,25 @@
         }
         const summaryBtn = document.getElementById('seasonSummaryBtn');
         if (summaryBtn) summaryBtn.style.display = (selectedSeason && currentFilter === 'season') ? 'inline-block' : 'none';
+        // Show clear button only when a filter is active
+        const clearBtn = document.getElementById('clearFiltersBtn');
+        if (clearBtn) clearBtn.classList.toggle('visible', !!(selectedSeason || selectedCompetition || searchTerm || document.getElementById('resultSelect').value || document.getElementById('venueSelect').value));
+        // Active filter banner
+        const bannerEl = document.getElementById('activeFilterBanner');
+        if (bannerEl) {
+            const chips = [];
+            if (selectedSeason) chips.push(selectedSeason);
+            if (selectedCompetition) chips.push(selectedCompetition);
+            if (searchTerm) chips.push('\u201c' + searchTerm + '\u201d');
+            if (chips.length > 0) {
+                bannerEl.innerHTML = '<span>Filtered by</span>' +
+                    chips.map(c => '<span class="active-filter-chip">' + c + '</span>').join('') +
+                    '<button class="active-filter-clear" onclick="clearFilterBar()">Clear all</button>';
+                bannerEl.style.display = 'flex';
+            } else {
+                bannerEl.style.display = 'none';
+            }
+        }
         const totalCount = filtered._totalCount;
         let html;
         if (streakFilters.includes(currentFilter) && filtered._allStreaks && filtered._allStreaks.length > 1) {
@@ -3770,10 +3860,12 @@
         const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
         const chartW = W - PAD.left - PAD.right; const chartH = H - PAD.top - PAD.bottom;
 
-        // Scale y-axis to max of peaks (not averages) so dots always fit
+        // Scale y-axis: floor at nearest 100 below min avg, ceiling at max peak
         const maxVal = Math.ceil(Math.max(...data.map(d => d.peak)) / 100) * 100;
+        const minAvg = Math.min(...data.map(d => d.avg));
+        const minVal = Math.max(0, Math.floor((minAvg * 0.85) / 100) * 100);
         const barW = chartW / data.length; const BAR_GAP = Math.max(2, barW * 0.15);
-        const yScale = v => PAD.top + chartH - (v / maxVal) * chartH;
+        const yScale = v => PAD.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
 
         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#fbfbf8';
         ctx.fillRect(0, 0, W, H);
@@ -3781,7 +3873,7 @@
         ctx.font = (isMobile ? '10' : '11') + 'px "DM Sans", -apple-system, sans-serif';
         const yTicks = isMobile ? 4 : 5;
         for (let i = 0; i <= yTicks; i++) {
-            const v = Math.round((maxVal / yTicks) * i); const y = yScale(v);
+            const v = Math.round(minVal + (maxVal - minVal) / yTicks * i); const y = yScale(v);
             ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#ccc' : '#e8e6df'; ctx.lineWidth = 1;
             ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
             ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'right';
@@ -3792,7 +3884,7 @@
         // Draw bars
         data.forEach((d, i) => {
             const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
-            const barH = (d.avg / maxVal) * chartH; const y = PAD.top + chartH - barH;
+            const barH = ((d.avg - minVal) / (maxVal - minVal)) * chartH; const y = PAD.top + chartH - barH;
             const alpha = 0.3 + 0.7 * (i / (data.length - 1));
             ctx.fillStyle = `rgba(22,101,52,${alpha.toFixed(2)})`;
             ctx.beginPath(); ctx.roundRect(x, y, bw, barH, [3, 3, 0, 0]); ctx.fill();
@@ -3828,7 +3920,7 @@
         function getBarHit(mx, my) {
             for (let i = 0; i < data.length; i++) {
                 const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
-                const barH = (data[i].avg / maxVal) * chartH; const y = PAD.top + chartH - barH;
+                const barH = ((data[i].avg - minVal) / (maxVal - minVal)) * chartH; const y = PAD.top + chartH - barH;
                 if (mx >= x - HOVER_PAD && mx <= x + bw + HOVER_PAD && my >= y - HOVER_PAD && my <= PAD.top + chartH + HOVER_PAD) return data[i];
             }
             return null;
