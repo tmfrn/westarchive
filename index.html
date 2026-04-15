@@ -173,6 +173,181 @@ body {
     padding: 13px 32px;
     cursor: pointer;
     user-select: none;
+}<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>West Didsbury & Chorlton AFC - Men's Team Match Archive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f5f5f0;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fafaf7;
+            --bg-surface: #fbfbf8;
+            --bg-elevated: #ffffff;
+            --border-primary: #e0ddd5;
+            --border-subtle: #eae8e1;
+            --text-primary: #1a1a18;
+            --text-secondary: #5a5a52;
+            --text-muted: #8a8a80;
+            --text-bright: #0d0d0c;
+            --accent: #166534;
+            --accent-dim: #15803d;
+            --accent-deep: #14532d;
+            --accent-surface: rgba(22,101,52,0.05);
+            --accent-border: rgba(22,101,52,0.18);
+            --win: #166534;
+            --win-bg: rgba(22,101,52,0.08);
+            --draw: #4b5563;
+            --draw-bg: rgba(75,85,99,0.10);
+            --loss: #991b1b;
+            --loss-bg: rgba(153,27,27,0.08);
+            --font-display: 'Bricolage Grotesque', 'Georgia', serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    min-height: 100vh;
+    color: var(--text-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Grain texture overlay */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ===== HEADER ===== */
+.header {
+    padding: 56px 32px 44px;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+    opacity: 0.6;
+}
+
+.header-content { position: relative; z-index: 1; }
+
+.header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ===== TEAM TABS ===== */
+.team-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 28px;
+}
+
+.team-tab {
+    padding: 9px 22px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border-primary);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+    font-family: var(--font-body);
+    letter-spacing: 0.02em;
+}
+
+.team-tab:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-secondary);
+}
+
+.team-tab.active {
+    background: var(--text-bright);
+    border-color: var(--text-bright);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* ===== ERROR BANNER ===== */
+.error-banner {
+    display: none;
+    padding: 16px 32px;
+    background: var(--loss-bg);
+    border-bottom: 1px solid rgba(248,113,113,0.3);
+    color: var(--loss);
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.error-banner button {
+    margin-left: 16px;
+    padding: 7px 18px;
+    background: var(--loss);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.82rem;
+    transition: opacity 0.2s;
+}
+
+.error-banner button:hover { opacity: 0.85; }
+
+/* ===== OTD BANNER ===== */
+.otd-banner {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-primary);
+    border-left: 3px solid var(--accent);
+}
+.otd-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 32px;
+    cursor: pointer;
+    user-select: none;
 }
 .otd-summary:hover { background: var(--bg-surface); }
 .otd-icon { font-size: 1em; flex-shrink: 0; }
@@ -2082,7 +2257,7 @@ body {
     <div class="pre-nls-toggle-card" id="preNLSToggle" onclick="togglePreNLS()">
         <div class="pre-nls-toggle-label">
             Include pre-National League System era
-            <span>Before 2012/13 · Step 6 / Level 20</span>
+            <span>Before 2012/13 · Step 6 / Level 10</span>
         </div>
         <div class="pre-nls-toggle-switch"></div>
     </div>
@@ -2560,8 +2735,17 @@ body {
     function isPreNLS(m) {
         if (!m || !m.Season) return false;
         const s = m.Season.trim();
-        // Seasons before 2012/13 are pre-NLS (Manchester League era)
         return s < '2012/13';
+    }
+
+    function eraMatches() {
+        if (showPreNLS) return MATCHES_DATA;
+        return MATCHES_DATA.filter(m => !isPreNLS(m));
+    }
+
+    function preNLSDateKeys() {
+        if (showPreNLS) return new Set();
+        return new Set(MATCHES_DATA.filter(m => isPreNLS(m)).map(m => normaliseDateKey(m.Date || '')));
     }
 
     function formatPreNLSSeason(s) {
@@ -2575,6 +2759,11 @@ body {
         const card = document.getElementById('preNLSToggle');
         if (card) card.classList.toggle('on', showPreNLS);
         listCap = 20;
+        calculateRecords();
+        populateSummary();
+        displayCurrentStreak();
+        aggregateGoals();
+        renderGoalscorers();
         renderMatches();
     }
 
@@ -2632,7 +2821,7 @@ body {
 
     function calculateCurrentStreak() {
         if (MATCHES_DATA.length === 0) return null;
-        const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        const validMatches = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
         const sortedMatches = [...validMatches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
         if (sortedMatches.length === 0) return null;
         const latestMatch = sortedMatches[sortedMatches.length - 1];
@@ -2658,7 +2847,7 @@ body {
 
     function renderFormGuide() {
         const el = document.getElementById('formGuide'); if (!el) return;
-        const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        const validMatches = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
         const sorted = [...validMatches].sort((a, b) => parseDate(a.Date) - parseDate(b.Date));
         const last5 = sorted.slice(-5);
         if (last5.length === 0) { el.style.display = 'none'; return; }
@@ -2692,7 +2881,7 @@ body {
     }
 
     function calculateRecords() {
-        const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        const validMatches = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
         records.biggestWin = validMatches.filter(m => effectiveResult(m) === 'W').sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])).slice(0, 20);
         records.biggestLoss = validMatches.filter(m => effectiveResult(m) === 'L').sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])).slice(0, 20);
         records.highestScore = [...validMatches].sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, 20);
@@ -2745,11 +2934,12 @@ body {
     }
 
     function populateSummary() {
-        const validMatches = MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        const era = eraMatches();
+        const validMatches = era.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
         const totalMatches = validMatches.length;
-        const abandonedCount = MATCHES_DATA.filter(m => m.Abandoned === 'Y').length;
-        const friendlyCount = MATCHES_DATA.filter(m => isFriendly(m)).length;
-        const nullVoidCount = MATCHES_DATA.filter(m => isNullVoid(m)).length;
+        const abandonedCount = era.filter(m => m.Abandoned === 'Y').length;
+        const friendlyCount = era.filter(m => isFriendly(m)).length;
+        const nullVoidCount = era.filter(m => isNullVoid(m)).length;
         const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
         const draws = validMatches.filter(m => effectiveResult(m) === 'D').length;
         const losses = validMatches.filter(m => effectiveResult(m) === 'L').length;
@@ -2758,7 +2948,7 @@ body {
         const gd = goalsFor - goalsAgainst;
         const winPct = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
         const biggestWin = records.biggestWin[0]; const biggestLoss = records.biggestLoss[0];
-        const shootouts = MATCHES_DATA.filter(m => m.Penalties === 'Y');
+        const shootouts = era.filter(m => m.Penalties === 'Y');
         const shootoutW = shootouts.filter(m => m['Penalty Result'] === 'W').length;
         const shootoutL = shootouts.filter(m => m['Penalty Result'] === 'L').length;
         const shootoutValue = shootouts.length === 0 ? 'None on record' : shootouts.length + ' shootouts — W' + shootoutW + ' L' + shootoutL;
@@ -3068,11 +3258,11 @@ body {
         else if (currentFilter === 'most-goals-total') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
         else if (currentFilter === 'highest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => b.Attendance - a.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
         else if (currentFilter === 'lowest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => a.Attendance - b.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
-        else if (currentFilter === 'win-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W');
-        else if (currentFilter === 'draw-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'D');
-        else if (currentFilter === 'loss-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L');
-        else if (currentFilter === 'unbeaten-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
-        else if (currentFilter === 'winless-streak') filtered = findLongestStreak(MATCHES_DATA.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
+        else if (currentFilter === 'win-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W');
+        else if (currentFilter === 'draw-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'D');
+        else if (currentFilter === 'loss-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L');
+        else if (currentFilter === 'unbeaten-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D');
+        else if (currentFilter === 'winless-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D');
         else if (currentFilter === 'on-this-day') { const today = new Date(); const todayDay = today.getDate(); const todayMonth = today.getMonth(); filtered = filtered.filter(m => { const matchDate = parseDate(m.Date); if (!matchDate) return false; return matchDate.getDate() === todayDay && matchDate.getMonth() === todayMonth; }); }
         const skipDateSortFilters = ['biggest-wins', 'biggest-losses', 'highest-attendance', 'lowest-attendance', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak', 'random'];
         if (!skipDateSortFilters.includes(currentFilter)) {
@@ -3746,10 +3936,13 @@ body {
         const nonCountingDateKeys = new Set(
             MATCHES_DATA.filter(m => isNonCounting(m)).map(m => normaliseDateKey(m.Date || ''))
         );
-        // playerGoals and playerMilestones only count goals from counting matches
+        // Date keys excluded from tallies/milestones due to era toggle
+        const excludedEraDateKeys = preNLSDateKeys();
+        // playerGoals and playerMilestones only count goals from counting, in-era matches
         const westGoals = GOALS_DATA.filter(r => {
             if (r['For/Against'] !== 'For' || r['Own Goal'] === 'Y' || !(r['Scorer'] || '').trim()) return false;
-            return !nonCountingDateKeys.has(normaliseDateKey(r['Date'] || ''));
+            const dk = normaliseDateKey(r['Date'] || '');
+            return !nonCountingDateKeys.has(dk) && !excludedEraDateKeys.has(dk);
         }).slice().sort((a, b) => { const da = parseDate(a['Date']), db = parseDate(b['Date']); if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db; });
         const MILESTONES = new Set([1, 10, 25, 50, 100, 200, 300]);
         const runningTotals = {}; const milestoneSeen = {};
@@ -3758,12 +3951,12 @@ body {
             runningTotals[name] = (runningTotals[name] || 0) + 1; const total = runningTotals[name]; const seenKey = name + '|' + total;
             if (MILESTONES.has(total) && !milestoneSeen[seenKey]) { milestoneSeen[seenKey] = true; const matchKey = name + '|' + dateKey + '|' + minute; if (!playerMilestones[matchKey]) playerMilestones[matchKey] = total; }
         });
-        // playerGoals tally: counting matches only
+        // playerGoals tally: counting, in-era matches only
         GOALS_DATA.forEach(row => {
             const dateKey = normaliseDateKey(row['Date'] || ''); const forAgainst = row['For/Against']; const isOG = row['Own Goal'] === 'Y';
             const name = (row['Scorer'] || '').trim(); const minute = (row['Minute'] || '').trim(); const isPen = row['Penalty'] === 'Y';
-            if (forAgainst === 'For' && !isOG && name && !nonCountingDateKeys.has(dateKey)) playerGoals[name] = (playerGoals[name] || 0) + 1;
-            // scorersByDate includes ALL matches (so scorers show on friendly/null-void cards)
+            if (forAgainst === 'For' && !isOG && name && !nonCountingDateKeys.has(dateKey) && !excludedEraDateKeys.has(dateKey)) playerGoals[name] = (playerGoals[name] || 0) + 1;
+            // scorersByDate includes ALL matches (so scorers show on any match card)
             if (!name) return;
             const entry = { name, minute, pen: isPen, og: isOG };
             if (dateKey) { if (!scorersByDate[dateKey]) scorersByDate[dateKey] = { west: [], opp: [] }; if (forAgainst === 'For') scorersByDate[dateKey].west.push(entry); else scorersByDate[dateKey].opp.push(entry); }
