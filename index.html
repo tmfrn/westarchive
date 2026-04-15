@@ -1929,28 +1929,37 @@ body {
 .pre-nls-toggle-card {
     display: none;
     align-items: center; justify-content: space-between; gap: 12px;
-    padding: 10px 14px; margin-bottom: 14px;
-    background: var(--surface-secondary); border: 1px solid var(--border-primary);
+    padding: 12px 16px; margin-bottom: 14px;
+    background: var(--accent-surface);
+    border: 1.5px solid var(--accent-border);
     border-radius: var(--radius-md); cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
 }
+.pre-nls-toggle-card:hover { background: rgba(22,101,52,0.09); border-color: rgba(22,101,52,0.3); }
 .pre-nls-toggle-card.visible { display: flex; }
+.pre-nls-toggle-card.on { background: rgba(22,101,52,0.1); border-color: rgba(22,101,52,0.4); }
 .pre-nls-toggle-label {
-    font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); line-height: 1.35;
+    font-size: 0.82rem; font-weight: 700; color: var(--accent-deep); line-height: 1.35;
+    display: flex; align-items: center; gap: 8px;
 }
-.pre-nls-toggle-label span {
-    display: block; font-size: 0.71rem; font-weight: 400; color: var(--text-muted); margin-top: 2px;
+.pre-nls-toggle-label::before {
+    content: '🕰'; font-size: 1rem; flex-shrink: 0;
+}
+.pre-nls-toggle-label-text span {
+    display: block; font-size: 0.72rem; font-weight: 400; color: var(--text-secondary); margin-top: 2px;
 }
 .pre-nls-toggle-switch {
-    flex-shrink: 0; width: 36px; height: 20px; border-radius: 100px;
+    flex-shrink: 0; width: 42px; height: 24px; border-radius: 100px;
     background: var(--border-primary); position: relative; transition: background 0.2s;
 }
 .pre-nls-toggle-switch::after {
     content: ''; position: absolute; top: 3px; left: 3px;
-    width: 14px; height: 14px; border-radius: 50%;
+    width: 18px; height: 18px; border-radius: 50%;
     background: #fff; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .pre-nls-toggle-card.on .pre-nls-toggle-switch { background: var(--accent); }
-.pre-nls-toggle-card.on .pre-nls-toggle-switch::after { transform: translateX(16px); }
+.pre-nls-toggle-card.on .pre-nls-toggle-switch::after { transform: translateX(18px); }
 .pre-nls-era-divider {
     display: flex; align-items: center; gap: 10px;
     margin: 20px 0 8px; font-size: 0.72rem; font-weight: 700;
@@ -2081,8 +2090,10 @@ body {
 
     <div class="pre-nls-toggle-card" id="preNLSToggle" onclick="togglePreNLS()">
         <div class="pre-nls-toggle-label">
-            Include pre-National League System era
-            <span>Before 2012/13 · Step 6 / Level 10</span>
+            <div class="pre-nls-toggle-label-text">
+                Include pre-National League System era
+                <span>Before 2012/13 · Step 6 / Level 10</span>
+            </div>
         </div>
         <div class="pre-nls-toggle-switch"></div>
     </div>
