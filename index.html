@@ -624,21 +624,21 @@ body {
     align-self: flex-start;
     margin-left: 0;
     background: none;
-    border: none;
-    color: var(--text-muted);
+    border: 1.5px solid rgba(153,27,27,0.35);
+    color: var(--loss);
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    padding: 6px 8px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-style: dotted;
-    transition: color 0.2s;
+    padding: 7px 14px;
+    border-radius: 100px;
+    min-height: 36px;
+    transition: background 0.15s, border-color 0.15s;
     white-space: nowrap;
+    font-family: var(--font-body);
 }
 
-.lenses-clear:hover { color: var(--text-primary); }
-.lenses-clear.hidden { visibility: hidden; pointer-events: none; }
+.lenses-clear:hover { background: rgba(153,27,27,0.07); border-color: var(--loss); }
+.lenses-clear.hidden { display: none; }
 
 .venue-pills { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
 .venue-pills.hidden { display: none; }
@@ -744,6 +744,24 @@ body {
     pointer-events: none;
 }
 #clearFiltersBtn:not(.visible) { display: none; }
+#clearFiltersBtn {
+    background: none;
+    border: 1.5px solid rgba(153,27,27,0.35);
+    color: var(--loss);
+    font-weight: 700;
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+#clearFiltersBtn:hover {
+    background: rgba(153,27,27,0.07);
+    border-color: var(--loss);
+}
 
 
 .filter-btn {
@@ -875,16 +893,20 @@ body {
     padding: 2px 8px;
     border-radius: 100px;
     font-size: 0.68rem;
-    font-weight: 700;
-    background: var(--accent-surface);
-    color: var(--accent);
-    border: 1px solid var(--accent-border);
+    font-weight: 600;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-primary);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
     vertical-align: middle;
 }
 
-.match-season-chip:hover { background: rgba(22,101,52,0.12); }
+.match-season-chip:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-secondary);
+    border-color: var(--text-muted);
+}
 
 .badge {
     display: inline-block;
@@ -1970,6 +1992,55 @@ body {
 .pre-nls-era-divider::before, .pre-nls-era-divider::after {
     content: ''; flex: 1; height: 1px; background: var(--border-primary);
 }
+.match-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: var(--radius-sm);
+    font-size: 0.68rem;
+    font-weight: 800;
+    font-family: var(--font-display);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    letter-spacing: 0;
+}
+.match-rank-badge.rank-1 { background: linear-gradient(135deg,#b8860b,#daa520); color: #000; border-color: #b8860b; }
+.match-rank-badge.rank-2 { background: linear-gradient(135deg,#8a8a8a,#b0b0b0); color: #000; border-color: #8a8a8a; }
+.match-rank-badge.rank-3 { background: linear-gradient(135deg,#8B4513,#cd7f32); color: #fff; border-color: #8B4513; }
+.pre-nls-inline-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(120,83,15,0.09);
+    color: #7c5208;
+    border: 1px solid rgba(120,83,15,0.22);
+}
+
+.pre-nls-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin: 0 0 14px;
+    background: rgba(120,83,15,0.08);
+    border: 1px solid rgba(120,83,15,0.22);
+    border-radius: var(--radius-sm);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #7c5208;
+    line-height: 1.4;
+}
+.pre-nls-warning-icon { flex-shrink: 0; font-size: 0.9em; }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
@@ -2047,6 +2118,7 @@ body {
         <div class="streak-label">Current Run</div>
         <div class="streak-value" id="streakValue"></div>
         <div class="streak-context" id="streakContext"></div>
+        <div id="streakWarning" class="pre-nls-warning" style="display:none;margin-top:14px;margin-bottom:0;"><span class="pre-nls-warning-icon">⚠️</span>Includes pre-NLS era data</div>
         <div class="form-guide" id="formGuide"></div>
     </div>
 </div>
@@ -2154,7 +2226,7 @@ body {
                 <button class="filter-btn" id="btnWinlessStreak" onclick="setFilter('winless-streak', this)">Winless run</button>
             </div>
         </div>
-        <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">Clear</button>
+        <button class="lenses-clear hidden" id="lensesClear" onclick="clearLens()">✕ Clear</button>
     </div>
 
     <div class="venue-pills hidden" id="venuePills">
@@ -2182,7 +2254,7 @@ body {
             <option value="away-games">Away Only</option>
         </select>
         <button class="filter-btn" onclick="toggleSortOrder()" id="sortToggle">↕ Newest first</button>
-        <button class="filter-btn" id="clearFiltersBtn" onclick="clearFilterBar()">✕ Clear</button>
+        <button class="filter-btn" id="clearFiltersBtn" onclick="clearFilterBar()">✕ Clear filters</button>
     </div>
 </div>
 
@@ -2327,11 +2399,24 @@ body {
     let lensVenue = 'all';
     let allSeasons = [];
     let currentSeasonIndex = 0;
+    let _savedScrollY = 0;
 
     function getSeasons() {
         const seasons = new Set();
         MATCHES_DATA.forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
         return Array.from(seasons).sort().reverse();
+    }
+
+    function openModal(id) {
+        _savedScrollY = window.scrollY;
+        document.getElementById(id).classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        document.body.style.overflow = '';
+        window.scrollTo({ top: _savedScrollY, behavior: 'instant' });
     }
 
     function activateLens(lens, btnEl) {
@@ -2554,13 +2639,19 @@ body {
     }
 
     function clearFilterBar() {
+        // If a lens is active it owns currentFilter — delegate to clearLens() which resets everything
+        if (activeLens) { clearLens(); return; }
         selectedSeason = ''; selectedCompetition = ''; searchTerm = ''; sortOrder = 'desc';
         document.getElementById('searchInput').value = '';
         document.getElementById('seasonSelect').value = '';
         document.getElementById('competitionSelect').value = '';
         document.getElementById('resultSelect').value = '';
         document.getElementById('venueSelect').value = '';
-        if (['wins','draws','losses','home-games','away-games','season','on-this-day','random'].includes(currentFilter)) currentFilter = 'all';
+        const lensFilters = ['wins','draws','losses','home-games','away-games','season','on-this-day','random',
+                             'biggest-wins','biggest-losses','most-goals-scored','most-goals-conceded',
+                             'most-goals-total','highest-attendance','lowest-attendance',
+                             'win-streak','draw-streak','loss-streak','unbeaten-streak','winless-streak'];
+        if (lensFilters.includes(currentFilter)) currentFilter = 'all';
         const fb = document.querySelector('.filter-bar');
         fb.classList.remove('has-filter'); fb.classList.remove('runs-active');
         document.getElementById('lensesRow').classList.remove('filter-active');
@@ -2626,6 +2717,12 @@ body {
             return new Date(year, month, day);
         }
         return null;
+    }
+
+    function formatDateShort(dateStr) {
+        const d = parseDate(dateStr);
+        if (!d) return dateStr;
+        return d.getDate() + ' ' + d.toLocaleString('en-GB', { month: 'short' }) + ' ' + d.getFullYear();
     }
 
     function normaliseDateKey(raw) {
@@ -2716,16 +2813,30 @@ body {
             streakContext.textContent = prefix + typeLabel + ' in club history.';
         } else {
             const inst = streak.longestInstances && streak.longestInstances[0];
-            const dateRange = inst ? inst.start + ' to ' + inst.end : '';
+            const dateRange = inst ? formatDateShort(inst.start) + ' – ' + formatDateShort(inst.end) : '';
             streakContext.textContent = 'Longest ' + typeLabel + ': ' + streak.longestCount + ' games (' + dateRange + ')';
         }
         renderFormGuide();
+        const streakWarning = document.getElementById('streakWarning');
+        if (streakWarning) streakWarning.style.display = showPreNLS ? 'flex' : 'none';
     }
 
     function calculateRecords() {
         const validMatches = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
-        records.biggestWin = validMatches.filter(m => effectiveResult(m) === 'W').sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])).slice(0, 20);
-        records.biggestLoss = validMatches.filter(m => effectiveResult(m) === 'L').sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])).slice(0, 20);
+        records.biggestWin = validMatches.filter(m => effectiveResult(m) === 'W').sort((a, b) => {
+            const marginDiff = (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']);
+            if (marginDiff !== 0) return marginDiff;
+            const totalDiff = (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against']);
+            if (totalDiff !== 0) return totalDiff;
+            return (parseDate(b.Date) || 0) - (parseDate(a.Date) || 0);
+        }).slice(0, 20);
+        records.biggestLoss = validMatches.filter(m => effectiveResult(m) === 'L').sort((a, b) => {
+            const marginDiff = (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']);
+            if (marginDiff !== 0) return marginDiff;
+            const totalDiff = (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against']);
+            if (totalDiff !== 0) return totalDiff;
+            return (parseDate(b.Date) || 0) - (parseDate(a.Date) || 0);
+        }).slice(0, 20);
         records.highestScore = [...validMatches].sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, 20);
         records.mostGoalsConceded = [...validMatches].sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, 20);
         records.highestAttendance = [...validMatches].filter(m => m.Attendance).sort((a, b) => b.Attendance - a.Attendance).slice(0, 20);
@@ -2761,6 +2872,8 @@ body {
         const tags = [];
         if (isNonCounting(match)) return tags; // friendlies and null-&-void matches earn no record tags
         if (match.Abandoned === 'Y') return tags;
+        // Pre-NLS matches don't earn record tags when shown alongside NLS matches — records are era-specific
+        if (showPreNLS && isPreNLS(match)) return tags;
         if (match.Opposition === 'Maine Road' && effectiveResult(match) === 'W') tags.push({ text: '🏆 M21 IS OURS', isSilver: false });
         if (records.biggestWin.length > 0 && effectiveResult(match) === 'W') { const margin = match['Goals For'] - match['Goals Against']; const recordMargin = records.biggestWin[0]['Goals For'] - records.biggestWin[0]['Goals Against']; if (margin === recordMargin) tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false }); }
         if (records.biggestLoss.length > 0 && effectiveResult(match) === 'L') { const margin = match['Goals Against'] - match['Goals For']; const recordMargin = records.biggestLoss[0]['Goals Against'] - records.biggestLoss[0]['Goals For']; if (margin === recordMargin) tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false }); }
@@ -2803,16 +2916,19 @@ body {
             { label: 'Wins', value: wins, filter: 'wins' }, { label: 'Draws', value: draws, filter: 'draws' }, { label: 'Losses', value: losses, filter: 'losses' },
             { label: 'Win Rate', value: winPct + '%', filter: null },
             { label: 'Goal Difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
-            { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '–' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + biggestWin.Date + ')' : 'N/A', filter: 'biggest-wins' },
-            { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '–' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + biggestLoss.Date + ')' : 'N/A', filter: 'biggest-losses' },
-            { label: 'Longest Winning Run', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + records.longestWinStreak[0].Date + ' to ' + records.longestWinStreak[records.longestWinStreak.length - 1].Date + ')' : 'N/A', filter: 'win-streak' },
-            { label: 'Longest Unbeaten Run', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + records.longestUnbeatenStreak[0].Date + ' to ' + records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date + ')' : 'N/A', filter: 'unbeaten-streak' },
-            { label: 'Longest Losing Run', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + records.longestLossStreak[0].Date + ' to ' + records.longestLossStreak[records.longestLossStreak.length - 1].Date + ')' : 'N/A', filter: 'loss-streak' },
-            { label: 'Longest Winless Run', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + records.longestWinlessStreak[0].Date + ' to ' + records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date + ')' : 'N/A', filter: 'winless-streak' },
+            { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '–' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + formatDateShort(biggestWin.Date) + ')' : 'N/A', filter: 'biggest-wins' },
+            { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '–' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + formatDateShort(biggestLoss.Date) + ')' : 'N/A', filter: 'biggest-losses' },
+            { label: 'Longest Winning Run', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + formatDateShort(records.longestWinStreak[0].Date) + ' – ' + formatDateShort(records.longestWinStreak[records.longestWinStreak.length - 1].Date) + ')' : 'N/A', filter: 'win-streak' },
+            { label: 'Longest Unbeaten Run', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + formatDateShort(records.longestUnbeatenStreak[0].Date) + ' – ' + formatDateShort(records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date) + ')' : 'N/A', filter: 'unbeaten-streak' },
+            { label: 'Longest Losing Run', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + formatDateShort(records.longestLossStreak[0].Date) + ' – ' + formatDateShort(records.longestLossStreak[records.longestLossStreak.length - 1].Date) + ')' : 'N/A', filter: 'loss-streak' },
+            { label: 'Longest Winless Run', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + formatDateShort(records.longestWinlessStreak[0].Date) + ' – ' + formatDateShort(records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date) + ')' : 'N/A', filter: 'winless-streak' },
             { label: 'Penalty Shootouts', value: shootoutValue, filter: null, action: shootouts.length > 0 ? 'showShootoutModal()' : null }
         ];
         const grid = document.getElementById('summaryGrid');
-        grid.innerHTML = summaryData.map(item => {
+        const warningHtml = showPreNLS
+            ? '<div class="pre-nls-warning"><span class="pre-nls-warning-icon">⚠️</span>Records and statistics below include pre-National League System data (before 2012/13) and may not reflect the club\'s NLS-era performance.</div>'
+            : '';
+        grid.innerHTML = warningHtml + summaryData.map(item => {
             const clickable = item.filter || item.action;
             const onclick = item.action ? 'onclick="' + item.action + '"' : (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '');
             return '<div class="summary-item' + (clickable ? '' : ' non-clickable') + '" ' + onclick + '>' +
@@ -2969,7 +3085,7 @@ body {
         return { html, milestones };
     }
 
-    function renderMatchCard(match) {
+    function renderMatchCard(match, rank) {
         const hasPens = match['Penalties'] === 'Y';
         const penResult = match['Penalty Result'] || '';
         const penScore = penScoreStr(match) || '';
@@ -3005,7 +3121,15 @@ body {
             displayFtHomeScore = match['FT Goals For']; displayFtAwayScore = match['FT Goals Against'];
         }
         const tags = getMatchTags(match);
-        const tagsHtml = tags.length > 0 ? '<div class="match-tags">' + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>' : '';
+        const rankedViews = ['biggest-wins','biggest-losses','most-goals-scored','most-goals-conceded','most-goals-total','highest-attendance','lowest-attendance'];
+        const showPreNLSBadge = showPreNLS && isPreNLS(match) && rankedViews.includes(currentFilter);
+        const preNLSBadgeHtml = showPreNLSBadge ? '<span class="pre-nls-inline-badge">🕰 Pre-NLS</span>' : '';
+        const rankBadgeHtml = rank != null
+            ? '<span class="match-rank-badge' + (rank <= 3 ? ' rank-' + rank : '') + '">' + rank + '</span>'
+            : '';
+        const tagsHtml = (tags.length > 0 || showPreNLSBadge || rankBadgeHtml)
+            ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>'
+            : '';
         let scorersHtml = '';
         // Show scorers for non-counting matches but suppress milestone notes
         if (match.Abandoned !== 'Y') {
@@ -3035,7 +3159,7 @@ body {
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
         const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
         const safeSeason = (match.Season || '').replace(/'/g, "\\'");
-        const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + match.Season + '</span>' : '';
+        const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
         const safeDate = (match.Date || '').replace(/'/g, "\\'");
         const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊 Match Timeline</button>' : '';
         // Banner for non-counting matches
@@ -3093,8 +3217,8 @@ body {
         else if (currentFilter === 'home-games') filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y' && !isNonCounting(m));
         else if (currentFilter === 'away-games') filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y' && !isNonCounting(m));
         else if (currentFilter === 'season') { /* selectedSeason already applied above */ }
-        else if (currentFilter === 'biggest-wins') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'biggest-losses') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'biggest-wins') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => { const md = (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']); if (md !== 0) return md; const td = (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against']); if (td !== 0) return td; return (parseDate(b.Date) || 0) - (parseDate(a.Date) || 0); }); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'biggest-losses') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => { const md = (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']); if (md !== 0) return md; const td = (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against']); if (td !== 0) return td; return (parseDate(b.Date) || 0) - (parseDate(a.Date) || 0); }); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
         else if (currentFilter === 'most-goals-scored') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
         else if (currentFilter === 'most-goals-conceded') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap); filtered._totalCount = base.length; }
         else if (currentFilter === 'most-goals-total') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
@@ -3183,9 +3307,12 @@ body {
         }
         const summaryBtn = document.getElementById('seasonSummaryBtn');
         if (summaryBtn) summaryBtn.style.display = (selectedSeason && currentFilter === 'season') ? 'inline-block' : 'none';
-        // Show clear button only when a filter is active
+        // Show clear button only when filter-bar state is active (not lens state — that has its own lensesClear button)
         const clearBtn = document.getElementById('clearFiltersBtn');
-        if (clearBtn) clearBtn.classList.toggle('visible', !!(selectedSeason || selectedCompetition || searchTerm || document.getElementById('resultSelect').value || document.getElementById('venueSelect').value) || activeLens || (currentFilter !== 'all' && currentFilter !== 'season'));
+        const filterBarHasState = !!(selectedSeason || selectedCompetition || searchTerm ||
+            document.getElementById('resultSelect').value || document.getElementById('venueSelect').value);
+        const filterBtnActive = !!(currentFilter && !['all','season','random'].includes(currentFilter) && !activeLens);
+        if (clearBtn) clearBtn.classList.toggle('visible', filterBarHasState || filterBtnActive);
         // Active filter banner
         const bannerEl = document.getElementById('activeFilterBanner');
         if (bannerEl) {
@@ -3210,22 +3337,25 @@ body {
             const label = runLabels[currentFilter] || 'Run';
             html = allStreaks.map((streak, idx) => {
                 const startDate = streak[0] ? streak[0].Date : ''; const endDate = streak[streak.length - 1] ? streak[streak.length - 1].Date : '';
-                const divider = '<div class="streak-divider"><span>' + label + ' ' + (idx + 1) + ' of ' + allStreaks.length + ' &mdash; ' + startDate + ' to ' + endDate + '</span></div>';
+                const divider = '<div class="streak-divider"><span>' + label + ' ' + (idx + 1) + ' of ' + allStreaks.length + ' &mdash; ' + formatDateShort(startDate) + ' – ' + formatDateShort(endDate) + '</span></div>';
                 return divider + streak.map(match => renderMatchCard(match)).join('');
             }).join('');
         } else {
-            if (showPreNLS && filtered.length > 0) {
+            const isRanked = recordFilters.includes(currentFilter);
+            if (showPreNLS && filtered.length > 0 && !isRanked) {
                 const nlsMatches = filtered.filter(m => !isPreNLS(m));
                 const preNLSMatches = filtered.filter(m => isPreNLS(m));
                 let parts = [];
                 if (sortOrder === 'asc') {
-                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-National League System</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
+                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-NLS era</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
                     if (nlsMatches.length > 0) parts.push(nlsMatches.map(match => renderMatchCard(match)).join(''));
                 } else {
                     if (nlsMatches.length > 0) parts.push(nlsMatches.map(match => renderMatchCard(match)).join(''));
-                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-National League System</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
+                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-NLS era</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
                 }
                 html = parts.join('');
+            } else if (isRanked) {
+                html = filtered.map((match, i) => renderMatchCard(match, i + 1)).join('');
             } else {
                 html = filtered.map(match => renderMatchCard(match)).join('');
             }
@@ -3277,7 +3407,7 @@ body {
                     streakContext.textContent = allStreaks.length + ' joint-longest occurrences';
                 } else {
                     const startDate = matches[0].Date; const endDate = matches[matches.length - 1].Date;
-                    streakContext.textContent = startDate + ' to ' + endDate;
+                    streakContext.textContent = formatDateShort(startDate) + ' – ' + formatDateShort(endDate);
                 }
                 streakBox.style.display = 'block';
             } else { streakBox.style.display = 'none'; }
@@ -3370,13 +3500,11 @@ body {
             '<div class="season-modal-fact"><span class="season-modal-fact-label">' + f.label + '</span><span class="season-modal-fact-value">' + f.value + '</span></div>'
         ).join('');
 
-        document.getElementById('seasonOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openModal('seasonOverlay');
     }
 
     function closeSeasonSummary() {
-        document.getElementById('seasonOverlay').classList.remove('active');
-        document.body.style.overflow = '';
+        closeModal('seasonOverlay');
     }
 
     function showH2H(opposition) {
@@ -3455,10 +3583,10 @@ body {
             matchHTML += preNLSSorted.map(renderH2HRow).join('');
         }
         document.getElementById('h2hMatches').innerHTML = matchHTML;
-        document.getElementById('h2hOverlay').classList.add('active'); document.body.style.overflow = 'hidden';
+        openModal('h2hOverlay');
     }
 
-    function closeH2H() { document.getElementById('h2hOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+    function closeH2H() { closeModal('h2hOverlay'); }
 
     function showPlayerModal(name) {
         const nonCountingDateKeys = new Set(
@@ -3585,8 +3713,7 @@ body {
         document.getElementById('playerMatches').innerHTML = renderMatchList();
         document.getElementById('playerMatches')._showAll = false;
 
-        document.getElementById('playerOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openModal('playerOverlay');
     }
 
     function togglePlayerMatchList(btn, total) {
@@ -3600,9 +3727,15 @@ body {
         });
     }
 
-    function closePlayerModal() { document.getElementById('playerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+    function closePlayerModal() { closeModal('playerOverlay'); }
 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeH2H(); closePlayerModal(); closeSeasonSummary(); closeShootoutModal(); closeTimeline(); } });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const activeModal = ['seasonOverlay','h2hOverlay','playerOverlay','shootoutOverlay','timelineOverlay']
+                .find(id => document.getElementById(id).classList.contains('active'));
+            if (activeModal) closeModal(activeModal);
+        }
+    });
 
     function showShootoutModal() {
         const shootouts = MATCHES_DATA.filter(m => m.Penalties === 'Y')
@@ -3647,13 +3780,11 @@ body {
             '<h4 style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">All Shootouts</h4>' +
             rows;
 
-        document.getElementById('shootoutOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openModal('shootoutOverlay');
     }
 
     function closeShootoutModal() {
-        document.getElementById('shootoutOverlay').classList.remove('active');
-        document.body.style.overflow = '';
+        closeModal('shootoutOverlay');
     }
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -4540,13 +4671,11 @@ body {
             '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>' +
             (match.Venue && match.Venue.trim() ? '<span class="tl-meta-pill info">📍 ' + match.Venue + '</span>' : '');
         document.getElementById('timelineBody').innerHTML = bodyHtml;
-        document.getElementById('timelineOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openModal('timelineOverlay');
     }
 
     function closeTimeline() {
-        document.getElementById('timelineOverlay').classList.remove('active');
-        document.body.style.overflow = '';
+        closeModal('timelineOverlay');
     }
 
     function setAttendanceMode(mode) {
