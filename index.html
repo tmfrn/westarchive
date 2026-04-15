@@ -173,181 +173,6 @@ body {
     padding: 13px 32px;
     cursor: pointer;
     user-select: none;
-}<!DOCTYPE html>
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>West Didsbury & Chorlton AFC - Men's Team Match Archive</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-primary: #f5f5f0;
-            --bg-card: #ffffff;
-            --bg-card-hover: #fafaf7;
-            --bg-surface: #fbfbf8;
-            --bg-elevated: #ffffff;
-            --border-primary: #e0ddd5;
-            --border-subtle: #eae8e1;
-            --text-primary: #1a1a18;
-            --text-secondary: #5a5a52;
-            --text-muted: #8a8a80;
-            --text-bright: #0d0d0c;
-            --accent: #166534;
-            --accent-dim: #15803d;
-            --accent-deep: #14532d;
-            --accent-surface: rgba(22,101,52,0.05);
-            --accent-border: rgba(22,101,52,0.18);
-            --win: #166534;
-            --win-bg: rgba(22,101,52,0.08);
-            --draw: #4b5563;
-            --draw-bg: rgba(75,85,99,0.10);
-            --loss: #991b1b;
-            --loss-bg: rgba(153,27,27,0.08);
-            --font-display: 'Bricolage Grotesque', 'Georgia', serif;
-            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-            --ease: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: var(--font-body);
-    background: var(--bg-primary);
-    min-height: 100vh;
-    color: var(--text-primary);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-}
-
-/* Grain texture overlay */
-
-.container {
-    max-width: 1100px;
-    margin: 0 auto;
-    min-height: 100vh;
-    position: relative;
-}
-
-/* ===== HEADER ===== */
-.header {
-    padding: 56px 32px 44px;
-    text-align: center;
-    position: relative;
-    border-bottom: 1px solid var(--border-primary);
-}
-
-.header::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
-    opacity: 0.6;
-}
-
-.header-content { position: relative; z-index: 1; }
-
-.header h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 800;
-    color: var(--text-bright);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin-bottom: 10px;
-}
-
-.header p {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-/* ===== TEAM TABS ===== */
-.team-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 28px;
-}
-
-.team-tab {
-    padding: 9px 22px;
-    border-radius: 100px;
-    border: 1.5px solid var(--border-primary);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s var(--ease);
-    font-family: var(--font-body);
-    letter-spacing: 0.02em;
-}
-
-.team-tab:hover {
-    border-color: var(--text-secondary);
-    color: var(--text-secondary);
-}
-
-.team-tab.active {
-    background: var(--text-bright);
-    border-color: var(--text-bright);
-    color: #fff;
-    font-weight: 700;
-}
-
-/* ===== ERROR BANNER ===== */
-.error-banner {
-    display: none;
-    padding: 16px 32px;
-    background: var(--loss-bg);
-    border-bottom: 1px solid rgba(248,113,113,0.3);
-    color: var(--loss);
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.error-banner button {
-    margin-left: 16px;
-    padding: 7px 18px;
-    background: var(--loss);
-    color: var(--bg-primary);
-    border: none;
-    border-radius: 100px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.82rem;
-    transition: opacity 0.2s;
-}
-
-.error-banner button:hover { opacity: 0.85; }
-
-/* ===== OTD BANNER ===== */
-.otd-banner {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-primary);
-    border-left: 3px solid var(--accent);
-}
-.otd-summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 13px 32px;
-    cursor: pointer;
-    user-select: none;
 }
 .otd-summary:hover { background: var(--bg-surface); }
 .otd-icon { font-size: 1em; flex-shrink: 0; }
@@ -2761,6 +2586,8 @@ body {
         listCap = 20;
         calculateRecords();
         populateSummary();
+        populateSeasonFilter();
+        populateCompetitionFilter();
         displayCurrentStreak();
         aggregateGoals();
         renderGoalscorers();
@@ -2982,7 +2809,7 @@ body {
 
     function populateSeasonFilter() {
         const seasons = new Set();
-        MATCHES_DATA.forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
+        eraMatches().forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
         const sortedSeasons = Array.from(seasons).sort().reverse();
         const select = document.getElementById('seasonSelect');
         select.innerHTML = '<option value="">All Seasons</option>' + sortedSeasons.map(s => '<option value="' + s + '">' + formatPreNLSSeason(s) + '</option>').join('');
@@ -2992,7 +2819,7 @@ body {
 
     function populateCompetitionFilter() {
         const present = new Set();
-        MATCHES_DATA.forEach(m => { const canon = getCanonicalCompetition(m.Competition); if (canon) present.add(canon); });
+        eraMatches().forEach(m => { const canon = getCanonicalCompetition(m.Competition); if (canon) present.add(canon); });
         const leagueOrder = currentTeam === 'women'
             ? ['NWWRL Premier', 'NWWRL Division One South']
             : ['NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs','Manchester League Premier Division','Manchester League Division One'];
