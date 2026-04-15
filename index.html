@@ -1928,29 +1928,31 @@ body {
 /* ===== PRE-NLS TOGGLE ===== */
 .pre-nls-toggle-card {
     display: none;
-    align-items: center; justify-content: space-between; gap: 12px;
-    padding: 12px 16px; margin-bottom: 14px;
+    align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 16px 32px; margin: 0;
     background: var(--accent-surface);
-    border: 1.5px solid var(--accent-border);
-    border-radius: var(--radius-md); cursor: pointer;
+    border-top: 1px solid var(--accent-border);
+    border-bottom: 1px solid var(--accent-border);
+    cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
 }
-.pre-nls-toggle-card:hover { background: rgba(22,101,52,0.09); border-color: rgba(22,101,52,0.3); }
-.pre-nls-toggle-card.visible { display: flex; }
+.pre-nls-toggle-card:hover { background: rgba(22,101,52,0.09); }
+.pre-nls-toggle-card.men-active { display: flex; }
 .pre-nls-toggle-card.on { background: rgba(22,101,52,0.1); border-color: rgba(22,101,52,0.4); }
 .pre-nls-toggle-label {
-    font-size: 0.82rem; font-weight: 700; color: var(--accent-deep); line-height: 1.35;
-    display: flex; align-items: center; gap: 8px;
+    font-size: 0.85rem; font-weight: 700; color: var(--accent-deep); line-height: 1.4;
+    display: flex; align-items: flex-start; gap: 10px;
 }
 .pre-nls-toggle-label::before {
-    content: '🕰'; font-size: 1rem; flex-shrink: 0;
+    content: '🕰'; font-size: 1rem; flex-shrink: 0; margin-top: 1px;
 }
 .pre-nls-toggle-label-text span {
-    display: block; font-size: 0.72rem; font-weight: 400; color: var(--text-secondary); margin-top: 2px;
+    display: block; font-size: 0.78rem; font-weight: 400; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; max-width: 560px;
 }
 .pre-nls-toggle-switch {
     flex-shrink: 0; width: 42px; height: 24px; border-radius: 100px;
     background: var(--border-primary); position: relative; transition: background 0.2s;
+    margin-top: 2px;
 }
 .pre-nls-toggle-switch::after {
     content: ''; position: absolute; top: 3px; left: 3px;
@@ -2011,6 +2013,16 @@ body {
                 </div>
             </div>
         </div>
+
+    <div class="pre-nls-toggle-card men-active" id="preNLSToggle" onclick="togglePreNLS()">
+        <div class="pre-nls-toggle-label">
+            <div class="pre-nls-toggle-label-text">
+                Include pre-National League System results
+                <span>Before 2012/13, the men's team played outside the National League System – the six tiers beneath the English Football League. They competed in what are now classified as regional feeder leagues. Records from this era are extensive but incomplete.</span>
+            </div>
+        </div>
+        <div class="pre-nls-toggle-switch"></div>
+    </div>
 
 <div class="error-banner" id="errorBanner">
     <span id="errorMessage">Error loading match data.</span>
@@ -2086,16 +2098,6 @@ body {
 <div class="controls">
     <div class="search-bar">
         <input type="text" id="searchInput" class="search-input" placeholder="Search opponents, scorers, competitions…">
-    </div>
-
-    <div class="pre-nls-toggle-card" id="preNLSToggle" onclick="togglePreNLS()">
-        <div class="pre-nls-toggle-label">
-            <div class="pre-nls-toggle-label-text">
-                Include pre-National League System era
-                <span>Before 2012/13 · Step 6 / Level 10</span>
-            </div>
-        </div>
-        <div class="pre-nls-toggle-switch"></div>
     </div>
 
     <div class="lenses-row" id="lensesRow">
@@ -2453,7 +2455,10 @@ body {
         gsShowAll = false; gsSelectedSeason = ''; currentFilter = 'all'; selectedSeason = ''; selectedCompetition = '';
         showPreNLS = false;
         const preNLSCard = document.getElementById('preNLSToggle');
-        if (preNLSCard) { preNLSCard.classList.remove('on', 'visible'); }
+        if (preNLSCard) {
+            preNLSCard.classList.remove('on');
+            preNLSCard.classList.toggle('men-active', team === 'men');
+        }
         const gsSelEl = document.getElementById('gsSeasonSelect');
         if (gsSelEl) { gsSelEl.value = ''; gsSelEl.classList.remove('active-filter'); }
         searchTerm = ''; sortOrder = 'desc'; activeLens = null; lensVenue = 'all'; listCap = 20;
@@ -2529,9 +2534,8 @@ body {
             if (sortButton) sortButton.textContent = '↕ Newest first';
             const hasAttendance = MATCHES_DATA.some(m => m.Attendance);
             ['lensBigCrowds', 'lensGhostGames'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = hasAttendance ? '' : 'none'; });
-            const hasPreNLS = currentTeam === 'men' && MATCHES_DATA.some(m => isPreNLS(m));
-            const preNLSCard = document.getElementById('preNLSToggle');
-            if (preNLSCard) preNLSCard.classList.toggle('visible', hasPreNLS);
+            // Restore men-active class on the toggle in case it was cleared on team switch
+            if (currentTeam === 'men') { const preNLSCard = document.getElementById('preNLSToggle'); if (preNLSCard) preNLSCard.classList.add('men-active'); }
         } catch (error) {
             console.error('Error fetching match data:', error);
             document.getElementById('resultCount').textContent = 'Failed to load match data';
@@ -3089,13 +3093,13 @@ body {
         else if (currentFilter === 'home-games') filtered = filtered.filter(m => m['Home/Away'] === 'H' && m.Abandoned !== 'Y' && !isNonCounting(m));
         else if (currentFilter === 'away-games') filtered = filtered.filter(m => m['Home/Away'] === 'A' && m.Abandoned !== 'Y' && !isNonCounting(m));
         else if (currentFilter === 'season') { /* selectedSeason already applied above */ }
-        else if (currentFilter === 'biggest-wins') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'biggest-losses') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'most-goals-scored') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'most-goals-conceded') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'most-goals-total') { let base = eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
-        else if (currentFilter === 'highest-attendance') { let matches = eraMatches().filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => b.Attendance - a.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
-        else if (currentFilter === 'lowest-attendance') { let matches = eraMatches().filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => a.Attendance - b.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
+        else if (currentFilter === 'biggest-wins') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'W'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'biggest-losses') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m) && effectiveResult(m) === 'L'); if (lensVenue === 'home') base = base.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') base = base.filter(m => m['Home/Away'] === 'A'); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For'])); if (searchTerm) base = base.filter(m => matchesSearch(m)); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'most-goals-scored') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals For'] - a['Goals For']).slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'most-goals-conceded') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); filtered = base.sort((a, b) => b['Goals Against'] - a['Goals Against']).slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'most-goals-total') { let base = [...MATCHES_DATA].filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)); if (selectedCompetition) base = base.filter(m => getCanonicalCompetition(m.Competition) === selectedCompetition); base.sort((a, b) => (b['Goals For'] + b['Goals Against']) - (a['Goals For'] + a['Goals Against'])); filtered = base.slice(0, listCap); filtered._totalCount = base.length; }
+        else if (currentFilter === 'highest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => b.Attendance - a.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
+        else if (currentFilter === 'lowest-attendance') { let matches = [...MATCHES_DATA].filter(m => m.Attendance && !isNonCounting(m)); if (lensVenue === 'home') matches = matches.filter(m => m['Home/Away'] === 'H'); else if (lensVenue === 'away') matches = matches.filter(m => m['Home/Away'] === 'A'); matches.sort((a, b) => a.Attendance - b.Attendance); filtered = matches.slice(0, listCap); filtered._totalCount = matches.length; }
         else if (currentFilter === 'win-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'W');
         else if (currentFilter === 'draw-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'D');
         else if (currentFilter === 'loss-streak') filtered = findLongestStreak(eraMatches().filter(m => m.Abandoned !== 'Y' && !isNonCounting(m)), m => effectiveResult(m) === 'L');
@@ -3214,14 +3218,9 @@ body {
                 const nlsMatches = filtered.filter(m => !isPreNLS(m));
                 const preNLSMatches = filtered.filter(m => isPreNLS(m));
                 let parts = [];
-                if (sortOrder === 'asc') {
-                    // Oldest first: pre-NLS era above NLS era
-                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-National League System</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
-                    if (nlsMatches.length > 0) parts.push(nlsMatches.map(match => renderMatchCard(match)).join(''));
-                } else {
-                    // Newest first: NLS era above pre-NLS era
-                    if (nlsMatches.length > 0) parts.push(nlsMatches.map(match => renderMatchCard(match)).join(''));
-                    if (preNLSMatches.length > 0) parts.push('<div class="pre-nls-era-divider">Pre-National League System</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
+                if (nlsMatches.length > 0) parts.push(nlsMatches.map(match => renderMatchCard(match)).join(''));
+                if (preNLSMatches.length > 0) {
+                    parts.push('<div class="pre-nls-era-divider">Pre-National League System</div>' + preNLSMatches.map(match => renderMatchCard(match)).join(''));
                 }
                 html = parts.join('');
             } else {
@@ -3380,20 +3379,20 @@ body {
     function showH2H(opposition) {
         const allMatches = MATCHES_DATA.filter(m => m.Opposition === opposition);
         if (allMatches.length === 0) return;
-        // Use era-appropriate matches for stats: full history when toggle is on, NLS-only otherwise
-        const eraAll = showPreNLS ? allMatches : allMatches.filter(m => !isPreNLS(m));
-        const validEra = eraAll.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
-        const wins = validEra.filter(m => effectiveResult(m) === 'W').length;
-        const draws = validEra.filter(m => effectiveResult(m) === 'D').length;
-        const losses = validEra.filter(m => effectiveResult(m) === 'L').length;
-        const goalsFor = validEra.reduce((s, m) => s + (m['Goals For'] || 0), 0);
-        const goalsAgainst = validEra.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
-        const totalPlayed = validEra.length;
+        // NLS-era only for stats
+        const nlsMatches = allMatches.filter(m => !isPreNLS(m));
+        const validNLS = nlsMatches.filter(m => m.Abandoned !== 'Y' && !isNonCounting(m));
+        const wins = validNLS.filter(m => effectiveResult(m) === 'W').length;
+        const draws = validNLS.filter(m => effectiveResult(m) === 'D').length;
+        const losses = validNLS.filter(m => effectiveResult(m) === 'L').length;
+        const goalsFor = validNLS.reduce((s, m) => s + (m['Goals For'] || 0), 0);
+        const goalsAgainst = validNLS.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
+        const totalPlayed = validNLS.length;
         const winPct = totalPlayed > 0 ? Math.round((wins / totalPlayed) * 100) : 0;
 
-        // Biggest win / loss
-        const winMatches = validEra.filter(m => effectiveResult(m) === 'W');
-        const lossMatches = validEra.filter(m => effectiveResult(m) === 'L');
+        // Biggest win / loss (NLS only)
+        const winMatches = validNLS.filter(m => effectiveResult(m) === 'W');
+        const lossMatches = validNLS.filter(m => effectiveResult(m) === 'L');
         winMatches.sort((a, b) => (b['Goals For'] - b['Goals Against']) - (a['Goals For'] - a['Goals Against']));
         lossMatches.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']));
         const bigWin = winMatches[0];
@@ -3401,37 +3400,36 @@ body {
         const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + bigWin.Date + ')' : '—';
         const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '—';
 
-        const hasPreNLSMatches = allMatches.some(m => isPreNLS(m));
-        const eraNote = (!showPreNLS && hasPreNLSMatches && totalPlayed < allMatches.length) ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era only)</span>' : '';
+        const nlsNote = totalPlayed < allMatches.length ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era only)</span>' : '';
         document.getElementById('h2hTitle').textContent = 'vs ' + opposition;
         document.getElementById('h2hStats').innerHTML =
             '<div class="h2h-stat wins"><div class="h2h-stat-value">' + wins + '</div><div class="h2h-stat-label">Wins</div></div>' +
             '<div class="h2h-stat draws"><div class="h2h-stat-value">' + draws + '</div><div class="h2h-stat-label">Draws</div></div>' +
             '<div class="h2h-stat losses"><div class="h2h-stat-value">' + losses + '</div><div class="h2h-stat-label">Losses</div></div>';
         document.getElementById('h2hExtra').innerHTML =
-            '<div class="h2h-extra-item"><strong>Played:</strong> ' + totalPlayed + eraNote + '</div>' +
+            '<div class="h2h-extra-item"><strong>Played:</strong> ' + totalPlayed + nlsNote + '</div>' +
             '<div class="h2h-extra-item"><strong>Win Rate:</strong> ' + winPct + '%</div>' +
             '<div class="h2h-extra-item"><strong>Goals For:</strong> ' + goalsFor + '</div>' +
             '<div class="h2h-extra-item"><strong>Goals Against:</strong> ' + goalsAgainst + '</div>' +
             '<div class="h2h-extra-item"><strong>Biggest Win:</strong> ' + bigWinStr + '</div>' +
             '<div class="h2h-extra-item"><strong>Biggest Loss:</strong> ' + bigLossStr + '</div>';
 
-        // Callouts
+        // Callouts — NLS only, 3+ games
         const callouts = [];
         if (totalPlayed >= 3) {
-            if (wins === 0) callouts.push('<div class="h2h-callout never-beaten">West have never beaten ' + opposition + ' in ' + totalPlayed + (showPreNLS ? '' : ' NLS-era') + ' meetings</div>');
-            if (losses === 0) callouts.push('<div class="h2h-callout never-lost">West have never lost to ' + opposition + ' in ' + totalPlayed + (showPreNLS ? '' : ' NLS-era') + ' meetings</div>');
-            const sorted = [...validEra].sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return da - db; });
+            if (wins === 0) callouts.push('<div class="h2h-callout never-beaten">West have never beaten ' + opposition + ' in ' + totalPlayed + ' NLS-era meetings</div>');
+            if (losses === 0) callouts.push('<div class="h2h-callout never-lost">West have never lost to ' + opposition + ' in ' + totalPlayed + ' NLS-era meetings</div>');
+            const sorted = [...validNLS].sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return da - db; });
             let unbeatenRun = 0;
             for (let i = sorted.length - 1; i >= 0; i--) {
                 if (effectiveResult(sorted[i]) === 'L') break;
                 unbeatenRun++;
             }
-            if (unbeatenRun >= 3 && losses > 0) callouts.push('<div class="h2h-callout unbeaten-run">Unbeaten in the last ' + unbeatenRun + (showPreNLS ? '' : ' NLS-era') + ' meetings</div>');
+            if (unbeatenRun >= 3 && losses > 0) callouts.push('<div class="h2h-callout unbeaten-run">Unbeaten in the last ' + unbeatenRun + ' NLS-era meetings</div>');
         }
         document.getElementById('h2hCallouts').innerHTML = callouts.join('');
 
-        // Match list
+        // Match list: NLS matches desc, then optional pre-NLS section
         const renderH2HRow = m => {
             const isF = isFriendly(m);
             const isNV = isNullVoid(m);
@@ -3446,10 +3444,10 @@ body {
             return '<div class="h2h-match-row' + (isNC ? ' non-counting' : '') + '"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '<span style="' + venueStyle + '">' + venueLabel + '</span></span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + compStr + '</span></div>';
         };
 
-        const nlsSorted = eraAll.filter(m => !isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
-        const preNLSSorted = eraAll.filter(m => isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+        const nlsSorted = [...nlsMatches].sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+        const preNLSSorted = allMatches.filter(m => isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
 
-        let matchHTML = '<h4>All Meetings (' + eraAll.length + (eraAll.length < allMatches.length ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">NLS era only</span>' : '') + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
+        let matchHTML = '<h4>All Meetings (' + allMatches.length + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
         if (preNLSSorted.length > 0) {
             matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;">Pre-National League System</div>';
             matchHTML += preNLSSorted.map(renderH2HRow).join('');
@@ -3695,7 +3693,7 @@ body {
 
     function displayOTDBanner() {
         const today = new Date(); const todayDay = today.getDate(); const todayMonth = today.getMonth();
-        const matches = eraMatches().filter(m => { if (m.Abandoned === 'Y') return false; const d = parseDate(m.Date); if (!d) return false; return d.getDate() === todayDay && d.getMonth() === todayMonth; }).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return db - da; });
+        const matches = MATCHES_DATA.filter(m => { if (m.Abandoned === 'Y') return false; const d = parseDate(m.Date); if (!d) return false; return d.getDate() === todayDay && d.getMonth() === todayMonth; }).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); return db - da; });
         if (matches.length === 0) return;
         const html = matches.map(m => {
             const isF = isFriendly(m); const isNV = isNullVoid(m);
