@@ -2304,10 +2304,13 @@ body {
         men: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=EVENTS_GID_MEN&single=true&output=csv',
         women: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=EVENTS_GID_WOMEN&single=true&output=csv'
     };
+    // COMPETITIONS_GID — replace with the actual GID once the Competitions sheet is published
+    const COMPETITIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=COMPETITIONS_GID&single=true&output=csv';
 
     let MATCHES_DATA = [];
     let GOALS_DATA = [];
     let EVENTS_DATA = [];
+    let COMPETITIONS_DATA = [];
     let eventsByDate = {};
     let playerGoals = {};
     let scorersByDate = {};
@@ -2489,7 +2492,7 @@ body {
         document.getElementById('matchList').innerHTML = '';
         document.getElementById('resultCount').textContent = 'Loading matches...';
         fetchToken++;
-        fetchMatchData(); fetchGoalsData(); fetchEventsData();
+        fetchMatchData(); fetchGoalsData(); fetchEventsData(); fetchCompetitionsData();
     }
 
     async function fetchMatchData() {
@@ -2831,20 +2834,41 @@ body {
     function populateCompetitionFilter() {
         const present = new Set();
         eraMatches().forEach(m => { const canon = getCanonicalCompetition(m.Competition); if (canon) present.add(canon); });
-        const leagueOrder = currentTeam === 'women'
-            ? ['NWWRL Premier', 'NWWRL Division One South']
-            : ['NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs','Manchester League Premier Division','Manchester League Division One'];
-        const cupOrder = currentTeam === 'women'
-            ? ['FA Cup','Lancashire Senior Cup','Lancashire Challenge Cup','Manchester Challenge Cup','Alliance Design and Print Cup','Alliance Design and Print Plate','Argyle Sports Cup','Argyle Sports Kit NW Regional Cup 2018-19','Argyle Sports Kit NW Regional Cup 2022-23']
-            : ['FA Cup','FA Vase','NWCFL League Cup','NWCFL First Division Trophy','Lancashire Challenge Trophy','Manchester Premier Cup','Murray Shield','LFA Amateur Shield','Lancashire Amateur Shield','Glychrist Cup','Invitational Divisional Cup'];
-        const leagueOptions = leagueOrder.filter(c => present.has(c));
-        const cupOptions = cupOrder.filter(c => present.has(c));
-        const otherOptions = [...present].filter(c => !leagueOrder.includes(c) && !cupOrder.includes(c)).sort();
         const select = document.getElementById('competitionSelect');
         let html = '<option value="">All Competitions</option>';
-        if (leagueOptions.length) html += '<optgroup label="League">' + leagueOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('') + '</optgroup>';
-        if (cupOptions.length) html += '<optgroup label="Cups">' + cupOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('') + '</optgroup>';
-        if (otherOptions.length) html += otherOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+
+        if (COMPETITIONS_DATA.length) {
+            // Filter to competitions relevant to the current team
+            const teamKey = currentTeam === 'women' ? 'Women' : 'Men';
+            const relevant = COMPETITIONS_DATA.filter(r => {
+                const t = (r['Team'] || '').trim();
+                return (t === teamKey || t === 'Both') && present.has((r['Competition'] || '').trim());
+            });
+            // Leagues: sort by Level asc, then alphabetically within same level
+            const leagues = relevant
+                .filter(r => (r['Category'] || '').trim() === 'League')
+                .sort((a, b) => {
+                    const la = parseInt(a['Level']) || 999;
+                    const lb = parseInt(b['Level']) || 999;
+                    if (la !== lb) return la - lb;
+                    return (a['Competition'] || '').localeCompare(b['Competition'] || '');
+                });
+            // Cups: alphabetical
+            const cups = relevant
+                .filter(r => (r['Category'] || '').trim() === 'Cup')
+                .sort((a, b) => (a['Competition'] || '').localeCompare(b['Competition'] || ''));
+            // Anything present in data but not in COMPETITIONS_DATA
+            const knownNames = new Set(relevant.map(r => (r['Competition'] || '').trim()));
+            const others = [...present].filter(c => !knownNames.has(c)).sort();
+
+            if (leagues.length) html += '<optgroup label="League">' + leagues.map(r => { const c = r['Competition'].trim(); return '<option value="' + c + '">' + c + '</option>'; }).join('') + '</optgroup>';
+            if (cups.length) html += '<optgroup label="Cups">' + cups.map(r => { const c = r['Competition'].trim(); return '<option value="' + c + '">' + c + '</option>'; }).join('') + '</optgroup>';
+            if (others.length) html += others.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+        } else {
+            // Fallback: flat list when COMPETITIONS_DATA not yet loaded
+            [...present].sort().forEach(c => { html += '<option value="' + c + '">' + c + '</option>'; });
+        }
+
         select.innerHTML = html;
     }
 
@@ -3668,7 +3692,7 @@ body {
         renderMatches();
     });
 
-    fetchMatchData(); fetchGoalsData(); fetchEventsData();
+    fetchMatchData(); fetchGoalsData(); fetchEventsData(); fetchCompetitionsData();
 
     window.addEventListener('resize', () => { const body = document.getElementById('attendanceBody'); if (body && body.classList.contains('open')) drawAttendanceChart(); });
 
@@ -3748,6 +3772,40 @@ body {
             }
             aggregateEvents(); renderMatches();
         } catch (error) { console.warn('Events sheet not available yet:', error.message); }
+    }
+
+    async function fetchCompetitionsData() {
+        if (!COMPETITIONS_CSV_URL || COMPETITIONS_CSV_URL.includes('COMPETITIONS_GID')) return; // placeholder — sheet not published yet
+        try {
+            const response = await fetch(COMPETITIONS_CSV_URL);
+            if (!response.ok) throw new Error('Competitions sheet returned ' + response.status);
+            const csvText = await response.text();
+            if (!csvText || csvText.includes('<!DOCTYPE')) throw new Error('Invalid competitions data');
+            const lines = csvText.split('\n').filter(l => l.trim());
+            const headers = parseCSVLine(lines[0]);
+            COMPETITIONS_DATA = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const values = parseCSVLine(lines[i]);
+                const row = {};
+                headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+                COMPETITIONS_DATA.push(row);
+            }
+            populateCompetitionFilter();
+        } catch (error) { console.warn('Competitions sheet not available yet:', error.message); }
+    }
+
+    function getCompetitionMeta(name) {
+        if (!name || !COMPETITIONS_DATA.length) return null;
+        const n = name.trim().toLowerCase();
+        const found = COMPETITIONS_DATA.find(r => (r['Competition'] || '').trim().toLowerCase() === n);
+        if (!found) return null;
+        const level = found['Level'] && found['Level'].trim() !== '' ? parseInt(found['Level']) : null;
+        return {
+            category: (found['Category'] || '').trim(),
+            level: isNaN(level) ? null : level,
+            team: (found['Team'] || '').trim()
+        };
     }
 
     function aggregateEvents() {
