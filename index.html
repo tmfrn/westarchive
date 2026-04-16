@@ -62,6 +62,28 @@ body {
 }
 
 /* ===== HEADER ===== */
+.download-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 2;
+    background: none;
+    border: 1px solid var(--border-primary);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    padding: 7px 13px;
+    min-height: 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+.download-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
 .header {
     padding: 56px 32px 44px;
     text-align: center;
@@ -2066,10 +2088,7 @@ body {
 <body>
     <div class="container">
         <div class="header">
-            <button onclick="downloadArchiveCSV()" id="downloadBtn"
-                style="position:absolute;top:14px;right:16px;z-index:2;background:none;border:1px solid var(--border-primary);color:var(--text-muted);font-family:var(--font-body);font-size:0.72rem;padding:5px 11px;border-radius:5px;cursor:pointer;letter-spacing:0.02em;transition:color 0.15s,border-color 0.15s;"
-                onmouseover="this.style.color='var(--text-primary)';this.style.borderColor='var(--text-secondary)';"
-                onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-primary)';">
+            <button onclick="downloadArchiveCSV()" id="downloadBtn" class="download-btn">
                 ↓ Download raw data (CSV)
             </button>
             <div class="header-content">
@@ -2122,7 +2141,7 @@ body {
 
 <div class="summary-box">
     <div class="section-toggle-header" id="summaryToggle" onclick="toggleSection('summary')">
-        <h2>Database Records</h2>
+        <h2>Records &amp; Statistics</h2>
         <span class="section-chevron">▼</span>
     </div>
     <div class="section-body" id="summaryBody">
@@ -2166,7 +2185,7 @@ body {
 
 <div class="controls">
     <div class="search-bar">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search opponents, scorers, competitions…">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search opponents, scorers, scores, competitions…">
     </div>
 
     <div class="lenses-row" id="lensesRow">
@@ -2924,10 +2943,7 @@ body {
             { label: 'Penalty Shootouts', value: shootoutValue, filter: null, action: shootouts.length > 0 ? 'showShootoutModal()' : null }
         ];
         const grid = document.getElementById('summaryGrid');
-        const warningHtml = showPreNLS
-            ? '<div class="pre-nls-warning"><span class="pre-nls-warning-icon">⚠️</span>Records and statistics below include grassroots era data (before 2012/13) and may not reflect the club\'s National League System performance.</div>'
-            : '';
-        grid.innerHTML = warningHtml + summaryData.map(item => {
+        grid.innerHTML = summaryData.map(item => {
             const clickable = item.filter || item.action;
             const onclick = item.action ? 'onclick="' + item.action + '"' : (item.filter ? 'onclick="setFilter(\'' + item.filter + '\', this)"' : '');
             return '<div class="summary-item' + (clickable ? '' : ' non-clickable') + '" ' + onclick + '>' +
@@ -3172,7 +3188,7 @@ body {
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
         return '<div class="' + cardClass + '">' + typeBanner + tagsHtml +
             '<div class="match-header">' +
-                '<span class="match-date">' + match.Date + seasonChip + '</span>' +
+                '<span class="match-date">' + formatDateShort(match.Date) + seasonChip + '</span>' +
                 '<span>' + resultBadge + venueBadge + '</span>' +
             '</div>' +
             '<div class="match-fixture">' +
@@ -3196,13 +3212,23 @@ body {
         if (!showPreNLS) filtered = filtered.filter(m => !isPreNLS(m));
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
+            // Normalise term: replace dashes/en-dashes with a canonical separator for score matching
+            const scoreTerm = term.replace(/[\u2013\u2014\s]+/g, '-').replace(/--+/g, '-');
             filtered = filtered.filter(m => {
                 if (m.Opposition && m.Opposition.toLowerCase().includes(term)) return true;
                 if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
                 if (m.Date && m.Date.toLowerCase().includes(term)) return true;
                 if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+                // Season format: "2019/20" also matches stored "2019/20" directly above,
+                // but "201920" or "19/20" style — also try slash-inserted form
+                if (term.match(/^\d{4}\/\d{2}$/) && m.Season && m.Season.startsWith(term.slice(0,4))) return true;
                 if (m.Round && m.Round.toLowerCase().includes(term)) return true;
                 if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
+                // Score search: match "3-0", "3–0", "3 0" etc against goals for/against (both orientations)
+                if (scoreTerm.match(/^\d+-\d+$/) && m['Goals For'] != null && m['Goals Against'] != null) {
+                    const gf = m['Goals For'], ga = m['Goals Against'];
+                    if (scoreTerm === gf + '-' + ga || scoreTerm === ga + '-' + gf) return true;
+                }
                 const ms = scorersByDate[normaliseDateKey(m.Date||'')];
                 if (ms) { const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase()); if (allNames.some(n => n.includes(term))) return true; }
                 return false;
@@ -3243,12 +3269,18 @@ body {
     function matchesSearch(m) {
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
+        const scoreTerm = term.replace(/[\u2013\u2014\s]+/g, '-').replace(/--+/g, '-');
         if (m.Opposition && m.Opposition.toLowerCase().includes(term)) return true;
         if (m.Competition && m.Competition.toLowerCase().includes(term)) return true;
         if (m.Date && m.Date.toLowerCase().includes(term)) return true;
         if (m.Season && m.Season.toLowerCase().includes(term)) return true;
+        if (term.match(/^\d{4}\/\d{2}$/) && m.Season && m.Season.startsWith(term.slice(0,4))) return true;
         if (m.Round && m.Round.toLowerCase().includes(term)) return true;
         if (m.Notes && m.Notes.toLowerCase().includes(term)) return true;
+        if (scoreTerm.match(/^\d+-\d+$/) && m['Goals For'] != null && m['Goals Against'] != null) {
+            const gf = m['Goals For'], ga = m['Goals Against'];
+            if (scoreTerm === gf + '-' + ga || scoreTerm === ga + '-' + gf) return true;
+        }
         const ms = scorersByDate[normaliseDateKey(m.Date||'')];
         if (ms) { const allNames = [...ms.west, ...ms.opp].map(e => e.name.toLowerCase()); if (allNames.some(n => n.includes(term))) return true; }
         return false;
@@ -3302,7 +3334,8 @@ body {
             const abandonedCount = filtered.filter(m => m.Abandoned === 'Y').length;
             const abandonedSuffix = abandonedCount > 0 ? ' (+' + abandonedCount + ' abandoned)' : '';
             const playedCount = filtered.length - abandonedCount;
-            document.getElementById('resultCount').textContent = playedCount + ' ' + (playedCount === 1 ? 'match' : 'matches') + ' found' + abandonedSuffix;
+            const searchSuffix = searchTerm ? ' for \u201c' + searchTerm + '\u201d' : '';
+            document.getElementById('resultCount').textContent = playedCount + ' ' + (playedCount === 1 ? 'match' : 'matches') + (searchTerm ? searchSuffix : ' found') + abandonedSuffix;
         }
         const summaryBtn = document.getElementById('seasonSummaryBtn');
         if (summaryBtn) summaryBtn.style.display = (selectedSeason && currentFilter === 'season') ? 'inline-block' : 'none';
@@ -3787,7 +3820,7 @@ body {
     }
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
-        searchTerm = e.target.value;
+        searchTerm = e.target.value.trim();
         if (searchTerm) {
             activeLens = null; currentFilter = 'all'; selectedSeason = ''; selectedCompetition = ''; sortOrder = 'desc'; lensVenue = 'all'; listCap = 20;
             const row = document.getElementById('lensesRow');
@@ -4519,13 +4552,13 @@ body {
                     '</div>';
                 htInserted = true;
             }
-            // Insert FT row before first extra-time event (base minute >= 91)
+            // Insert 90' row before first extra-time event (base minute >= 91) — shows score at end of normal time
             if (!ftInserted && eBase >= 91) {
                 const ftLabel = ftHomeScore != null ? ftHomeScore + '–' + ftAwayScore : '?–?';
                 logRows +=
                     '<div class="tl-ht-row">' +
                         '<div></div>' +
-                        '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">FT</div>' +
+                        '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">90\'</div>' +
                         '<div class="tl-ht-row-score" style="color:var(--text-primary);">' + ftLabel + '</div>' +
                     '</div>';
                 ftInserted = true;
@@ -4604,14 +4637,29 @@ body {
                     '<div class="tl-ht-row-score" style="color:' + htTextCol + ';">' + htHomeScore + '–' + htAwayScore + '</div>' +
                 '</div>';
         }
-        // If AET and all events were before 90, still insert FT row
+        // If AET and all events were before 90, still insert 90' row
         if (!ftInserted && isAET && events.length > 0) {
             const ftLabel = ftHomeScore != null ? ftHomeScore + '–' + ftAwayScore : '?–?';
             logRows +=
                 '<div class="tl-ht-row">' +
                     '<div></div>' +
-                    '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">FT</div>' +
+                    '<div class="tl-er-min tl-ht-row-label" style="color:var(--text-muted);">90\'</div>' +
                     '<div class="tl-ht-row-score" style="color:var(--text-primary);">' + ftLabel + '</div>' +
+                '</div>';
+        }
+        // Always append a final score row at the bottom of the log
+        const finalHomeScore = westFirst ? gf : ga;
+        const finalAwayScore = westFirst ? ga : gf;
+        const finalScore = finalHomeScore + '–' + finalAwayScore;
+        const finalResult = gf > ga ? 'var(--win)' : ga > gf ? 'var(--loss)' : 'var(--text-muted)';
+        const finalBg = gf > ga ? 'rgba(22,101,52,0.08)' : ga > gf ? 'rgba(153,27,27,0.08)' : 'rgba(100,100,100,0.06)';
+        const finalLabel = isAET ? 'AET' : 'FT';
+        if (events.length > 0 || match.Abandoned !== 'Y') {
+            logRows +=
+                '<div class="tl-ht-row" style="background:' + finalBg + ';border-radius:6px;margin-top:4px;">' +
+                    '<div></div>' +
+                    '<div class="tl-er-min tl-ht-row-label" style="color:' + finalResult + ';">' + finalLabel + '</div>' +
+                    '<div class="tl-ht-row-score" style="color:' + finalResult + ';font-weight:700;">' + finalScore + '</div>' +
                 '</div>';
         }
         // Pen result row at end of log
