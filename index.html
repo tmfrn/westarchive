@@ -1069,25 +1069,24 @@ body {
     letter-spacing: -0.02em;
 }
 
-/* Row 3: meta pills */
+/* Row 3: meta — comp on its own line, pills below */
 .match-meta {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--border-subtle);
 }
 .match-meta-comp {
+    display: block;
     font-size: 0.76rem;
     font-weight: 500;
     color: var(--text-secondary);
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+.match-meta-pills {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
 }
 .match-meta-pill {
     display: inline-flex;
@@ -3136,8 +3135,6 @@ body {
         const resultBadge = match.Abandoned === 'Y' ? '<span class="badge abandoned">ABANDONED</span>' :
                           matchIsFriendly ? '<span class="badge friendly">FRIENDLY</span>' :
                           matchIsNullVoid ? '<span class="badge null-void">NULL &amp; VOID</span>' :
-                          (hasPens && penResult === 'W') ? '<span class="badge draw">DRAW – WON ON PENS</span>' :
-                          (hasPens && penResult === 'L') ? '<span class="badge draw">DRAW – LOST ON PENS</span>' :
                           effectiveResult(match) === 'W' ? '<span class="badge win">WIN</span>' :
                           effectiveResult(match) === 'L' ? '<span class="badge loss">LOSS</span>' :
                           '<span class="badge draw">DRAW</span>';
@@ -3212,16 +3209,16 @@ body {
             typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
         }
         // Extra badges: AET, pens
-        const aetBadge    = isAET ? '<span class="badge aet">AET</span>' : '';
-        const pensBadge   = (hasPens && penResult === 'W') ? '<span class="badge won-pens">Won on pens</span>'
-                          : (hasPens && penResult === 'L') ? '<span class="badge lost-pens">Lost on pens</span>' : '';
-        // Meta pills
-        const htPill   = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-meta-pill">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
-        const ftPill   = (isAET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
-        const pensPill = (hasPens && penScore) ? '<span class="match-meta-pill">Pens ' + penScore + '</span>' : '';
-        const attPill  = match.Attendance ? '<span class="match-meta-pill">👥 ' + match.Attendance.toLocaleString() + '</span>' : '';
-        const venuePill= (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
-        const compStr  = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
+        const aetBadge  = isAET ? '<span class="badge aet">AET</span>' : '';
+        const pensBadge = (hasPens && penResult === 'W') ? '<span class="badge won-pens">Won on pens</span>'
+                        : (hasPens && penResult === 'L') ? '<span class="badge lost-pens">Lost on pens</span>' : '';
+        // Meta pills — pens pill is explicit about who won
+        const htPill    = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-meta-pill">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
+        const ftPill    = (isAET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
+        const pensPill  = (hasPens && penScore) ? '<span class="match-meta-pill">' + (penResult === 'W' ? 'West won ' : 'West lost ') + penScore + ' on pens</span>' : '';
+        const attPill   = match.Attendance ? '<span class="match-meta-pill">👥 ' + match.Attendance.toLocaleString() + '</span>' : '';
+        const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
+        const compStr   = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
         return '<div class="' + cardClass + '">' + typeBanner + tagsHtml +
             '<div class="match-header">' +
@@ -3235,7 +3232,7 @@ body {
             '</div>' +
             '<div class="match-meta">' +
                 '<span class="match-meta-comp">' + compStr + '</span>' +
-                htPill + ftPill + pensPill + attPill + venuePill +
+                '<div class="match-meta-pills">' + htPill + ftPill + pensPill + attPill + venuePill + '</div>' +
             '</div>' +
             scorersHtml + notesHtml + '</div>';
     }
