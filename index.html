@@ -860,11 +860,11 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    margin-bottom: 10px;
-    transition: all 0.25s var(--ease);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
     position: relative;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    overflow: hidden;
 }
 
 .match-card:hover {
@@ -872,19 +872,20 @@ body {
     background: var(--bg-card-hover);
 }
 
+/* Record tags */
 .match-tags {
     display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 6px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
 .record-tag {
     background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
     color: #000;
-    padding: 5px 11px;
+    padding: 4px 10px;
     border-radius: 100px;
-    font-size: 0.7rem;
+    font-size: 0.67rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -894,27 +895,28 @@ body {
     background: linear-gradient(135deg, #8a8a8a 0%, #b0b0b0 100%);
 }
 
+/* Row 1: date + badges */
 .match-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .match-date {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
     font-weight: 500;
 }
 
 .match-season-chip {
     display: inline-block;
-    margin-left: 8px;
-    padding: 2px 8px;
+    margin-left: 7px;
+    padding: 1px 7px;
     border-radius: 100px;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 600;
     background: var(--bg-surface);
     color: var(--text-muted);
@@ -930,26 +932,53 @@ body {
     border-color: var(--text-muted);
 }
 
+.match-header-badges {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 2px 9px;
     border-radius: 100px;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-left: 5px;
 }
 
-.badge.win { background: var(--win-bg); color: var(--win); }
-.badge.loss { background: var(--loss-bg); color: var(--loss); }
-.badge.draw { background: var(--draw-bg); color: var(--draw); }
-.badge.abandoned { background: rgba(107,122,100,0.3); color: var(--text-muted); }
-.badge.home { background: rgba(37,99,235,0.08); color: #2563eb; }
-.badge.away { background: rgba(147,51,234,0.08); color: #9333ea; }
-.badge.neutral { background: rgba(0,0,0,0.04); color: var(--text-muted); }
+.badge.win      { background: var(--win-bg);  color: var(--win); }
+.badge.loss     { background: var(--loss-bg); color: var(--loss); }
+.badge.draw     { background: var(--draw-bg); color: var(--draw); }
+.badge.abandoned{ background: rgba(107,122,100,0.3); color: var(--text-muted); }
+.badge.home     { background: rgba(37,99,235,0.08);  color: #2563eb; }
+.badge.away     { background: rgba(147,51,234,0.08); color: #9333ea; }
+.badge.neutral  { background: rgba(0,0,0,0.04); color: var(--text-muted); }
 .badge.friendly { background: rgba(14,116,144,0.10); color: #0e7490; border: 1px solid rgba(14,116,144,0.22); }
-.badge.null-void { background: rgba(120,53,15,0.09); color: #92400e; border: 1px solid rgba(120,53,15,0.20); }
+.badge.null-void{ background: rgba(120,53,15,0.09);  color: #92400e; border: 1px solid rgba(120,53,15,0.20); }
+.badge.aet      { background: rgba(100,100,100,0.08); color: var(--text-secondary); }
+.badge.won-pens { background: var(--win-bg);  color: var(--win); }
+.badge.lost-pens{ background: var(--loss-bg); color: var(--loss); }
+
+/* Timeline icon button — lives in header badges row */
+.timeline-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-surface);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.timeline-btn:hover { background: rgba(22,101,52,0.12); }
 
 /* ===== FRIENDLY & NULL-AND-VOID CARD TREATMENTS ===== */
 .match-card.is-friendly {
@@ -973,30 +1002,29 @@ body {
 .match-type-banner {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
+    gap: 6px;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    padding: 6px 12px;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    margin: -18px -20px 14px;
+    padding: 5px 16px;
+    margin: -14px -16px 12px;
 }
 .match-type-banner.friendly-banner {
-    background: rgba(14,116,144,0.10);
+    background: rgba(14,116,144,0.09);
     color: #0e7490;
-    border-bottom: 1px solid rgba(14,116,144,0.18);
+    border-bottom: 1px solid rgba(14,116,144,0.15);
 }
 .match-type-banner.null-void-banner {
-    background: rgba(120,53,15,0.09);
+    background: rgba(120,53,15,0.08);
     color: #92400e;
-    border-bottom: 1px solid rgba(120,53,15,0.18);
+    border-bottom: 1px solid rgba(120,53,15,0.14);
 }
-.match-type-banner-icon { font-size: 0.85rem; }
+.match-type-banner-icon { font-size: 0.82rem; }
 .match-type-banner-note {
     margin-left: auto;
     font-weight: 400;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     opacity: 0.75;
     text-transform: none;
     letter-spacing: 0;
@@ -1004,21 +1032,19 @@ body {
 
 /* Muted score for non-counting matches */
 .match-card.is-friendly .match-score,
-.match-card.is-null-void .match-score {
-    opacity: 0.65;
-}
+.match-card.is-null-void .match-score { opacity: 0.55; }
 
 /* H2H row markers */
 .h2h-match-result.friendly { background: rgba(14,116,144,0.15); color: #0e7490; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
 .h2h-match-result.null-void { background: rgba(120,53,15,0.12); color: #92400e; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
 .h2h-match-row.non-counting { opacity: 0.7; }
 
+/* Row 2: fixture + score */
 .match-fixture {
     display: flex;
     align-items: center;
     font-weight: 700;
-    font-size: 1.05rem;
-    margin-bottom: 0;
+    font-size: 1rem;
     color: var(--text-primary);
 }
 .match-fixture .fixture-home {
@@ -1034,34 +1060,62 @@ body {
 }
 .match-score {
     font-family: var(--font-display);
-    font-size: 1.6em;
+    font-size: 1.45em;
     font-weight: 800;
     color: var(--text-bright);
-    padding: 0 16px;
+    padding: 0 14px;
     white-space: nowrap;
     flex: 0 0 auto;
     letter-spacing: -0.02em;
 }
 
-.match-details {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    line-height: 1.6;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-subtle);
-    margin-top: 4px;
-}
-
-.match-details strong { color: var(--text-muted); font-weight: 600; }
-
-.scorers {
+/* Row 3: meta pills */
+.match-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
     margin-top: 8px;
     padding-top: 8px;
-    font-size: 0.84rem;
+    border-top: 1px solid var(--border-subtle);
+}
+.match-meta-comp {
+    font-size: 0.76rem;
+    font-weight: 500;
     color: var(--text-secondary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.match-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.69rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 2px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.scorers strong { color: var(--text-secondary); font-weight: 600; }
+/* Row 4: scorers */
+.scorers {
+    margin-top: 7px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+.scorer-team {
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
 .scorers-list { color: var(--text-muted); }
 
 .scorer-link {
@@ -1073,16 +1127,12 @@ body {
 }
 .scorer-link:hover { color: var(--accent); }
 
+/* Row 5: milestone — quiet */
 .milestone-note {
-    font-size: 0.76rem;
-    color: var(--draw);
-    font-weight: 600;
-    margin-top: 6px;
-    padding: 4px 8px;
-    background: var(--draw-bg);
-    border-left: 3px solid var(--draw);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    display: inline-block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 4px;
 }
 
 .opposition-link {
@@ -1093,31 +1143,7 @@ body {
     text-decoration-color: var(--text-muted);
     transition: color 0.2s;
 }
-
 .opposition-link:hover { color: var(--accent); }
-
-/* ===== MATCH TIMELINE BUTTON ===== */
-.timeline-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 10px;
-    padding: 6px 14px;
-    background: var(--accent-surface);
-    border: 1.5px solid var(--accent-border);
-    border-radius: 100px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--accent);
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: all 0.15s;
-    letter-spacing: 0.01em;
-}
-.timeline-btn:hover {
-    background: rgba(22,101,52,0.12);
-    border-color: var(--accent);
-}
 
 /* ===== MATCH TIMELINE MODAL ===== */
 .timeline-overlay {
@@ -1356,7 +1382,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 52px 1fr;
     align-items: center;
-    min-height: 36px;
+    min-height: 28px;
     border-bottom: 1px solid var(--border-subtle);
 }
 .tl-event-row:last-child { border-bottom: none; }
@@ -3145,30 +3171,29 @@ body {
         const tagsHtml = (tags.length > 0 || showPreNLSBadge || rankBadgeHtml)
             ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>'
             : '';
+        // ── Scorers ──
         let scorersHtml = '';
-        // Show scorers for non-counting matches but suppress milestone notes
         if (match.Abandoned !== 'Y') {
             const dateKey = normaliseDateKey(match.Date || '');
             const matchScorers = scorersByDate[dateKey];
             if (matchScorers) {
                 const westResult = formatScorerList(matchScorers.west, dateKey, true);
-                const oppResult = formatScorerList(matchScorers.opp, dateKey, false);
+                const oppResult  = formatScorerList(matchScorers.opp,  dateKey, false);
                 const westList = westResult.html; const oppList = oppResult.html;
                 if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
-                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
-                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
+                    if (westList) scorersHtml += '<div class="scorers"><span class="scorer-team">West</span><span class="scorers-list">' + westList + '</span></div>';
+                    if (oppList)  scorersHtml += '<div class="scorers"><span class="scorer-team">' + match.Opposition + '</span><span class="scorers-list">' + oppList + '</span></div>';
                 } else {
-                    if (oppList) scorersHtml += '<div class="scorers"><strong>⚽ ' + match.Opposition + ' Scorers:</strong> <span class="scorers-list">' + oppList + '</span></div>';
-                    if (westList) scorersHtml += '<div class="scorers"><strong>⚽ West Scorers:</strong> <span class="scorers-list">' + westList + '</span></div>';
+                    if (oppList)  scorersHtml += '<div class="scorers"><span class="scorer-team">' + match.Opposition + '</span><span class="scorers-list">' + oppList + '</span></div>';
+                    if (westList) scorersHtml += '<div class="scorers"><span class="scorer-team">West</span><span class="scorers-list">' + westList + '</span></div>';
                 }
-                // Only show milestone notes for counting matches
                 if (!matchIsNonCounting && westResult.milestones.length > 0) {
                     const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? '⭐' : '🎯'; return icon + ' ' + m.name + '\'s ' + label; });
-                    scorersHtml += '<div class="milestone-note">' + notes.join(' &nbsp;·&nbsp; ') + '</div>';
+                    scorersHtml += '<div class="milestone-note">' + notes.join(' · ') + '</div>';
                 }
             }
         }
-        const notesHtml = match.Notes ? '<div class="scorers"><strong>📝 Notes:</strong> <span class="scorers-list">' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>' : '';
+        const notesHtml = match.Notes ? '<div class="scorers"><span class="scorer-team">📝</span><span class="scorers-list">' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>' : '';
         const safeOpp = match.Opposition.replace(/'/g, "\\'");
         const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
@@ -3176,7 +3201,8 @@ body {
         const safeSeason = (match.Season || '').replace(/'/g, "\\'");
         const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
         const safeDate = (match.Date || '').replace(/'/g, "\\'");
-        const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊 Match Timeline</button>' : '';
+        // Timeline: icon button in header row
+        const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊</button>' : '';
         // Banner for non-counting matches
         let typeBanner = '';
         if (matchIsFriendly) {
@@ -3185,26 +3211,33 @@ body {
             const nvComp = match.Competition ? match.Competition + ' · ' : '';
             typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
         }
+        // Extra badges: AET, pens
+        const aetBadge    = isAET ? '<span class="badge aet">AET</span>' : '';
+        const pensBadge   = (hasPens && penResult === 'W') ? '<span class="badge won-pens">Won on pens</span>'
+                          : (hasPens && penResult === 'L') ? '<span class="badge lost-pens">Lost on pens</span>' : '';
+        // Meta pills
+        const htPill   = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-meta-pill">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
+        const ftPill   = (isAET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
+        const pensPill = (hasPens && penScore) ? '<span class="match-meta-pill">Pens ' + penScore + '</span>' : '';
+        const attPill  = match.Attendance ? '<span class="match-meta-pill">👥 ' + match.Attendance.toLocaleString() + '</span>' : '';
+        const venuePill= (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
+        const compStr  = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
         return '<div class="' + cardClass + '">' + typeBanner + tagsHtml +
             '<div class="match-header">' +
                 '<span class="match-date">' + formatDateShort(match.Date) + seasonChip + '</span>' +
-                '<span>' + resultBadge + venueBadge + '</span>' +
+                '<div class="match-header-badges">' + tlBtn + pensBadge + aetBadge + resultBadge + venueBadge + '</div>' +
             '</div>' +
             '<div class="match-fixture">' +
                 '<span class="fixture-home">' + displayHome + '</span>' +
-                '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + ' – ' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
+                '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + '–' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
                 '<span class="fixture-away">' + displayAway + '</span>' +
             '</div>' +
-            '<div class="match-details">' +
-                '<strong>Competition:</strong> ' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') +
-                (match.Attendance ? ' | <strong>Attendance:</strong> ' + match.Attendance + (match['Home/Away'] === 'H' && match.Attendance === 1320 ? ' 👀' : '') : '') +
-                (match.Venue && match.Venue.trim() ? ' | <strong>Venue:</strong> ' + match.Venue : '') +
-                (match['HT Goals For'] != null && match.Abandoned !== 'Y' ? ' | <strong>HT:</strong> ' + displayHtHomeScore + '–' + displayHtAwayScore : '') +
-                (isAET && displayFtHomeScore != null ? ' | <strong>FT:</strong> ' + displayFtHomeScore + '–' + displayFtAwayScore : '') +
-                (isAET ? ' | <strong>AET</strong>' : '') +
-                (hasPens && penScore ? ' | <strong>Pens:</strong> ' + penScore : '') +
-            '</div>' + scorersHtml + notesHtml + tlBtn + '</div>';
+            '<div class="match-meta">' +
+                '<span class="match-meta-comp">' + compStr + '</span>' +
+                htPill + ftPill + pensPill + attPill + venuePill +
+            '</div>' +
+            scorersHtml + notesHtml + '</div>';
     }
 
     function filterMatches() {
@@ -4698,7 +4731,6 @@ body {
         const bodyHtml =
             legendHtml +
             trackHtml +
-            htStrip +
             ftStrip +
             pensStrip +
             '<div style="margin-top:16px;">' +
