@@ -1109,6 +1109,8 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .badge {
@@ -3814,7 +3816,7 @@ body {
         document.getElementById('playerSeasonBars').innerHTML = seasonsSorted.map(([season, count]) => {
             const pct = Math.round((count / maxSeasonGoals) * 100);
             const isPeak = count === maxSeasonGoals;
-            const shortSeason = season.length > 5 ? season.slice(2) : season;
+            const shortSeason = season === 'Unknown' ? '?' : season.length > 5 ? season.slice(2) : season;
             return '<div class="player-season-bar-row">' +
                 '<div class="player-season-bar-label">' + shortSeason + '</div>' +
                 '<div class="player-season-bar-track"><div class="player-season-bar-fill' + (isPeak ? ' peak' : '') + '" style="width:' + pct + '%"></div></div>' +
