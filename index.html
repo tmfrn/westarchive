@@ -953,6 +953,8 @@ body {
 .match-score-block {
     text-align: center;
     flex-shrink: 0;
+    max-width: 160px;
+    min-width: 0;
 }
 .match-score {
     font-family: var(--font-display);
@@ -2180,11 +2182,13 @@ body {
     .results-header { padding: 20px; }
     .matches { padding: 16px 20px 48px; }
     .match-fixture { grid-template-columns: 1fr auto 1fr; padding: 12px 12px 8px; gap: 6px; }
+    .match-score-block { max-width: 130px; }
     .match-fixture .fixture-home, .match-fixture .fixture-away { font-size: 0.88rem; }
     .match-score { font-size: 1.6rem; }
     .match-scorers { grid-template-columns: 1fr; }
     .match-scorer-side:first-child { border-right: none; border-bottom: 1px solid var(--border-subtle); }
     .match-footer { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .match-footer-right { justify-content: flex-start; }
     .h2h-overlay, .player-overlay { padding: 20px 10px; }
     .h2h-extra { grid-template-columns: 1fr; }
     .h2h-extra-item { border-right: none; border-bottom: 1px solid var(--border-primary); }
