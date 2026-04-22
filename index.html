@@ -2949,7 +2949,7 @@ body {
         const shootouts = era.filter(m => m.Penalties === 'Y');
         const shootoutW = shootouts.filter(m => m['Penalty Result'] === 'W').length;
         const shootoutL = shootouts.filter(m => m['Penalty Result'] === 'L').length;
-        const shootoutValue = shootouts.length === 0 ? 'None on record' : shootouts.length + ' shootouts — W' + shootoutW + ' L' + shootoutL;
+        const shootoutValue = shootouts.length === 0 ? 'None on record' : shootouts.length + ' shootouts – W' + shootoutW + ' L' + shootoutL;
         const extras = [];
         if (abandonedCount > 0) extras.push(abandonedCount + ' abandoned');
         if (friendlyCount > 0) extras.push(friendlyCount + ' friendly');
@@ -3098,7 +3098,7 @@ body {
     function ordinal(n) { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
 
     function formatScorerEntry(entry, dateKey, isWest) {
-        const minutePart = entry.minute ? (entry.pen ? entry.minute + ', pen' : entry.minute) : '';
+        const minutePart = (entry.minute && entry.minute !== '0') ? (entry.pen ? entry.minute + ', pen' : entry.minute) : (entry.pen ? 'pen' : '');
         const ogPart = entry.og ? ' (OG)' : '';
         const safeName = entry.name.replace(/'/g, "\\'");
         const nameHtml = (isWest && !entry.og)
@@ -3588,8 +3588,8 @@ body {
         lossMatches.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']));
         const bigWin = winMatches[0];
         const bigLoss = lossMatches[0];
-        const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + bigWin.Date + ')' : '—';
-        const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '—';
+        const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + bigWin.Date + ')' : '–';
+        const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '–';
 
         const hasPreNLSMatches = allMatches.some(m => isPreNLS(m));
         const eraNote = (!showPreNLS && hasPreNLSMatches) ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era only)</span>' : '';
@@ -3908,7 +3908,7 @@ body {
         const n = matches.length;
         const today2 = new Date();
         const dayMonth = today2.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-        document.getElementById('otdSummaryText').textContent = 'On This Day — ' + n + (n === 1 ? ' match' : ' matches') + ' on ' + dayMonth;
+        document.getElementById('otdSummaryText').textContent = 'On This Day – ' + n + (n === 1 ? ' match' : ' matches') + ' on ' + dayMonth;
         document.getElementById('otdBanner').style.display = 'block';
     }
 
@@ -3998,7 +3998,7 @@ body {
             const entry = { name, minute, pen: isPen, og: isOG };
             if (dateKey) { if (!scorersByDate[dateKey]) scorersByDate[dateKey] = { west: [], opp: [] }; if (forAgainst === 'For') scorersByDate[dateKey].west.push(entry); else scorersByDate[dateKey].opp.push(entry); }
         });
-        function parseMinute(m) { if (!m) return 999; const parts = m.toString().split('+'); return parseInt(parts[0], 10) * 100 + (parts[1] ? parseInt(parts[1], 10) : 0); }
+        function parseMinute(m) { if (!m || m.toString().trim() === '0') return 999; const parts = m.toString().split('+'); return parseInt(parts[0], 10) * 100 + (parts[1] ? parseInt(parts[1], 10) : 0); }
         Object.values(scorersByDate).forEach(game => { game.west.sort((a, b) => parseMinute(a.minute) - parseMinute(b.minute)); game.opp.sort((a, b) => parseMinute(a.minute) - parseMinute(b.minute)); });
     }
 
@@ -4249,7 +4249,7 @@ body {
             let peakLine = '';
             if (d.peakMatches && d.peakMatches.length > 0) {
                 const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', ');
-                peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' — ' + peakGames;
+                peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' – ' + peakGames;
             }
             const gamesLabel = attendanceMode === 'league' ? 'league home games' : 'home games (all)';
             return '<strong>' + d.season + '</strong><br>Avg: ' + d.avg.toLocaleString() + ' · ' + d.count + ' ' + gamesLabel + peakLine;
@@ -4305,8 +4305,8 @@ body {
         const rows = data.slice().reverse().map(d => {
             const peakOpps = d.peakMatches && d.peakMatches.length > 0
                 ? d.peakMatches.map(m => m.Opposition).join(', ')
-                : '—';
-            const lowestVal = d.lowest !== null ? d.lowest.toLocaleString() : '—';
+                : '–';
+            const lowestVal = d.lowest !== null ? d.lowest.toLocaleString() : '–';
             return '<tr style="border-bottom:1px solid var(--border-subtle);">' +
                 '<td style="' + tdBase + 'font-weight:700;color:var(--text-bright);white-space:nowrap;">' + d.season + '</td>' +
                 '<td style="' + tdBase + 'text-align:right;">' + d.count + '</td>' +
@@ -4454,17 +4454,17 @@ body {
             } else if (e.type === 'redcard') {
                 markerHtml += '<div class="tl-goal-marker redcard ' + lane + '" style="left:' + pct + '%">' +
                     '<div class="tl-goal-dot">🟥</div>' +
-                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Red card · ' + team + '</div>' +
+                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' – Red card · ' + team + '</div>' +
                     '</div>';
             } else if (e.type === 'missedpen') {
                 markerHtml += '<div class="tl-goal-marker missedpen ' + lane + '" style="left:' + pct + '%">' +
                     '<div class="tl-goal-dot">✕</div>' +
-                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Missed pen · ' + team + '</div>' +
+                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' – Missed pen · ' + team + '</div>' +
                     '</div>';
             } else if (e.type === 'yellowcard') {
                 markerHtml += '<div class="tl-goal-marker yellowcard ' + lane + '" style="left:' + pct + '%">' +
                     '<div class="tl-goal-dot">🟨</div>' +
-                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' — Yellow card · ' + team + '</div>' +
+                    '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' – Yellow card · ' + team + '</div>' +
                     '</div>';
             }
         });
@@ -4505,16 +4505,17 @@ body {
         const htHome = westFirst ? htFor : htAgainst;
         const htAway = westFirst ? htAgainst : htFor;
         const htWest = htFor, htOpp = htAgainst;
-        const htBg      = htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)';
-        const htCol     = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)';
-        const htTextCol = htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-primary)';
-        const htDesc    = htWest > htOpp ? 'West leading' : htOpp > htWest ? 'West trailing' : 'Level';
-        const htStrip =
+        const htValid = htWest != null && htOpp != null;
+        const htBg      = htValid ? (htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)') : 'rgba(100,100,100,0.08)';
+        const htCol     = htValid ? (htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)') : 'var(--text-muted)';
+        const htTextCol = htValid ? (htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-primary)') : 'var(--text-muted)';
+        const htDesc    = htValid ? (htWest > htOpp ? 'West leading' : htOpp > htWest ? 'West trailing' : 'Level') : '';
+        const htStrip = htValid ?
             '<div class="tl-ht-strip" style="background:' + htBg + ';">' +
                 '<span class="tl-ht-strip-label" style="color:' + htCol + ';">HT</span>' +
                 '<span class="tl-ht-strip-score" style="color:' + htTextCol + ';">' + htHome + ' – ' + htAway + '</span>' +
                 '<span class="tl-ht-strip-desc" style="color:' + htCol + ';">' + htDesc + '</span>' +
-            '</div>';
+            '</div>' : '';
 
         // ── FT STRIP (AET matches only) ──
         let ftStrip = '';
@@ -4713,8 +4714,8 @@ body {
         // ── RESULT / VENUE PILLS ──
         const resultCls   = match.Result === 'W' ? 'win' : match.Result === 'L' ? 'loss' : 'draw';
         const resultLabel = match.Result === 'W' ? 'Win' : match.Result === 'L' ? 'Loss'
-                          : (match.Penalties === 'Y' && match['Penalty Result'] === 'W') ? 'Draw – Won on pens'
-                          : (match.Penalties === 'Y' && match['Penalty Result'] === 'L') ? 'Draw – Lost on pens'
+                          : (match.Penalties === 'Y' && match['Penalty Result'] === 'W') ? 'Draw (won on pens)'
+                          : (match.Penalties === 'Y' && match['Penalty Result'] === 'L') ? 'Draw (lost on pens)'
                           : 'Draw';
         const venueCls    = isHome ? 'home' : isNeutral ? 'neutral-v' : 'away';
         const venueLabel  = isHome ? 'Home' : isNeutral ? 'Neutral' : 'Away';
@@ -4728,6 +4729,7 @@ body {
         const bodyHtml =
             legendHtml +
             trackHtml +
+            htStrip +
             ftStrip +
             pensStrip +
             '<div style="margin-top:16px;">' +
@@ -4804,7 +4806,7 @@ body {
             btn.textContent = '✓ Downloaded';
             setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2500);
         } catch (e) {
-            btn.textContent = 'Error — try again';
+            btn.textContent = 'Error – try again';
             setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2500);
         }
     }
