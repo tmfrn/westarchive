@@ -893,23 +893,22 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 14px 16px;
     margin-bottom: 8px;
-    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
-    position: relative;
     overflow: hidden;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    position: relative;
 }
 
 .match-card:hover {
     border-color: var(--accent-border);
-    background: var(--bg-card-hover);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
 /* Record tags */
 .match-tags {
     display: flex;
     gap: 6px;
-    margin-bottom: 10px;
+    padding: 8px 16px 0;
     flex-wrap: wrap;
 }
 
@@ -928,21 +927,159 @@ body {
     background: linear-gradient(135deg, #8a8a8a 0%, #b0b0b0 100%);
 }
 
-/* Row 1: date + badges */
-.match-header {
-    display: flex;
-    justify-content: space-between;
+/* ── Score row: home | score+badges | away ── */
+.match-fixture {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    margin-bottom: 8px;
+    padding: 14px 16px 10px;
+    gap: 10px;
+}
+.match-fixture .fixture-home {
+    font-weight: 700;
+    font-size: 0.97rem;
+    color: var(--text-primary);
+    min-width: 0;
+    word-break: break-word;
+}
+.match-fixture .fixture-away {
+    font-weight: 700;
+    font-size: 0.97rem;
+    color: var(--text-primary);
+    min-width: 0;
+    word-break: break-word;
+    text-align: right;
+}
+.match-score-block {
+    text-align: center;
+    flex-shrink: 0;
+}
+.match-score {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-bright);
+    white-space: nowrap;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    display: block;
+}
+.match-ht {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+    display: block;
+}
+.match-header-badges {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
     flex-wrap: wrap;
-    gap: 6px;
 }
 
-.match-date {
-    font-size: 0.78rem;
+/* ── Scorer columns ── */
+.match-scorers {
+    border-top: 1px solid var(--border-subtle);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 0.82rem;
+    line-height: 1.55;
+}
+.match-scorer-side {
+    padding: 8px 14px;
+}
+.match-scorer-side:first-child {
+    border-right: 1px solid var(--border-subtle);
+}
+.match-scorer-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+.match-scorer-names {
+    color: var(--text-secondary);
+}
+.match-scorer-names.no-data {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ── Milestone note ── */
+.milestone-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    padding: 4px 14px 6px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Footer bar: date · season | comp · attendance · venue ── */
+.match-footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--bg-surface);
+    flex-wrap: wrap;
+}
+.match-footer-left {
+    font-size: 0.72rem;
     color: var(--text-muted);
     font-weight: 500;
+    white-space: nowrap;
 }
+.match-footer-right {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Row 1: date lives in footer now — keep .match-date for JS compat */
+.match-date { display: none; }
+.match-header { display: none; }
+
+/* Old meta — hidden, replaced by footer */
+.match-meta { display: none; }
+.match-meta-comp { display: none; }
+.match-meta-pills { display: none; }
+.match-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.69rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 2px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Old scorers — hidden, replaced by match-scorers */
+.scorers { display: none; }
+.scorer-team { display: none; }
+.scorers-list { display: none; }
+
+.scorer-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--text-muted);
+}
+.scorer-link:hover { color: var(--accent); }
 
 .match-season-chip {
     display: inline-flex;
@@ -1043,8 +1180,8 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    padding: 5px 16px;
-    margin: -14px -16px 12px;
+    padding: 6px 16px;
+    margin: 0;
 }
 .match-type-banner.friendly-banner {
     background: rgba(14,116,144,0.09);
@@ -1074,101 +1211,6 @@ body {
 .h2h-match-result.friendly { background: rgba(14,116,144,0.15); color: #0e7490; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
 .h2h-match-result.null-void { background: rgba(120,53,15,0.12); color: #92400e; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
 .h2h-match-row.non-counting { opacity: 0.7; }
-
-/* Row 2: fixture + score */
-.match-fixture {
-    display: flex;
-    align-items: center;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-.match-fixture .fixture-home {
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
-}
-.match-fixture .fixture-away {
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
-    text-align: right;
-}
-.match-score {
-    font-family: var(--font-display);
-    font-size: 1.45em;
-    font-weight: 800;
-    color: var(--text-bright);
-    padding: 0 14px;
-    white-space: nowrap;
-    flex: 0 0 auto;
-    letter-spacing: -0.02em;
-}
-
-/* Row 3: meta — comp on its own line, pills below */
-.match-meta {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-subtle);
-}
-.match-meta-comp {
-    display: block;
-    font-size: 0.76rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 5px;
-}
-.match-meta-pills {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-}
-.match-meta-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 0.69rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    padding: 2px 7px;
-    border-radius: 100px;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-/* Row 4: scorers */
-.scorers {
-    margin-top: 7px;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--text-secondary);
-}
-.scorer-team {
-    font-weight: 700;
-    color: var(--text-secondary);
-    margin-right: 4px;
-}
-.scorers-list { color: var(--text-muted); }
-
-.scorer-link {
-    cursor: pointer;
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-    text-decoration-color: var(--text-muted);
-}
-.scorer-link:hover { color: var(--accent); }
-
-/* Row 5: milestone — quiet */
-.milestone-note {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    margin-top: 4px;
-}
 
 .opposition-link {
     cursor: pointer;
@@ -2135,8 +2177,12 @@ body {
     .lens-btn { font-size: 0.78em; padding: 7px 12px; }
     .results-header { padding: 20px; }
     .matches { padding: 16px 20px 48px; }
-    .match-fixture { flex-direction: column; gap: 4px; text-align: center; }
-    .match-fixture .fixture-home, .match-fixture .fixture-away { text-align: center; }
+    .match-fixture { grid-template-columns: 1fr auto 1fr; padding: 12px 12px 8px; gap: 6px; }
+    .match-fixture .fixture-home, .match-fixture .fixture-away { font-size: 0.88rem; }
+    .match-score { font-size: 1.6rem; }
+    .match-scorers { grid-template-columns: 1fr; }
+    .match-scorer-side:first-child { border-right: none; border-bottom: 1px solid var(--border-subtle); }
+    .match-footer { flex-direction: column; align-items: flex-start; gap: 5px; }
     .h2h-overlay, .player-overlay { padding: 20px 10px; }
     .h2h-extra { grid-template-columns: 1fr; }
     .h2h-extra-item { border-right: none; border-bottom: 1px solid var(--border-primary); }
@@ -3207,39 +3253,49 @@ body {
         const tagsHtml = (tags.length > 0 || showPreNLSBadge || rankBadgeHtml)
             ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>'
             : '';
-        // ── Scorers ──
-        let scorersHtml = '';
+        // ── Scorer columns ──
+        let scorerColumnsHtml = '';
         if (match.Abandoned !== 'Y') {
             const dateKey = normaliseDateKey(match.Date || '');
             const matchScorers = scorersByDate[dateKey];
-            if (matchScorers) {
+            const isHome = match['Home/Away'] === 'H' || match['Home/Away'] === 'N';
+            const oppLabel = match.Opposition.length > 18 ? match.Opposition.split(' ').slice(0, 2).join(' ') : match.Opposition;
+            const leftLabel  = isHome ? 'West' : oppLabel;
+            const rightLabel = isHome ? oppLabel : 'West';
+            if (matchScorers && (match['Goals For'] > 0 || match['Goals Against'] > 0)) {
                 const westResult = formatScorerList(matchScorers.west, dateKey, true);
                 const oppResult  = formatScorerList(matchScorers.opp,  dateKey, false);
-                const westList = westResult.html; const oppList = oppResult.html;
-                if (match['Home/Away'] === 'H' || match['Home/Away'] === 'N') {
-                    if (westList) scorersHtml += '<div class="scorers"><span class="scorer-team">West</span><span class="scorers-list">' + westList + '</span></div>';
-                    if (oppList)  scorersHtml += '<div class="scorers"><span class="scorer-team">' + match.Opposition + '</span><span class="scorers-list">' + oppList + '</span></div>';
-                } else {
-                    if (oppList)  scorersHtml += '<div class="scorers"><span class="scorer-team">' + match.Opposition + '</span><span class="scorers-list">' + oppList + '</span></div>';
-                    if (westList) scorersHtml += '<div class="scorers"><span class="scorer-team">West</span><span class="scorers-list">' + westList + '</span></div>';
-                }
+                const westHtml = westResult.html || (match['Goals For']     > 0 ? '<span class="no-data">Not recorded</span>' : '<span class="no-data">None</span>');
+                const oppHtml  = oppResult.html  || (match['Goals Against'] > 0 ? '<span class="no-data">Not recorded</span>' : '<span class="no-data">None</span>');
+                const leftHtml  = isHome ? westHtml : oppHtml;
+                const rightHtml = isHome ? oppHtml  : westHtml;
+                let milestoneHtml = '';
                 if (!matchIsNonCounting && westResult.milestones.length > 0) {
                     const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? '⭐' : '🎯'; return icon + ' ' + m.name + '\'s ' + label; });
-                    scorersHtml += '<div class="milestone-note">' + notes.join(' · ') + '</div>';
+                    milestoneHtml = '<div class="milestone-note">' + notes.join(' · ') + '</div>';
                 }
+                scorerColumnsHtml =
+                    '<div class="match-scorers">' +
+                        '<div class="match-scorer-side">' +
+                            '<div class="match-scorer-label">' + leftLabel + '</div>' +
+                            '<div class="match-scorer-names">' + leftHtml + '</div>' +
+                        '</div>' +
+                        '<div class="match-scorer-side">' +
+                            '<div class="match-scorer-label">' + rightLabel + '</div>' +
+                            '<div class="match-scorer-names">' + rightHtml + '</div>' +
+                        '</div>' +
+                    '</div>' + milestoneHtml;
             }
         }
-        const notesHtml = match.Notes ? '<div class="scorers"><span class="scorer-team">📝</span><span class="scorers-list">' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>' : '';
+        const notesHtml = match.Notes ? '<div class="milestone-note">📝 ' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' : '';
         const safeOpp = match.Opposition.replace(/'/g, "\\'");
         const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
         const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
         const safeSeason = (match.Season || '').replace(/'/g, "\\'");
-        const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-season-chip" onclick="showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
+        const seasonChip = (match.Season && !selectedSeason) ? ' · <span class="match-season-chip" onclick="event.stopPropagation();showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
         const safeDate = (match.Date || '').replace(/'/g, "\\'");
-        // Timeline: icon button in header row
         const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊</button>' : '';
-        // Banner for non-counting matches
         let typeBanner = '';
         if (matchIsFriendly) {
             typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">🤝</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
@@ -3247,33 +3303,36 @@ body {
             const nvComp = match.Competition ? match.Competition + ' · ' : '';
             typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
         }
-        // Extra badges: AET, pens
         const aetBadge  = isAET ? '<span class="badge aet">AET</span>' : '';
         const pensBadge = (hasPens && penResult === 'W') ? '<span class="badge won-pens">Won on pens</span>'
                         : (hasPens && penResult === 'L') ? '<span class="badge lost-pens">Lost on pens</span>' : '';
-        // Meta pills — pens pill is explicit about who won
         const htPill    = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-meta-pill">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const ftPill    = (isAET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
         const pensPill  = (hasPens && penScore) ? '<span class="match-meta-pill">' + (penResult === 'W' ? 'West won ' : 'West lost ') + penScore + ' on pens</span>' : '';
         const attPill   = match.Attendance ? '<span class="match-meta-pill">👥 ' + match.Attendance.toLocaleString() + '</span>' : '';
         const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
         const compStr   = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
+        const htInScore = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-ht">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
-        return '<div class="' + cardClass + '">' + typeBanner + tagsHtml +
-            '<div class="match-header">' +
-                '<span class="match-date">' + formatDateShort(match.Date) + seasonChip + '</span>' +
-                '<div class="match-header-badges">' + tlBtn + pensBadge + aetBadge + resultBadge + venueBadge + '</div>' +
-            '</div>' +
+        const footerRight = ['<span class="match-meta-pill">' + compStr + '</span>', ftPill, pensPill, attPill, venuePill].filter(Boolean).join('');
+        return '<div class="' + cardClass + '">' +
+            typeBanner + tagsHtml +
             '<div class="match-fixture">' +
                 '<span class="fixture-home">' + displayHome + '</span>' +
-                '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + '–' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
+                '<div class="match-score-block">' +
+                    '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + '–' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
+                    htInScore +
+                    '<div class="match-header-badges">' + tlBtn + pensBadge + aetBadge + resultBadge + venueBadge + '</div>' +
+                '</div>' +
                 '<span class="fixture-away">' + displayAway + '</span>' +
             '</div>' +
-            '<div class="match-meta">' +
-                '<span class="match-meta-comp">' + compStr + '</span>' +
-                '<div class="match-meta-pills">' + htPill + ftPill + pensPill + attPill + venuePill + '</div>' +
+            scorerColumnsHtml +
+            notesHtml +
+            '<div class="match-footer">' +
+                '<span class="match-footer-left">' + formatDateShort(match.Date) + seasonChip + '</span>' +
+                '<div class="match-footer-right">' + footerRight + '</div>' +
             '</div>' +
-            scorersHtml + notesHtml + '</div>';
+        '</div>';
     }
 
     function filterMatches() {
