@@ -1067,18 +1067,16 @@ body {
     font-size: 0.71rem;
     font-weight: 700;
     color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.4;
 }
 .match-footer-detail {
     display: block;
     font-size: 0.67rem;
     font-weight: 500;
     color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.5;
 }
 .match-footer-right {
     flex-shrink: 0;
@@ -1136,13 +1134,13 @@ body {
     font-weight: 700;
     color: var(--text-secondary);
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    transition: color 0.15s, text-decoration-color 0.15s;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--text-muted);
+    text-underline-offset: 2px;
+    transition: color 0.15s;
 }
 .match-season-chip:hover {
     color: var(--text-primary);
-    text-decoration-color: var(--text-muted);
 }
 
 .match-header-badges {
@@ -3321,7 +3319,7 @@ body {
                 let milestoneHtml = '';
                 if (!matchIsNonCounting && westResult.milestones.length > 0) {
                     const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? '⭐' : '🎯'; return icon + ' ' + m.name + '\'s ' + label; });
-                    milestoneHtml = '<div class="milestone-note">' + notes.join(' · ') + '</div>';
+                    milestoneHtml = '<div class="milestone-note">' + notes.join('<br>') + '</div>';
                 }
                 scorerColumnsHtml =
                     '<div class="match-scorers">' +
@@ -3802,7 +3800,7 @@ body {
             const resultClass = m.Abandoned === 'Y' ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : res;
             const rowClass = m.Abandoned === 'Y' ? 'row-a' : isF ? 'row-f' : isNV ? 'row-nv' : 'row-' + res;
             const resultWord = m.Abandoned === 'Y' ? 'Abn' : isF ? 'Fr' : isNV ? 'N/V' : effectiveResult(m) === 'W' ? 'Win' : effectiveResult(m) === 'L' ? 'Loss' : 'Draw';
-            const penSuffix = (!isF && !isNV && m.Penalties === 'Y') ? ' (pens)' : '';
+            const penSuffix = (!isF && !isNV && m.Penalties === 'Y') ? (m['Penalty Result'] === 'W' ? ' · West won pens' : ' · West lost pens') : '';
             const score = m.Abandoned === 'Y' ? 'A–A' : m['Goals For'] + '–' + m['Goals Against'];
             const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · N&amp;V' : 'N&amp;V') : ((m.Competition || '') + penSuffix);
             const venueStyle = m['Home/Away'] === 'H' ? 'color:#1d4ed8;font-weight:700;' : m['Home/Away'] === 'N' ? 'color:var(--text-muted);font-weight:600;' : 'color:#7c3aed;font-weight:700;';
@@ -3815,13 +3813,14 @@ body {
             '</div>';
         };
 
-        const nlsSorted = eraAll.filter(m => !isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
-        const preNLSSorted = eraAll.filter(m => isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+        const nlsSorted = allMatches.filter(m => !isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+        const preNLSSorted = allMatches.filter(m => isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
+        const totalShown = nlsSorted.length + preNLSSorted.length;
 
-        let matchHTML = '<h4>All Meetings (' + eraAll.length + (eraAll.length < allMatches.length ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">NLS era only \u2013 toggle grassroots to see all</span>' : '') + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
+        let matchHTML = '<h4>All Meetings (' + nlsSorted.length + (preNLSSorted.length > 0 ? ', ' + preNLSSorted.length + ' grassroots' : '') + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
         if (preNLSSorted.length > 0) {
-            matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;">Grassroots era</div>';
-            matchHTML += preNLSSorted.map(renderH2HRow).join('');
+            matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;opacity:0.6;">Grassroots era (not counted in stats above)</div>';
+            matchHTML += '<div style="opacity:0.45;">' + preNLSSorted.map(renderH2HRow).join('') + '</div>';
         }
         document.getElementById('h2hMatches').innerHTML = matchHTML;
         openModal('h2hOverlay');
@@ -4919,10 +4918,9 @@ body {
             legendHtml +
             trackHtml +
             ftStrip +
-            pensStrip +
             '<div style="margin-top:16px;">' +
                 '<div class="tl-log-title">Match events</div>' +
-                (events.length === 0
+                (events.length === 0 && match.Penalties !== 'Y'
                     ? '<div class="tl-no-goals">No match events recorded.</div>'
                     : '<div>' + logRows + '</div>'
                 ) +
