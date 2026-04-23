@@ -103,6 +103,39 @@ body {
 
 .header-content { position: relative; z-index: 1; }
 
+/* ── Credits ── */
+.credits-toggle {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--border-primary);
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+}
+.credits-toggle:hover { color: var(--text-secondary); }
+.credits-panel {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    text-align: left;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.credits-panel.open { display: block; }
+.credits-panel a { color: var(--text-secondary); text-decoration: underline dotted; text-underline-offset: 2px; }
+.credits-panel a:hover { color: var(--text-primary); }
+
 .header h1 {
     font-family: var(--font-display);
     font-size: clamp(2rem, 5vw, 3.2rem);
@@ -2253,6 +2286,12 @@ body {
                 <div class="team-tabs">
                     <button class="team-tab active" id="tabMen" onclick="switchTeam('men')">Men's Team</button>
                     <button class="team-tab" id="tabWomen" onclick="switchTeam('women')">Women's Team</button>
+                </div>
+                <div style="margin-top:4px;">
+                    <span class="credits-toggle" onclick="document.getElementById('creditsPanel').classList.toggle('open');this.textContent=document.getElementById('creditsPanel').classList.contains('open')?'Hide credits':'Credits'">Credits</span>
+                    <div class="credits-panel" id="creditsPanel">
+                        Thanks to Ben Warner, Colin Hamilton, Danny Iredale, Danny Mohammed, Dave Cooper, Glyn Meacher, Graheme Curry, John Churchman, Matthew Durrant, Paul Caddick, Rob Lee, Rob McKay and Scott White. Also the <a href="https://fchd.info" target="_blank" rel="noopener">Football Club History Database</a>, <a href="https://www.nwcfl.com" target="_blank" rel="noopener">NWCFL</a> and <a href="https://www.nonleaguematters.co.uk" target="_blank" rel="noopener">NonLeagueMatters</a>.
+                    </div>
                 </div>
             </div>
         </div>
