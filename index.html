@@ -3762,7 +3762,7 @@ body {
         const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '–';
 
         const hasPreNLSMatches = allMatches.some(m => isPreNLS(m));
-        const eraNote = (!showPreNLS && hasPreNLSMatches) ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era only)</span>' : '';
+        const eraNote = (!showPreNLS && hasPreNLSMatches) ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era)</span>' : (showPreNLS && hasPreNLSMatches ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(all eras)</span>' : '');
         document.getElementById('h2hTitle').textContent = 'vs ' + opposition;
         document.getElementById('h2hStats').innerHTML =
             '<div class="h2h-stat wins"><div class="h2h-stat-value">' + wins + '</div><div class="h2h-stat-label">Wins</div></div>' +
@@ -3815,12 +3815,17 @@ body {
 
         const nlsSorted = allMatches.filter(m => !isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
         const preNLSSorted = allMatches.filter(m => isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
-        const totalShown = nlsSorted.length + preNLSSorted.length;
+        const statsCount = showPreNLS ? nlsSorted.length + preNLSSorted.length : nlsSorted.length;
 
-        let matchHTML = '<h4>All Meetings (' + nlsSorted.length + (preNLSSorted.length > 0 ? ', ' + preNLSSorted.length + ' grassroots' : '') + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
+        let matchHTML = '<h4>All Meetings (' + statsCount + (preNLSSorted.length > 0 && !showPreNLS ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">+ ' + preNLSSorted.length + ' grassroots below</span>' : '') + ')</h4>' + nlsSorted.map(renderH2HRow).join('');
         if (preNLSSorted.length > 0) {
-            matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;opacity:0.6;">Grassroots era (not counted in stats above)</div>';
-            matchHTML += '<div style="opacity:0.45;">' + preNLSSorted.map(renderH2HRow).join('') + '</div>';
+            if (showPreNLS) {
+                matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;">Grassroots era</div>';
+                matchHTML += preNLSSorted.map(renderH2HRow).join('');
+            } else {
+                matchHTML += '<div class="pre-nls-era-divider" style="margin:16px 0 8px;opacity:0.6;">Grassroots era (toggle on to include in stats)</div>';
+                matchHTML += '<div style="opacity:0.45;">' + preNLSSorted.map(renderH2HRow).join('') + '</div>';
+            }
         }
         document.getElementById('h2hMatches').innerHTML = matchHTML;
         openModal('h2hOverlay');
