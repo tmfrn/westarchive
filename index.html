@@ -1238,8 +1238,7 @@ body {
 .match-card.is-null-void .match-score { opacity: 0.55; }
 
 /* H2H row markers */
-.h2h-match-result.friendly { background: rgba(14,116,144,0.15); color: #0e7490; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
-.h2h-match-result.null-void { background: rgba(120,53,15,0.12); color: #92400e; font-size: 0.65rem; letter-spacing: 0; padding: 0 4px; }
+/* h2h friendly/null-void badge styles removed — using row border + text */
 .h2h-match-row.non-counting { opacity: 0.7; }
 
 .opposition-link {
@@ -1295,24 +1294,33 @@ body {
     line-height: 1.2;
 }
 .timeline-modal-meta {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
     margin-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 8px;
 }
-.tl-meta-pill {
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 100px;
+.tl-meta-result-line {
+    display: block;
+    font-size: 0.67rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 2px;
 }
-.tl-meta-pill.win { background: var(--win-bg); color: var(--win); }
-.tl-meta-pill.loss { background: var(--loss-bg); color: var(--loss); }
-.tl-meta-pill.draw { background: var(--draw-bg); color: var(--draw); }
-.tl-meta-pill.home { background: rgba(37,99,235,0.08); color: #2563eb; }
-.tl-meta-pill.away { background: rgba(147,51,234,0.08); color: #9333ea; }
-.tl-meta-pill.neutral-v { background: rgba(0,0,0,0.04); color: var(--text-muted); }
-.tl-meta-pill.info { background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.tl-meta-result-line.win  { color: #4ade80; }
+.tl-meta-result-line.loss { color: #fca5a5; }
+.tl-meta-result-line.draw { color: #94a3b8; }
+.tl-meta-result-line.friendly  { color: #67e8f9; }
+.tl-meta-result-line.null-void { color: #fcd34d; }
+.tl-meta-result-venue { font-weight: 600; opacity: 0.7; }
+.tl-meta-detail-line {
+    display: block;
+    font-size: 0.69rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+}
+/* keep tl-meta-pill class alive for any stragglers but unused */
+.tl-meta-pill { display: none; }
 .timeline-modal-close {
     background: rgba(0,0,0,0.06);
     border: none;
@@ -1711,33 +1719,41 @@ body {
 }
 
 .h2h-match-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 36px auto 1fr auto;
     align-items: center;
-    padding: 9px 0;
+    gap: 0 10px;
+    padding: 8px 0 8px 10px;
     border-bottom: 1px solid var(--border-subtle);
-    font-size: 0.86rem;
+    border-left: 3px solid transparent;
+    font-size: 0.84rem;
+    margin-left: -10px;
 }
 .h2h-match-row:last-child { border-bottom: none; }
-.h2h-match-date { color: var(--text-muted); min-width: 100px; }
-.h2h-match-score { font-weight: 800; color: var(--text-bright); min-width: 50px; text-align: center; font-family: var(--font-display); }
-.h2h-match-comp { color: var(--text-muted); font-size: 0.82em; text-align: right; flex: 1; margin-left: 12px; }
+.h2h-match-row.row-w { border-left-color: var(--win); }
+.h2h-match-row.row-l { border-left-color: var(--loss); }
+.h2h-match-row.row-d { border-left-color: #9ca3af; }
+.h2h-match-row.row-a { border-left-color: var(--text-muted); }
+.h2h-match-row.row-f { border-left-color: #0e7490; }
+.h2h-match-row.row-nv { border-left-color: #92400e; }
 
 .h2h-match-result {
-    display: inline-block;
-    width: 22px; height: 22px; line-height: 22px;
-    text-align: center;
-    border-radius: 5px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--bg-primary);
-    margin-right: 10px;
-    flex-shrink: 0;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
 }
-.h2h-match-result.w { background: var(--win); color: #fff; }
-.h2h-match-result.d { background: var(--draw); color: #fff; }
-.h2h-match-result.l { background: var(--loss); color: #fff; }
-.h2h-match-result.a { background: var(--text-muted); }
+.h2h-match-result.w  { color: var(--win); }
+.h2h-match-result.d  { color: var(--draw); }
+.h2h-match-result.l  { color: var(--loss); }
+.h2h-match-result.a  { color: var(--text-muted); }
+.h2h-match-result.friendly  { color: #0e7490; }
+.h2h-match-result.null-void { color: #92400e; }
+
+.h2h-match-score { font-weight: 800; color: var(--text-bright); font-family: var(--font-display); white-space: nowrap; }
+.h2h-match-date { color: var(--text-muted); font-size: 0.8rem; }
+.h2h-match-comp { color: var(--text-muted); font-size: 0.78rem; text-align: right; }
 
 /* ===== PLAYER MODAL SPECIFICS ===== */
 .player-total {
@@ -3782,14 +3798,21 @@ body {
             const isF = isFriendly(m);
             const isNV = isNullVoid(m);
             const isNC = isF || isNV;
-            const resultClass = m.Abandoned === 'Y' ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : effectiveResult(m).toLowerCase();
-            const penSuffix = (!isF && !isNV && m.Penalties === 'Y') ? ' (' + (m['Penalty Result'] === 'W' ? 'won pens' : 'lost pens') + ')' : '';
-            const resultLetter = m.Abandoned === 'Y' ? 'A' : isF ? 'F' : isNV ? 'N/V' : effectiveResult(m);
+            const res = m.Abandoned === 'Y' ? 'a' : effectiveResult(m).toLowerCase();
+            const resultClass = m.Abandoned === 'Y' ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : res;
+            const rowClass = m.Abandoned === 'Y' ? 'row-a' : isF ? 'row-f' : isNV ? 'row-nv' : 'row-' + res;
+            const resultWord = m.Abandoned === 'Y' ? 'Abn' : isF ? 'Fr' : isNV ? 'N/V' : effectiveResult(m) === 'W' ? 'Win' : effectiveResult(m) === 'L' ? 'Loss' : 'Draw';
+            const penSuffix = (!isF && !isNV && m.Penalties === 'Y') ? ' (pens)' : '';
             const score = m.Abandoned === 'Y' ? 'A–A' : m['Goals For'] + '–' + m['Goals Against'];
-            const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · Null &amp; Void' : 'Null &amp; Void') : ((m.Competition || '') + penSuffix);
-            const venueLabel = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
-            const venueStyle = 'display:inline-block;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;' + (m['Home/Away'] === 'H' ? 'background:rgba(37,99,235,0.10);color:#2563eb;' : m['Home/Away'] === 'N' ? 'background:rgba(0,0,0,0.06);color:var(--text-muted);' : 'background:rgba(147,51,234,0.10);color:#9333ea;');
-            return '<div class="h2h-match-row' + (isNC ? ' non-counting' : '') + '"><span class="h2h-match-result ' + resultClass + '">' + resultLetter + '</span><span class="h2h-match-date">' + m.Date + '<span style="' + venueStyle + '">' + venueLabel + '</span></span><span class="h2h-match-score">' + score + '</span><span class="h2h-match-comp">' + compStr + '</span></div>';
+            const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · N&amp;V' : 'N&amp;V') : ((m.Competition || '') + penSuffix);
+            const venueStyle = m['Home/Away'] === 'H' ? 'color:#1d4ed8;font-weight:700;' : m['Home/Away'] === 'N' ? 'color:var(--text-muted);font-weight:600;' : 'color:#7c3aed;font-weight:700;';
+            const venueWord = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
+            return '<div class="h2h-match-row ' + rowClass + (isNC ? ' non-counting' : '') + '">' +
+                '<span class="h2h-match-result ' + resultClass + '">' + resultWord + '</span>' +
+                '<span class="h2h-match-score">' + score + '</span>' +
+                '<span class="h2h-match-date">' + m.Date + ' <span style="' + venueStyle + '">' + venueWord + '</span></span>' +
+                '<span class="h2h-match-comp">' + compStr + '</span>' +
+            '</div>';
         };
 
         const nlsSorted = eraAll.filter(m => !isPreNLS(m)).sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
@@ -4906,13 +4929,16 @@ body {
             '</div>';
 
         document.getElementById('timelineTitle').textContent = homeTeam + ' ' + homeScore + ' – ' + awayScore + ' ' + awayTeam;
+        const tlAetStr  = isAET ? ' · AET' : '';
+        const tlPensStr = (match.Penalties === 'Y') ? ' · ' + (match['Penalty Result'] === 'W' ? 'Won' : 'Lost') + ' pens' : '';
+        const tlVenueWord = match['Home/Away'] === 'H' ? 'Home' : match['Home/Away'] === 'N' ? 'Neutral' : 'Away';
+        const tlCompStr = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
+        const tlDetailParts = [match.Date, tlCompStr];
+        if (match.Attendance) tlDetailParts.push('Attendance ' + Number(match.Attendance).toLocaleString());
+        if (match.Venue && match.Venue.trim()) tlDetailParts.push(match.Venue);
         document.getElementById('timelineMeta').innerHTML =
-            '<span class="tl-meta-pill ' + resultCls + '">' + resultLabel + '</span>' +
-            '<span class="tl-meta-pill ' + venueCls + '">' + venueLabel + '</span>' +
-            (isAET ? '<span class="tl-meta-pill info">After Extra Time</span>' : '') +
-            '<span class="tl-meta-pill info">' + match.Date + '</span>' +
-            '<span class="tl-meta-pill info">' + match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '') + '</span>' +
-            (match.Venue && match.Venue.trim() ? '<span class="tl-meta-pill info">📍 ' + match.Venue + '</span>' : '');
+            '<span class="tl-meta-result-line ' + resultCls + '">' + resultLabel + tlAetStr + tlPensStr + ' <span class="tl-meta-result-venue">· ' + tlVenueWord + '</span></span>' +
+            '<span class="tl-meta-detail-line">' + tlDetailParts.join(' · ') + '</span>';
         document.getElementById('timelineBody').innerHTML = bodyHtml;
         openModal('timelineOverlay');
     }
