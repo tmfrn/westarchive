@@ -953,7 +953,7 @@ body {
 .match-score-block {
     text-align: center;
     flex-shrink: 0;
-    max-width: 160px;
+    max-width: 140px;
     min-width: 0;
 }
 .match-score {
@@ -1022,22 +1022,83 @@ body {
     border-top: 1px solid var(--border-subtle);
 }
 
+/* ── Option J: result line, coloured border, split footer ── */
+.border-win       { border-top: 3px solid var(--win); }
+.border-loss      { border-top: 3px solid var(--loss); }
+.border-draw      { border-top: 3px solid #9ca3af; }
+.border-friendly  { border-top: 3px solid #0e7490; }
+.border-null-void { border-top: 3px solid #92400e; }
+.border-abandoned { border-top: 3px solid var(--text-muted); }
+
+.match-result-line {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+.match-result-line.win       { color: var(--win); }
+.match-result-line.loss      { color: var(--loss); }
+.match-result-line.draw      { color: var(--draw); }
+.match-result-line.friendly  { color: #0e7490; }
+.match-result-line.null-void { color: #92400e; }
+.match-result-line.abandoned { color: var(--text-muted); }
+.match-result-venue {
+    font-weight: 600;
+    opacity: 0.65;
+}
+
 /* ── Footer bar ── */
 .match-footer {
     border-top: 1px solid var(--border-subtle);
-    padding: 6px 14px;
+    padding: 7px 14px;
     background: var(--bg-surface);
-    font-size: 0.71rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    line-height: 1.7;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 4px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
 }
-.match-footer-left { display: contents; }
-.match-footer-right { display: contents; }
+.match-footer-left {
+    min-width: 0;
+}
+.match-footer-comp {
+    display: block;
+    font-size: 0.71rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.match-footer-detail {
+    display: block;
+    font-size: 0.67rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.match-footer-right {
+    flex-shrink: 0;
+}
+.match-tl-btn {
+    display: inline-block;
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--win);
+    cursor: pointer;
+    padding: 4px 9px;
+    border: 1px solid rgba(22,101,52,0.25);
+    border-radius: 6px;
+    background: rgba(22,101,52,0.04);
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.match-tl-btn:hover { background: rgba(22,101,52,0.1); }
 
 /* Row 1: date lives in footer now */
 .match-date { display: none; }
@@ -1071,17 +1132,16 @@ body {
 
 .match-season-chip {
     display: inline;
-    font-size: 0.71rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 0.67rem;
+    font-weight: 700;
+    color: var(--text-secondary);
     cursor: pointer;
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: color 0.15s, text-decoration-color 0.15s;
 }
-
 .match-season-chip:hover {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-decoration-color: var(--text-muted);
 }
 
@@ -1118,22 +1178,10 @@ body {
 
 /* Timeline icon button — lives in header badges row */
 .timeline-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--accent-surface);
-    border: 1px solid var(--accent-border);
-    color: var(--accent);
-    font-size: 0.75rem;
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: background 0.15s;
-    flex-shrink: 0;
+    display: none; /* replaced by tl-footer-btn */
 }
-.timeline-btn:hover { background: rgba(22,101,52,0.12); }
+
+/* badge-combined removed — using Option J result line */
 
 /* ===== FRIENDLY & NULL-AND-VOID CARD TREATMENTS ===== */
 .match-card.is-friendly {
@@ -2160,12 +2208,14 @@ body {
     .results-header { padding: 20px; }
     .matches { padding: 16px 20px 48px; }
     .match-fixture { grid-template-columns: 1fr auto 1fr; padding: 12px 12px 8px; gap: 6px; }
-    .match-score-block { max-width: 130px; }
+    .match-score-block { max-width: 120px; }
     .match-fixture .fixture-home, .match-fixture .fixture-away { font-size: 0.88rem; }
     .match-score { font-size: 1.6rem; }
     .match-scorers { grid-template-columns: 1fr; }
     .match-scorer-side:first-child { border-right: none; border-bottom: 1px solid var(--border-subtle); }
-    /* match-footer now flows naturally on mobile */
+    .match-footer { grid-template-columns: 1fr auto; gap: 8px; }
+    .match-footer-comp { font-size: 0.68rem; }
+    .match-footer-detail { font-size: 0.63rem; }
     .h2h-overlay, .player-overlay { padding: 20px 10px; }
     .h2h-extra { grid-template-columns: 1fr; }
     .h2h-extra-item { border-right: none; border-bottom: 1px solid var(--border-primary); }
@@ -3276,9 +3326,9 @@ body {
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
         const displayAway = displayAwayTeam === match.Opposition ? oppLink : displayAwayTeam;
         const safeSeason = (match.Season || '').replace(/'/g, "\\'");
-        const seasonChip = (match.Season && !selectedSeason) ? '<span class="match-footer-sep">·</span><span class="match-season-chip" onclick="event.stopPropagation();showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
+        const seasonChip = (match.Season && !selectedSeason) ? ' · <span class="match-season-chip" onclick="event.stopPropagation();showSeasonSummary(\'' + safeSeason + '\')">' + formatPreNLSSeason(match.Season) + '</span>' : '';
         const safeDate = (match.Date || '').replace(/'/g, "\\'");
-        const tlBtn = hasTimelineData(match) ? '<button class="timeline-btn" onclick="showMatchTimeline(\'' + safeDate + '\')">📊</button>' : '';
+
         let typeBanner = '';
         if (matchIsFriendly) {
             typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">🤝</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
@@ -3292,28 +3342,53 @@ body {
         const htPill    = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-meta-pill">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const ftPill    = (isAET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
         const pensPill  = (hasPens && penScore) ? '<span class="match-meta-pill">' + (penResult === 'W' ? 'West won ' : 'West lost ') + penScore + ' on pens</span>' : '';
-        const attPill   = match.Attendance ? '<span class="match-meta-pill">👥 ' + match.Attendance.toLocaleString() + '</span>' : '';
+        const attPill   = match.Attendance ? '<span class="match-meta-pill">Attendance ' + match.Attendance.toLocaleString() + '</span>' : '';
         const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
         const compStr   = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
         const htInScore = (match['HT Goals For'] != null && match.Abandoned !== 'Y') ? '<span class="match-ht">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
         const sep = '<span class="match-footer-sep">·</span>'; const footerRight = ['<span class="match-footer-sep">·</span><span class="match-meta-pill">' + compStr + '</span>', ftPill ? sep + ftPill : '', pensPill ? sep + pensPill : '', attPill ? sep + attPill : '', venuePill ? sep + venuePill : ''].filter(Boolean).join('');
-        return '<div class="' + cardClass + '">' +
+        // Option J: result as plain text line, coloured top border, timeline button in footer
+        const resultWord = match.Abandoned === 'Y' ? 'Abandoned' :
+                           matchIsFriendly ? 'Friendly' :
+                           matchIsNullVoid ? 'Null &amp; Void' :
+                           effectiveResult(match) === 'W' ? 'Win' :
+                           effectiveResult(match) === 'L' ? 'Loss' : 'Draw';
+        const venueWord  = match['Home/Away'] === 'H' ? 'Home' :
+                           match['Home/Away'] === 'N' ? 'Neutral' : 'Away';
+        const resultCls  = match.Abandoned === 'Y' ? 'abandoned' :
+                           matchIsFriendly ? 'friendly' :
+                           matchIsNullVoid ? 'null-void' :
+                           effectiveResult(match) === 'W' ? 'win' :
+                           effectiveResult(match) === 'L' ? 'loss' : 'draw';
+        const pensLine   = (hasPens && penScore) ? ' · ' + (penResult === 'W' ? 'Won' : 'Lost') + ' pens ' + penScore : '';
+        const aetLine    = isAET ? ' · AET' : '';
+        const resultLine = '<span class="match-result-line ' + resultCls + '">' + resultWord + ' <span class="match-result-venue">' + venueWord + '</span>' + aetLine + pensLine + '</span>';
+        const borderCls  = match.Abandoned === 'Y' ? 'border-abandoned' :
+                           matchIsFriendly ? 'border-friendly' :
+                           matchIsNullVoid ? 'border-null-void' :
+                           effectiveResult(match) === 'W' ? 'border-win' :
+                           effectiveResult(match) === 'L' ? 'border-loss' : 'border-draw';
+        const tlBtn      = hasTimelineData(match) ? '<span class="match-tl-btn" onclick="event.stopPropagation();showMatchTimeline(\'' + safeDate + '\')" title="Match timeline">Timeline →</span>' : '';
+        return '<div class="' + cardClass + ' ' + borderCls + '">' +
             typeBanner + tagsHtml +
             '<div class="match-fixture">' +
                 '<span class="fixture-home">' + displayHome + '</span>' +
                 '<div class="match-score-block">' +
                     '<span class="match-score">' + (displayHomeScore !== null && displayHomeScore !== undefined ? displayHomeScore : '-') + '–' + (displayAwayScore !== null && displayAwayScore !== undefined ? displayAwayScore : '-') + '</span>' +
                     htInScore +
-                    '<div class="match-header-badges">' + tlBtn + pensBadge + aetBadge + resultBadge + venueBadge + '</div>' +
+                    resultLine +
                 '</div>' +
                 '<span class="fixture-away">' + displayAway + '</span>' +
             '</div>' +
             scorerColumnsHtml +
             notesHtml +
             '<div class="match-footer">' +
-                '<span class="match-footer-left">' + formatDateShort(match.Date) + seasonChip + '</span>' +
-                '<div class="match-footer-right">' + footerRight + '</div>' +
+                '<div class="match-footer-left">' +
+                    '<span class="match-footer-comp">' + compStr + '</span>' +
+                    '<span class="match-footer-detail">' + formatDateShort(match.Date) + seasonChip + (attPill ? ' · ' + match.Attendance.toLocaleString() + ' att.' : '') + (venuePill ? ' · ' + match.Venue : '') + (ftPill ? ' · FT ' + displayFtHomeScore + '–' + displayFtAwayScore : '') + '</span>' +
+                '</div>' +
+                (tlBtn ? '<div class="match-footer-right">' + tlBtn + '</div>' : '') +
             '</div>' +
         '</div>';
     }
