@@ -558,12 +558,12 @@ button{cursor:pointer;font-family:var(--font-body)}
     <div class="section-body" id="summaryBody"></div>
   </div>
 
-  <div class="summary-box" id="attChartBox" style="display:none">
-    <div class="section-toggle-header" onclick="toggleAttSection(this)">
+  <div class="summary-box" id="attChartBox">
+    <div class="section-toggle-header open" onclick="toggleAttSection(this)">
       <h2 id="attChartTitle">📈 Home Attendance Over Time</h2>
       <span class="section-chevron">▾</span>
     </div>
-    <div class="section-body" id="attBody">
+    <div class="section-body open" id="attBody">
       <div id="attStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px"></div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
         <button class="filter-btn active" id="attBtnWSL" onclick="setAttMode('wsl')">League</button>
@@ -2217,7 +2217,14 @@ function drawAttendanceChart() {
   if (!canvas) return;
   const mode = window._attMode || 'wsl';
   const data = buildAttData(mode);
-  if (!data.length) return;
+
+  if (!data.length) {
+    canvas.style.display = 'none';
+    document.getElementById('attStats').innerHTML =
+      '<p style="color:var(--text-muted);font-size:0.86rem;padding:8px 0">No home attendance data found for this filter. Try switching to <strong>League &amp; cups</strong>.</p>';
+    return;
+  }
+  canvas.style.display = 'block';
   renderAttStats(data);
   document.getElementById('attChartTitle').textContent =
     mode === 'wsl' ? '📈 Home League (WSL) Attendance Over Time'
@@ -2310,8 +2317,9 @@ function toggleAttSection(header) {
 }
 
 function maybeShowAttChart() {
-  const has = MATCHES.some(m => m['Home/Away']==='H' && !isFriendly(m) && m.Attendance && !isNaN(parseInt(m.Attendance)));
-  if (has) document.getElementById('attChartBox').style.display = '';
+  // Section is always visible and open — draw the chart now
+  window._attMode = window._attMode || 'wsl';
+  setTimeout(drawAttendanceChart, 100);
 }
 
 // Click on bar to show season detail
