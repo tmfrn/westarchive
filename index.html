@@ -2250,9 +2250,9 @@ body {
     border: 1px solid var(--border-subtle);
     letter-spacing: 0;
 }
-.match-rank-badge.rank-1 { background: linear-gradient(135deg,#b8860b,#daa520); color: #000; border-color: #b8860b; }
-.match-rank-badge.rank-2 { background: linear-gradient(135deg,#8a8a8a,#b0b0b0); color: #000; border-color: #8a8a8a; }
-.match-rank-badge.rank-3 { background: linear-gradient(135deg,#8B4513,#cd7f32); color: #fff; border-color: #8B4513; }
+.match-rank-badge.rank-1 { background: #b8860b; color: #fff; border-color: #b8860b; }
+.match-rank-badge.rank-2 { background: #9a9a94; color: #fff; border-color: #9a9a94; }
+.match-rank-badge.rank-3 { background: #b07542; color: #fff; border-color: #b07542; }
 .pre-nls-inline-badge {
     display: inline-flex;
     align-items: center;
@@ -3675,8 +3675,12 @@ body {
         const rankedViews = ['biggest-wins','biggest-losses','most-goals-scored','most-goals-conceded','most-goals-total','highest-attendance','lowest-attendance'];
         const showPreNLSBadge = showPreNLS && isPreNLS(match) && rankedViews.includes(currentFilter);
         const preNLSBadgeHtml = showPreNLSBadge ? '<span class="pre-nls-inline-badge">Grassroots</span>' : '';
-        const rankBadgeHtml = rank != null
-            ? '<span class="match-rank-badge' + (rank <= 3 ? ' rank-' + rank : '') + '">' + rank + '</span>'
+        // rank is { rank, tied }. Tied entries show "1=" and share a medal,
+        // because they share the record.
+        const rankNo = rank && rank.rank;
+        const rankBadgeHtml = rankNo != null
+            ? '<span class="match-rank-badge' + (rankNo <= 3 ? ' rank-' + rankNo : '') + (rank.tied ? ' tied' : '') + '"' +
+              (rank.tied ? ' title="Equal ' + ordinal(rankNo) + '"' : '') + '>' + rankNo + (rank.tied ? '=' : '') + '</span>'
             : '';
         const tagsHtml = (tags.length > 0 || showPreNLSBadge || rankBadgeHtml)
             ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => '<span class="record-tag' + (t.isJoint ? ' joint" title="Shared with ' + (t.count - 1) + ' other match' + (t.count > 2 ? 'es' : '') + '"' : '"') + '>' + t.text + '</span>').join('') + '</div>'
@@ -3811,6 +3815,38 @@ body {
         'unbeaten-streak': m => effectiveResult(m) === 'W' || effectiveResult(m) === 'D',
         'winless-streak':  m => effectiveResult(m) === 'L' || effectiveResult(m) === 'D'
     };
+    // The value each ranked view is ranking by. The sort order uses extra
+    // tiebreakers (total goals, then date) purely to give a stable list — those
+    // must not affect the rank, or two identical 0–7 defeats end up 1st and 2nd.
+    const RANK_METRIC = {
+        'biggest-wins':        m => m['Goals For'] - m['Goals Against'],
+        'biggest-losses':      m => m['Goals Against'] - m['Goals For'],
+        'most-goals-scored':   m => m['Goals For'],
+        'most-goals-conceded': m => m['Goals Against'],
+        'most-goals-total':    m => m['Goals For'] + m['Goals Against'],
+        'highest-attendance':  m => m.Attendance,
+        'lowest-attendance':   m => m.Attendance
+    };
+
+    // Standard competition ranking: equal values share the lower rank and the
+    // next distinct value skips ahead (1, 1, 3, 4). Computed over the whole
+    // ranked set before it is capped, so a tie straddling the cap still counts.
+    function assignRanks(list, view) {
+        const metric = RANK_METRIC[view];
+        if (!metric) return list.map((_, i) => ({ rank: i + 1, tied: false }));
+        const out = [];
+        let lastVal = null, lastRank = 0;
+        list.forEach((m, i) => {
+            const v = metric(m);
+            if (i > 0 && v === lastVal) out.push({ rank: lastRank, tied: false });
+            else { lastRank = i + 1; lastVal = v; out.push({ rank: lastRank, tied: false }); }
+        });
+        const counts = {};
+        out.forEach(o => { counts[o.rank] = (counts[o.rank] || 0) + 1; });
+        out.forEach(o => { o.tied = counts[o.rank] > 1; });
+        return out;
+    }
+
     function isRankedView(f)  { return Object.prototype.hasOwnProperty.call(RANKED_VIEWS, f); }
     function isStreakView(f)  { return Object.prototype.hasOwnProperty.call(STREAK_VIEWS, f); }
 
@@ -3849,8 +3885,10 @@ body {
             let base = baseMatches({ competitiveOnly: true });
             if (view.pre) base = base.filter(view.pre);
             base.sort(view.sort);
+            const ranks = assignRanks(base, currentFilter);
             filtered = base.slice(0, listCap);
             filtered._totalCount = base.length;
+            filtered._ranks = ranks.slice(0, listCap);
         } else {
             filtered = baseMatches();
             if (currentFilter === 'on-this-day') {
@@ -4009,7 +4047,8 @@ body {
                 }
                 html = parts.join('');
             } else if (isRanked) {
-                html = filtered.map((match, i) => renderMatchCard(match, i + 1)).join('');
+                const ranks = filtered._ranks || filtered.map((_, i) => ({ rank: i + 1, tied: false }));
+                html = filtered.map((match, i) => renderMatchCard(match, ranks[i])).join('');
             } else {
                 html = filtered.map(match => renderMatchCard(match)).join('');
             }
