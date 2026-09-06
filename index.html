@@ -241,7 +241,6 @@ body {
     user-select: none;
 }
 .otd-summary:hover { background: var(--bg-surface); }
-.otd-icon { font-size: 1em; flex-shrink: 0; }
 .otd-title {
     font-size: 0.84rem;
     font-weight: 600;
@@ -679,8 +678,10 @@ body {
     border-color: var(--accent);
 }
 
-.lens-icon { width: 15px; height: 15px; flex-shrink: 0; }
-.inline-icon, .otd-svg, .warn-svg { width: 14px; height: 14px; flex-shrink: 0; vertical-align: -2px; }
+/* Goal markers are plain dots — no icon set. */
+.tl-goal-dot.goal { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.tl-goal-marker.opp .tl-goal-dot.goal { background: var(--text-secondary); }
+.tl-goal-mark { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); vertical-align: 1px; }
 .tl-card { display:inline-block; width:8px; height:11px; border-radius:1px; vertical-align:-1px; }
 .tl-card.rc { background:#991b1b; }
 .tl-card.yc { background:#ca8a04; }
@@ -700,7 +701,6 @@ body {
 .lenses-row.has-active .filter-btn:not(.active) { opacity: 0.35; }
 .lenses-row.has-active .filter-btn:not(.active):hover { opacity: 0.7; }
 
-.lens-icon { font-size: 0.95em; }
 
 .lens-season-nav {
     display: none;
@@ -1297,7 +1297,6 @@ body {
     color: #92400e;
     border-bottom: 1px solid rgba(120,53,15,0.14);
 }
-.match-type-banner-icon { font-size: 0.82rem; }
 .match-type-banner-note {
     margin-left: auto;
     font-weight: 400;
@@ -1943,7 +1942,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
     flex-shrink: 0;
     background: var(--accent-surface);
     border: 1.5px solid var(--accent-border);
@@ -2282,7 +2283,6 @@ body {
     color: #7c5208;
     line-height: 1.4;
 }
-.pre-nls-warning-icon { flex-shrink: 0; font-size: 0.9em; }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
@@ -2356,7 +2356,6 @@ body {
 
 <div class="otd-banner" id="otdBanner" style="display:none;">
     <div class="otd-summary" onclick="toggleOTD()">
-        <span class="otd-icon"><svg class="otd-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span>
         <span class="otd-title" id="otdSummaryText">On this day</span>
         <span class="otd-chevron">▼</span>
         <button class="otd-close" onclick="event.stopPropagation();dismissOTD()">✕</button>
@@ -2372,7 +2371,7 @@ body {
         <div class="streak-label">Current Run</div>
         <div class="streak-value" id="streakValue"></div>
         <div class="streak-context" id="streakContext"></div>
-        <div id="streakWarning" class="pre-nls-warning" style="display:none;margin-top:14px;margin-bottom:0;"><span class="pre-nls-warning-icon"><svg class="warn-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5 14.5 13.5h-13z"/><path d="M8 6.5v3M8 11.4v.1"/></svg></span>Includes grassroots era data</div>
+        <div id="streakWarning" class="pre-nls-warning" style="display:none;margin-top:14px;margin-bottom:0;">Includes grassroots era data</div>
         <div class="form-guide" id="formGuide"></div>
     </div>
 </div>
@@ -2433,41 +2432,33 @@ body {
             <div class="lenses-group-label">Explore</div>
             <div class="lenses-group-buttons">
                 <button class="lens-btn" id="lensThisSeason" onclick="activateLens('this-season', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
                     <span class="lens-label">This season</span>
                 </button>
                 <div class="lens-season-nav" id="seasonNav">
                     <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
                     <span class="lens-season-label" id="seasonNavLabel"></span>
                     <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
-                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary"><svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5h8a1 1 0 0 1 1 1v10l-2.2-1.4L8.5 13.5 6.2 12.1 4 13.5v-10a1 1 0 0 1 1-1Z"/><path d="M6.2 6h3.6M6.2 8.6h3.6"/></svg></button>
+                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary" aria-label="Season summary">Summary</button>
                 </div>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 2h7v4.5a3.5 3.5 0 0 1-7 0V2Z"/><path d="M4.5 3.2H2.5v1a2.5 2.5 0 0 0 2 2.45M11.5 3.2h2v1a2.5 2.5 0 0 1-2 2.45M6.5 14h3M8 10v4"/></svg>
                     <span class="lens-label">Biggest wins</span>
                 </button>
                 <button class="lens-btn" id="lensBigLosses" onclick="activateLens('big-losses', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5l5 5 2.5-2.5 3.5 3.5M13.5 7.5v3h-3"/></svg>
                     <span class="lens-label">Biggest losses</span>
                 </button>
                 <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12.5V9c0-3 2.7-5.5 6-5.5s6 2.5 6 5.5v3.5"/><path d="M2 12.5h12M5.5 12.5V9.5M10.5 12.5V9.5"/></svg>
-                    <span class="lens-label">Biggest Crowds</span>
+                    <span class="lens-label">Biggest crowds</span>
                 </button>
                 <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V3.5h8V7M3 7h10v4H3zM4.5 11v2M11.5 11v2"/></svg>
-                    <span class="lens-label">Smallest Crowds</span>
+                    <span class="lens-label">Smallest crowds</span>
                 </button>
                 <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M8 4.4l2.6 1.9-1 3.1H6.4l-1-3.1L8 4.4Z"/></svg>
-                    <span class="lens-label">Highest Scoring</span>
+                    <span class="lens-label">Highest scoring</span>
                 </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
                     <span class="lens-label">On this day</span>
                 </button>
                 <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
-                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><circle cx="5.8" cy="5.8" r=".9" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/><circle cx="10.2" cy="5.8" r=".9" fill="currentColor" stroke="none"/></svg>
                     <span class="lens-label">Random</span>
                 </button>
             </div>
@@ -2518,7 +2509,7 @@ body {
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px;">
         <div class="result-count" id="resultCount">Loading matches...</div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-            <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)"><svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5h8a1 1 0 0 1 1 1v10l-2.2-1.4L8.5 13.5 6.2 12.1 4 13.5v-10a1 1 0 0 1 1-1Z"/><path d="M6.2 6h3.6M6.2 8.6h3.6"/></svg> Season summary</button>
+            <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)">Season summary</button>
         </div>
     </div>
     <div class="stats-bar" id="statsBar" style="display: none;">
@@ -3327,12 +3318,6 @@ body {
         });
     }
 
-    const ICON_NOTE  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3z"/><path d="M9.5 2.5v3.2h3.2M5.5 8.5h5M5.5 11h3.5"/></svg>';
-    const ICON_PIN   = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 14s4.5-4.2 4.5-7.4A4.5 4.5 0 0 0 8 2a4.5 4.5 0 0 0-4.5 4.6C3.5 9.8 8 14 8 14Z"/><circle cx="8" cy="6.5" r="1.6"/></svg>';
-    const ICON_SHAKE = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 4.5 4l2 1.5L9 4l2.5 1.5M2 6.5l3 4 1.5-1 1.5 1.4 1.5-1.2 1.5 1.3 3.5-4.5"/></svg>';
-    const ICON_BALL  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M8 4.4l2.6 1.9-1 3.1H6.4l-1-3.1L8 4.4Z"/></svg>';
-    const ICON_STAR  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.8 4.2 13.8l.7-4.3-3.1-3 4.3-.6z"/></svg>';
-    const ICON_TARGET= '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/><circle cx="8" cy="8" r="2.6"/><circle cx="8" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>';
 
     function fmtNum(n) { return (n == null) ? '' : Number(n).toLocaleString('en-GB'); }
 
@@ -3703,7 +3688,7 @@ body {
                 const rightHtml = isHome ? oppHtml  : westHtml;
                 let milestoneHtml = '';
                 if (!matchIsNonCounting && westResult.milestones.length > 0) {
-                    const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? ICON_STAR : ICON_TARGET; return icon + ' ' + m.name + '\'s ' + label; });
+                    const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; return m.name + '\'s ' + label; });
                     milestoneHtml = '<div class="milestone-note">' + notes.join('<br>') + '</div>';
                 }
                 scorerColumnsHtml =
@@ -3719,7 +3704,7 @@ body {
                     '</div>' + milestoneHtml;
             }
         }
-        const notesHtml = match.Notes ? '<div class="milestone-note">' + ICON_NOTE + ' ' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' : '';
+        const notesHtml = match.Notes ? '<div class="milestone-note">' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' : '';
         const safeOpp = match.Opposition.replace(/'/g, "\\'");
         const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
@@ -3730,10 +3715,10 @@ body {
 
         let typeBanner = '';
         if (matchIsFriendly) {
-            typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">' + ICON_SHAKE + '</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
+            typeBanner = '<div class="match-type-banner friendly-banner">Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
         } else if (matchIsNullVoid) {
             const nvComp = match.Competition ? match.Competition + ' · ' : '';
-            typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
+            typeBanner = '<div class="match-type-banner null-void-banner">Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
         }
         const aetBadge  = wentToET ? '<span class="badge aet">AET</span>' : '';
         const pensBadge = (shootout && penResult === 'W') ? '<span class="badge won-pens">Won on pens</span>'
@@ -3742,7 +3727,7 @@ body {
         const ftPill    = (wentToET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
         const pensPill  = (shootout && penScore) ? '<span class="match-meta-pill">' + (penResult === 'W' ? 'West won ' : 'West lost ') + penScore + ' on pens</span>' : '';
         const attPill   = match.Attendance ? '<span class="match-meta-pill">Attendance ' + match.Attendance.toLocaleString() + '</span>' : '';
-        const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">' + ICON_PIN + ' ' + match.Venue + '</span>' : '';
+        const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">' + match.Venue + '</span>' : '';
         const compStr   = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
         const htInScore = (match['HT Goals For'] != null && !isAbandoned(match)) ? '<span class="match-ht">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
@@ -4396,7 +4381,7 @@ body {
         // Milestones
         const milestonesEl = document.getElementById('playerMilestones');
         if (milestoneList.length > 0) {
-            const icon = ms => ms === 1 ? ICON_STAR : ICON_TARGET;
+            const icon = ms => ms === 1 ? '1st' : ms;
             milestonesEl.innerHTML = milestoneList.map(ms =>
                 '<div class="player-milestone-item">' +
                     '<div class="player-milestone-badge' + (ms.milestone === 1 ? ' first' : '') + '">' + icon(ms.milestone) + '</div>' +
@@ -4421,7 +4406,7 @@ body {
                 const vsLabel = match['Home/Away'] === 'A' ? '@ ' + match.Opposition : 'vs ' + match.Opposition;
                 const homeScore = match['Home/Away'] === 'A' ? match['Goals Against'] : match['Goals For'];
                 const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
-                const goalLabel = ICON_BALL + ' ' + goalsInMatch;
+                const goalLabel = goalsInMatch + (goalsInMatch === 1 ? ' goal' : ' goals');
                 const hidden = i >= MATCH_CAP ? ' style="display:none;"' : '';
                 return '<div class="player-match-row"' + hidden + '>' +
                     '<span class="player-match-result ' + result + '">' + resultLetter + '</span>' +
@@ -5110,7 +5095,7 @@ body {
                 const ogL  = e.og  ? ' (OG)'  : '';
                 const penL = e.pen ? ' (pen)' : '';
                 markerHtml += '<div class="tl-goal-marker ' + lane + '" style="left:' + pct + '%">' +
-                    '<div class="tl-goal-dot">' + ICON_BALL + '</div>' +
+                    '<div class="tl-goal-dot goal"></div>' +
                     '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.scorer + ogL + penL + ' · ' + team + '</div>' +
                     '</div>';
             } else if (e.type === 'redcard') {
@@ -5272,9 +5257,9 @@ body {
                 if (isLeft) {
                     leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
-                               '<span class="tl-er-icon">' + ICON_BALL + '</span>';
+                               '<span class="tl-er-icon"><span class="tl-goal-mark"></span></span>';
                 } else {
-                    rightCell = '<span class="tl-er-icon">' + ICON_BALL + '</span>' +
+                    rightCell = '<span class="tl-er-icon"><span class="tl-goal-mark"></span></span>' +
                                 '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
                                 '<span class="tl-er-score">' + dispScore + '</span>';
                 }
