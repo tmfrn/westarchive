@@ -162,8 +162,6 @@ body {
     font-size: 0.95rem;
     color: var(--text-muted);
     font-weight: 400;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 /* ===== TEAM TABS ===== */
@@ -175,9 +173,9 @@ body {
 }
 
 .team-tab {
-    padding: 9px 22px;
-    border-radius: 100px;
-    border: 1.5px solid var(--border-primary);
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-primary);
     background: transparent;
     color: var(--text-muted);
     font-size: 0.82rem;
@@ -481,6 +479,20 @@ body {
     gap: 12px;
 }
 
+.summary-more { font-weight: 400; color: var(--text-muted); }
+
+.summary-era-note {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    margin-bottom: 12px;
+}
+
+.season-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
 .summary-item {
     background: var(--bg-card);
     padding: 18px 20px;
@@ -643,10 +655,10 @@ body {
     display: flex;
     align-items: center;
     gap: 7px;
-    padding: 8px 16px;
-    border: 1.5px solid var(--border-primary);
+    padding: 8px 14px;
+    border: 1px solid var(--border-primary);
     background: var(--bg-card);
-    border-radius: 100px;
+    border-radius: var(--radius-sm);
     font-weight: 600;
     font-size: 0.82rem;
     cursor: pointer;
@@ -665,7 +677,22 @@ body {
     background: var(--accent);
     color: #fff;
     border-color: var(--accent);
-    font-weight: 700;
+}
+
+.lens-icon { width: 15px; height: 15px; flex-shrink: 0; }
+.inline-icon, .otd-svg, .warn-svg { width: 14px; height: 14px; flex-shrink: 0; vertical-align: -2px; }
+.tl-card { display:inline-block; width:8px; height:11px; border-radius:1px; vertical-align:-1px; }
+.tl-card.rc { background:#991b1b; }
+.tl-card.yc { background:#ca8a04; }
+
+/* Keyboard navigation was invisible before this. */
+.lens-btn:focus-visible,
+.team-tab:focus-visible,
+.filter-select:focus-visible,
+.summary-item:focus-visible,
+.match-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .lenses-row.has-active .lens-btn:not(.active) { opacity: 0.35; }
@@ -957,19 +984,23 @@ body {
     flex-wrap: wrap;
 }
 
+/* Outright records are filled; joint records are outlined and quieter, so a
+   one-off still reads as special. */
 .record-tag {
-    background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
-    color: #000;
-    padding: 4px 10px;
-    border-radius: 100px;
-    font-size: 0.67rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    background: var(--accent-surface);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    padding: 3px 9px;
+    border-radius: var(--radius-sm);
+    font-size: 0.71rem;
+    font-weight: 600;
 }
 
-.record-tag.silver {
-    background: linear-gradient(135deg, #8a8a8a 0%, #b0b0b0 100%);
+.record-tag.joint {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-primary);
+    font-weight: 500;
 }
 
 /* ── Score row: home | score+badges | away ── */
@@ -1198,8 +1229,8 @@ body {
 
 .badge {
     display: inline-block;
-    padding: 2px 9px;
-    border-radius: 100px;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1210,10 +1241,10 @@ body {
 .badge.loss     { background: var(--loss-bg); color: var(--loss); }
 .badge.draw     { background: var(--draw-bg); color: var(--draw); }
 .badge.abandoned{ background: rgba(107,122,100,0.3); color: var(--text-muted); }
-.badge.home     { background: rgba(37,99,235,0.08);  color: #2563eb; }
-.badge.away     { background: rgba(147,51,234,0.08); color: #9333ea; }
+.badge.home     { background: rgba(0,0,0,0.045); color: var(--text-secondary); }
+.badge.away     { background: rgba(0,0,0,0.045); color: var(--text-secondary); }
 .badge.neutral  { background: rgba(0,0,0,0.04); color: var(--text-muted); }
-.badge.friendly { background: rgba(14,116,144,0.10); color: #0e7490; border: 1px solid rgba(14,116,144,0.22); }
+.badge.friendly { background: transparent; color: var(--text-muted); border: 1px solid var(--border-primary); }
 .badge.null-void{ background: rgba(120,53,15,0.09);  color: #92400e; border: 1px solid rgba(120,53,15,0.20); }
 .badge.aet      { background: rgba(100,100,100,0.08); color: var(--text-secondary); }
 .badge.won-pens { background: var(--win-bg);  color: var(--win); }
@@ -2294,10 +2325,10 @@ body {
             </button>
             <div class="header-content">
                 <h1>Pocket West</h1>
-                <p id="headerSubtitle">West Didsbury &amp; Chorlton AFC – men's team match archive</p>
+                <p id="headerSubtitle">West Didsbury &amp; Chorlton AFC men's team match archive</p>
                 <div class="team-tabs">
-                    <button class="team-tab active" id="tabMen" onclick="switchTeam('men')">Men's Team</button>
-                    <button class="team-tab" id="tabWomen" onclick="switchTeam('women')">Women's Team</button>
+                    <button class="team-tab active" id="tabMen" onclick="switchTeam('men')">Men</button>
+                    <button class="team-tab" id="tabWomen" onclick="switchTeam('women')">Women</button>
                 </div>
                 <div style="margin-top:4px;">
                     <span class="credits-toggle" onclick="document.getElementById('creditsPanel').classList.toggle('open');this.textContent=document.getElementById('creditsPanel').classList.contains('open')?'Hide credits':'Credits'">Credits</span>
@@ -2325,8 +2356,8 @@ body {
 
 <div class="otd-banner" id="otdBanner" style="display:none;">
     <div class="otd-summary" onclick="toggleOTD()">
-        <span class="otd-icon">📅</span>
-        <span class="otd-title" id="otdSummaryText">On This Day</span>
+        <span class="otd-icon"><svg class="otd-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span>
+        <span class="otd-title" id="otdSummaryText">On this day</span>
         <span class="otd-chevron">▼</span>
         <button class="otd-close" onclick="event.stopPropagation();dismissOTD()">✕</button>
     </div>
@@ -2341,7 +2372,7 @@ body {
         <div class="streak-label">Current Run</div>
         <div class="streak-value" id="streakValue"></div>
         <div class="streak-context" id="streakContext"></div>
-        <div id="streakWarning" class="pre-nls-warning" style="display:none;margin-top:14px;margin-bottom:0;"><span class="pre-nls-warning-icon">⚠️</span>Includes grassroots era data</div>
+        <div id="streakWarning" class="pre-nls-warning" style="display:none;margin-top:14px;margin-bottom:0;"><span class="pre-nls-warning-icon"><svg class="warn-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5 14.5 13.5h-13z"/><path d="M8 6.5v3M8 11.4v.1"/></svg></span>Includes grassroots era data</div>
         <div class="form-guide" id="formGuide"></div>
     </div>
 </div>
@@ -2352,6 +2383,7 @@ body {
         <span class="section-chevron">▼</span>
     </div>
     <div class="section-body" id="summaryBody">
+        <p class="summary-era-note" id="summaryEraNote" style="display:none;"></p>
         <div class="summary-grid" id="summaryGrid"></div>
     </div>
 </div>
@@ -2401,41 +2433,41 @@ body {
             <div class="lenses-group-label">Explore</div>
             <div class="lenses-group-buttons">
                 <button class="lens-btn" id="lensThisSeason" onclick="activateLens('this-season', this)">
-                    <span class="lens-icon">📅</span>
-                    <span class="lens-label">This Season</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
+                    <span class="lens-label">This season</span>
                 </button>
                 <div class="lens-season-nav" id="seasonNav">
                     <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
                     <span class="lens-season-label" id="seasonNavLabel"></span>
                     <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
-                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary">📋</button>
+                    <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary"><svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5h8a1 1 0 0 1 1 1v10l-2.2-1.4L8.5 13.5 6.2 12.1 4 13.5v-10a1 1 0 0 1 1-1Z"/><path d="M6.2 6h3.6M6.2 8.6h3.6"/></svg></button>
                 </div>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
-                    <span class="lens-icon">🏆</span>
-                    <span class="lens-label">Biggest Wins</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 2h7v4.5a3.5 3.5 0 0 1-7 0V2Z"/><path d="M4.5 3.2H2.5v1a2.5 2.5 0 0 0 2 2.45M11.5 3.2h2v1a2.5 2.5 0 0 1-2 2.45M6.5 14h3M8 10v4"/></svg>
+                    <span class="lens-label">Biggest wins</span>
                 </button>
                 <button class="lens-btn" id="lensBigLosses" onclick="activateLens('big-losses', this)">
-                    <span class="lens-icon">😬</span>
-                    <span class="lens-label">Biggest Losses</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5l5 5 2.5-2.5 3.5 3.5M13.5 7.5v3h-3"/></svg>
+                    <span class="lens-label">Biggest losses</span>
                 </button>
                 <button class="lens-btn" id="lensBigCrowds" onclick="activateLens('big-crowds', this)">
-                    <span class="lens-icon">🏟</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12.5V9c0-3 2.7-5.5 6-5.5s6 2.5 6 5.5v3.5"/><path d="M2 12.5h12M5.5 12.5V9.5M10.5 12.5V9.5"/></svg>
                     <span class="lens-label">Biggest Crowds</span>
                 </button>
                 <button class="lens-btn" id="lensGhostGames" onclick="activateLens('ghost-games', this)">
-                    <span class="lens-icon">🪑</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V3.5h8V7M3 7h10v4H3zM4.5 11v2M11.5 11v2"/></svg>
                     <span class="lens-label">Smallest Crowds</span>
                 </button>
                 <button class="lens-btn" id="lensGoalsFest" onclick="activateLens('goals-fest', this)">
-                    <span class="lens-icon">⚽</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M8 4.4l2.6 1.9-1 3.1H6.4l-1-3.1L8 4.4Z"/></svg>
                     <span class="lens-label">Highest Scoring</span>
                 </button>
                 <button class="lens-btn" id="lensOnThisDay" onclick="activateLens('on-this-day', this)">
-                    <span class="lens-icon">🗓</span>
-                    <span class="lens-label">On This Day</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
+                    <span class="lens-label">On this day</span>
                 </button>
                 <button class="lens-btn" id="lensRandom" onclick="showRandomMatch()">
-                    <span class="lens-icon">🎲</span>
+                    <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><circle cx="5.8" cy="5.8" r=".9" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/><circle cx="10.2" cy="5.8" r=".9" fill="currentColor" stroke="none"/></svg>
                     <span class="lens-label">Random</span>
                 </button>
             </div>
@@ -2486,7 +2518,7 @@ body {
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px;">
         <div class="result-count" id="resultCount">Loading matches...</div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-            <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)">📋 Season Summary</button>
+            <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)"><svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5h8a1 1 0 0 1 1 1v10l-2.2-1.4L8.5 13.5 6.2 12.1 4 13.5v-10a1 1 0 0 1 1-1Z"/><path d="M6.2 6h3.6M6.2 8.6h3.6"/></svg> Season summary</button>
         </div>
     </div>
     <div class="stats-bar" id="statsBar" style="display: none;">
@@ -2779,7 +2811,7 @@ body {
         document.getElementById('seasonNavLabel').textContent = selectedSeason;
         document.getElementById('seasonPrev').disabled = currentSeasonIndex === 0;
         document.getElementById('seasonNext').disabled = currentSeasonIndex === allSeasons.length - 1;
-        document.getElementById('seasonNav').classList.add('active');
+        updateSeasonNavVisibility();
         renderMatches(); scrollToResults();
     }
 
@@ -2796,7 +2828,7 @@ body {
         row.classList.remove('has-active');
         document.getElementById('lensesClear').classList.add('hidden');
         document.getElementById('venuePills').classList.add('hidden');
-        document.getElementById('seasonNav').classList.remove('active');
+        updateSeasonNavVisibility();
         currentFilter = 'all'; selectedSeason = ''; selectedCompetition = ''; searchTerm = ''; sortOrder = 'desc'; filterResult = ''; filterVenue = '';
         document.getElementById('searchInput').value = ''; const _sc = document.getElementById('searchClear'); if (_sc) _sc.classList.remove('visible');
         document.getElementById('seasonSelect').value = '';
@@ -2859,7 +2891,7 @@ body {
         currentTeam = team;
         document.getElementById('tabMen').classList.toggle('active', team === 'men');
         document.getElementById('tabWomen').classList.toggle('active', team === 'women');
-        const subtitle = "West Didsbury \u0026 Chorlton AFC \u2013 " + (team === 'men' ? "men's" : "women's") + " team match archive";
+        const subtitle = "West Didsbury \u0026 Chorlton AFC " + (team === 'men' ? "men's" : "women's") + " team match archive";
         document.getElementById('headerSubtitle').textContent = subtitle;
         document.title = 'Pocket West \u2013 ' + (team === 'men' ? "men's" : "women's") + " team match archive";
         const attTitle = document.querySelector('#attendanceToggle h2');
@@ -2886,7 +2918,7 @@ body {
         document.getElementById('lensesRow').classList.remove('has-active', 'filter-active');
         document.getElementById('lensesClear').classList.add('hidden');
         document.getElementById('venuePills').classList.add('hidden');
-        document.getElementById('seasonNav').classList.remove('active');
+        updateSeasonNavVisibility();
         const fb = document.querySelector('.filter-bar');
         if (fb) { fb.classList.remove('runs-active', 'has-filter'); }
         const sortToggle = document.getElementById('sortToggle');
@@ -3247,6 +3279,33 @@ body {
         records.lowestHomeAttendance = homeMatches.length ? Math.min(...homeMatches.map(m => m.Attendance)) : null;
         records.highestAwayAttendance = awayMatches.length ? Math.max(...awayMatches.map(m => m.Attendance)) : null;
         records.lowestAwayAttendance = awayMatches.length ? Math.min(...awayMatches.map(m => m.Attendance)) : null;
+        // How many matches share each record value. Counted from the full set,
+        // not from the .slice(0,20) arrays above, so a record shared by more
+        // than twenty matches still reports the true number.
+        const tie = (pool, valueOf, best) => {
+            const vals = pool.map(valueOf).filter(v => v !== null && v !== undefined && !isNaN(v));
+            if (!vals.length) return { value: null, count: 0 };
+            const value = best(...vals);
+            return { value: value, count: vals.filter(v => v === value).length };
+        };
+        const wins   = validMatches.filter(m => effectiveResult(m) === 'W');
+        const losses = validMatches.filter(m => effectiveResult(m) === 'L');
+        const withAtt = validMatches.filter(m => m.Attendance);
+        const homeAtt = withAtt.filter(m => m['Home/Away'] === 'H');
+        const awayAtt = withAtt.filter(m => m['Home/Away'] === 'A');
+        records.tie = {
+            winMargin:  tie(wins,   m => m['Goals For'] - m['Goals Against'], Math.max),
+            lossMargin: tie(losses, m => m['Goals Against'] - m['Goals For'], Math.max),
+            scored:     tie(validMatches, m => m['Goals For'], Math.max),
+            conceded:   tie(validMatches, m => m['Goals Against'], Math.max),
+            attHigh:    tie(withAtt, m => m.Attendance, Math.max),
+            attLow:     tie(withAtt, m => m.Attendance, Math.min),
+            homeHigh:   tie(homeAtt, m => m.Attendance, Math.max),
+            homeLow:    tie(homeAtt, m => m.Attendance, Math.min),
+            awayHigh:   tie(awayAtt, m => m.Attendance, Math.max),
+            awayLow:    tie(awayAtt, m => m.Attendance, Math.min)
+        };
+
         records.longestWinStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'W');
         records.longestDrawStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'D');
         records.longestLossStreak = findLongestStreak(validMatches, m => effectiveResult(m) === 'L');
@@ -3268,6 +3327,15 @@ body {
         });
     }
 
+    const ICON_NOTE  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3z"/><path d="M9.5 2.5v3.2h3.2M5.5 8.5h5M5.5 11h3.5"/></svg>';
+    const ICON_PIN   = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 14s4.5-4.2 4.5-7.4A4.5 4.5 0 0 0 8 2a4.5 4.5 0 0 0-4.5 4.6C3.5 9.8 8 14 8 14Z"/><circle cx="8" cy="6.5" r="1.6"/></svg>';
+    const ICON_SHAKE = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 4.5 4l2 1.5L9 4l2.5 1.5M2 6.5l3 4 1.5-1 1.5 1.4 1.5-1.2 1.5 1.3 3.5-4.5"/></svg>';
+    const ICON_BALL  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M8 4.4l2.6 1.9-1 3.1H6.4l-1-3.1L8 4.4Z"/></svg>';
+    const ICON_STAR  = '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.8 4.2 13.8l.7-4.3-3.1-3 4.3-.6z"/></svg>';
+    const ICON_TARGET= '<svg class="inline-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/><circle cx="8" cy="8" r="2.6"/><circle cx="8" cy="8" r=".6" fill="currentColor" stroke="none"/></svg>';
+
+    function fmtNum(n) { return (n == null) ? '' : Number(n).toLocaleString('en-GB'); }
+
     function getMatchTags(match) {
         const tags = [];
         if (isNonCounting(match)) return tags; // friendlies and null-&-void matches earn no record tags
@@ -3276,18 +3344,72 @@ body {
         // In ranked views (biggest-wins etc.) the user has opted in to mixed-era ranking, so tags are shown.
         const rankedViewsForTags = ['biggest-wins','biggest-losses','most-goals-scored','most-goals-conceded','most-goals-total','highest-attendance','lowest-attendance'];
         if (showPreNLS && isPreNLS(match) && !rankedViewsForTags.includes(currentFilter)) return tags;
-        if (match.Opposition === 'Maine Road' && effectiveResult(match) === 'W') tags.push({ text: '🏆 M21 IS OURS', isSilver: false });
-        if (records.biggestWin.length > 0 && effectiveResult(match) === 'W') { const margin = match['Goals For'] - match['Goals Against']; const recordMargin = records.biggestWin[0]['Goals For'] - records.biggestWin[0]['Goals Against']; if (margin === recordMargin) tags.push({ text: 'BIGGEST WIN (' + margin + ' goals)', isSilver: false }); }
-        if (records.biggestLoss.length > 0 && effectiveResult(match) === 'L') { const margin = match['Goals Against'] - match['Goals For']; const recordMargin = records.biggestLoss[0]['Goals Against'] - records.biggestLoss[0]['Goals For']; if (margin === recordMargin) tags.push({ text: 'BIGGEST LOSS (' + margin + ' goals)', isSilver: false }); }
-        if (records.highestScore.length > 0 && match['Goals For'] === records.highestScore[0]['Goals For']) tags.push({ text: 'MOST GOALS SCORED (' + match['Goals For'] + ')', isSilver: false });
-        if (records.mostGoalsConceded.length > 0 && match['Goals Against'] === records.mostGoalsConceded[0]['Goals Against']) tags.push({ text: 'MOST GOALS CONCEDED (' + match['Goals Against'] + ')', isSilver: false });
-        if (records.highestAttendance.length > 0 && match.Attendance && match.Attendance === records.highestAttendance[0].Attendance) tags.push({ text: 'HIGHEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-        else if (match['Home/Away'] === 'H' && match.Attendance && records.highestHomeAttendance && match.Attendance === records.highestHomeAttendance) tags.push({ text: 'HIGHEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-        else if (match['Home/Away'] === 'A' && match.Attendance && records.highestAwayAttendance && match.Attendance === records.highestAwayAttendance) tags.push({ text: 'HIGHEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-        if (records.lowestAttendance.length > 0 && match.Attendance && match.Attendance === records.lowestAttendance[0].Attendance) tags.push({ text: 'LOWEST ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-        else if (match['Home/Away'] === 'H' && match.Attendance && records.lowestHomeAttendance && match.Attendance === records.lowestHomeAttendance) tags.push({ text: 'LOWEST HOME ATTENDANCE (' + match.Attendance + ')', isSilver: false });
-        else if (match['Home/Away'] === 'A' && match.Attendance && records.lowestAwayAttendance && match.Attendance === records.lowestAwayAttendance) tags.push({ text: 'LOWEST AWAY ATTENDANCE (' + match.Attendance + ')', isSilver: false });
+        if (match.Opposition === 'Maine Road' && effectiveResult(match) === 'W') tags.push({ text: 'M21 is ours', isJoint: false });
+
+        // A record shared by more than one match is a joint record. Both the
+        // wording and the styling change, so an outright record still stands out.
+        const t = records.tie || {};
+        const tag = (rec, label, detail) => {
+            if (!rec || rec.count === 0) return;
+            const joint = rec.count > 1;
+            tags.push({
+                text: (joint ? 'Joint ' + label.charAt(0).toLowerCase() + label.slice(1) : label) + ' \u00b7 ' + detail,
+                isJoint: joint,
+                count: rec.count
+            });
+        };
+
+        if (effectiveResult(match) === 'W' && t.winMargin && (match['Goals For'] - match['Goals Against']) === t.winMargin.value)
+            tag(t.winMargin, 'Biggest win', t.winMargin.value + ' goals');
+        if (effectiveResult(match) === 'L' && t.lossMargin && (match['Goals Against'] - match['Goals For']) === t.lossMargin.value)
+            tag(t.lossMargin, 'Biggest loss', t.lossMargin.value + ' goals');
+        if (t.scored && match['Goals For'] === t.scored.value)
+            tag(t.scored, 'Most goals scored', t.scored.value);
+        if (t.conceded && match['Goals Against'] === t.conceded.value)
+            tag(t.conceded, 'Most goals conceded', t.conceded.value);
+
+        if (match.Attendance && t.attHigh && match.Attendance === t.attHigh.value)
+            tag(t.attHigh, 'Record attendance', fmtNum(match.Attendance));
+        else if (match.Attendance && match['Home/Away'] === 'H' && t.homeHigh && match.Attendance === t.homeHigh.value)
+            tag(t.homeHigh, 'Record home attendance', fmtNum(match.Attendance));
+        else if (match.Attendance && match['Home/Away'] === 'A' && t.awayHigh && match.Attendance === t.awayHigh.value)
+            tag(t.awayHigh, 'Record away attendance', fmtNum(match.Attendance));
+
+        if (match.Attendance && t.attLow && match.Attendance === t.attLow.value)
+            tag(t.attLow, 'Lowest attendance', fmtNum(match.Attendance));
+        else if (match.Attendance && match['Home/Away'] === 'H' && t.homeLow && match.Attendance === t.homeLow.value)
+            tag(t.homeLow, 'Lowest home attendance', fmtNum(match.Attendance));
+        else if (match.Attendance && match['Home/Away'] === 'A' && t.awayLow && match.Attendance === t.awayLow.value)
+            tag(t.awayLow, 'Lowest away attendance', fmtNum(match.Attendance));
         return tags;
+    }
+
+    // A record shared by several matches is named as joint, and says how many
+    // others there are. The card still opens the full ranked list.
+    function othersNote(count) {
+        if (!count || count < 2) return '';
+        return ' <span class="summary-more">and ' + (count - 1) + ' other' + (count > 2 ? 's' : '') + '</span>';
+    }
+    function recordRow(label, match, rec, filter) {
+        if (!match) return { label: label, value: 'N/A', filter: filter };
+        const joint = rec && rec.count > 1;
+        return {
+            label: joint ? 'Joint ' + label.charAt(0).toLowerCase() + label.slice(1) : label,
+            value: match['Goals For'] + '\u2013' + match['Goals Against'] + ' vs ' + match.Opposition +
+                   ' (' + formatDateShort(match.Date) + ')' + othersNote(rec && rec.count),
+            filter: filter
+        };
+    }
+    function runRow(label, streak, filter) {
+        const n = streak.length;
+        if (!n) return { label: label, value: 'N/A', filter: filter };
+        const ties = (streak._allStreaks || []).length;
+        return {
+            label: ties > 1 ? 'Joint ' + label.charAt(0).toLowerCase() + label.slice(1) : label,
+            value: n + ' games (' + formatDateShort(streak[0].Date) + ' \u2013 ' +
+                   formatDateShort(streak[n - 1].Date) + ')' + othersNote(ties),
+            filter: filter
+        };
     }
 
     function populateSummary() {
@@ -3314,18 +3436,28 @@ body {
         if (friendlyCount > 0) extras.push(friendlyCount + ' friendly');
         if (nullVoidCount > 0) extras.push(nullVoidCount + ' null & void');
         const summaryData = [
-            { label: 'Total Matches', value: totalMatches + (extras.length > 0 ? ' (+' + extras.join(', ') + ')' : ''), filter: 'all' },
+            { label: 'Total matches', value: totalMatches + (extras.length > 0 ? ' (+' + extras.join(', ') + ')' : ''), filter: 'all' },
             { label: 'Wins', value: wins, filter: 'wins' }, { label: 'Draws', value: draws, filter: 'draws' }, { label: 'Losses', value: losses, filter: 'losses' },
-            { label: 'Win Rate', value: winPct + '%', filter: null },
-            { label: 'Goal Difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
-            { label: 'Biggest Win', value: biggestWin ? biggestWin['Goals For'] + '–' + biggestWin['Goals Against'] + ' vs ' + biggestWin.Opposition + ' (' + formatDateShort(biggestWin.Date) + ')' : 'N/A', filter: 'biggest-wins' },
-            { label: 'Biggest Loss', value: biggestLoss ? biggestLoss['Goals For'] + '–' + biggestLoss['Goals Against'] + ' vs ' + biggestLoss.Opposition + ' (' + formatDateShort(biggestLoss.Date) + ')' : 'N/A', filter: 'biggest-losses' },
-            { label: 'Longest Winning Run', value: records.longestWinStreak.length > 0 ? records.longestWinStreak.length + ' games (' + formatDateShort(records.longestWinStreak[0].Date) + ' – ' + formatDateShort(records.longestWinStreak[records.longestWinStreak.length - 1].Date) + ')' : 'N/A', filter: 'win-streak' },
-            { label: 'Longest Unbeaten Run', value: records.longestUnbeatenStreak.length > 0 ? records.longestUnbeatenStreak.length + ' games (' + formatDateShort(records.longestUnbeatenStreak[0].Date) + ' – ' + formatDateShort(records.longestUnbeatenStreak[records.longestUnbeatenStreak.length - 1].Date) + ')' : 'N/A', filter: 'unbeaten-streak' },
-            { label: 'Longest Losing Run', value: records.longestLossStreak.length > 0 ? records.longestLossStreak.length + ' games (' + formatDateShort(records.longestLossStreak[0].Date) + ' – ' + formatDateShort(records.longestLossStreak[records.longestLossStreak.length - 1].Date) + ')' : 'N/A', filter: 'loss-streak' },
-            { label: 'Longest Winless Run', value: records.longestWinlessStreak.length > 0 ? records.longestWinlessStreak.length + ' games (' + formatDateShort(records.longestWinlessStreak[0].Date) + ' – ' + formatDateShort(records.longestWinlessStreak[records.longestWinlessStreak.length - 1].Date) + ')' : 'N/A', filter: 'winless-streak' },
-            { label: 'Penalty Shootouts', value: shootoutValue, filter: null, action: shootouts.length > 0 ? 'showShootoutModal()' : null }
+            { label: 'Win rate', value: winPct + '%', filter: null },
+            { label: 'Goal difference', value: (gd > 0 ? '+' : '') + gd + ' (F' + goalsFor + ' A' + goalsAgainst + ')', filter: null },
+            recordRow('Biggest win', biggestWin, (records.tie && records.tie.winMargin) || null, 'biggest-wins'),
+            recordRow('Biggest loss', biggestLoss, (records.tie && records.tie.lossMargin) || null, 'biggest-losses'),
+            runRow('Longest winning run', records.longestWinStreak, 'win-streak'),
+            runRow('Longest unbeaten run', records.longestUnbeatenStreak, 'unbeaten-streak'),
+            runRow('Longest losing run', records.longestLossStreak, 'loss-streak'),
+            runRow('Longest winless run', records.longestWinlessStreak, 'winless-streak'),
+            { label: 'Penalty shootouts', value: shootoutValue, filter: null, action: shootouts.length > 0 ? 'showShootoutModal()' : null }
         ];
+        // Turning the grassroots era on silently rewrites every record below,
+        // so the box says which era it is describing.
+        const eraNote = document.getElementById('summaryEraNote');
+        if (eraNote) {
+            eraNote.textContent = showPreNLS
+                ? 'Including the grassroots era. Records below cover every season on record, and grassroots data is incomplete.'
+                : '';
+            eraNote.style.display = showPreNLS ? 'block' : 'none';
+        }
+
         const grid = document.getElementById('summaryGrid');
         grid.innerHTML = summaryData.map(item => {
             const clickable = item.filter || item.action;
@@ -3375,7 +3507,7 @@ body {
             row.classList.remove('has-active'); row.classList.add('filter-active');
             document.getElementById('lensesClear').classList.add('hidden');
             document.getElementById('venuePills').classList.add('hidden');
-            document.getElementById('seasonNav').classList.remove('active');
+            updateSeasonNavVisibility();
         } else {
             listCap = 20;
         }
@@ -3395,6 +3527,20 @@ body {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         displayCurrentStreak();
         renderMatches();
+    }
+
+    // The season stepper used to be hidden until "This season" was clicked,
+    // even though a season could be selected from the dropdown or a link.
+    function updateSeasonNavVisibility() {
+        const nav = document.getElementById('seasonNav');
+        if (!nav) return;
+        nav.classList.toggle('active', !!selectedSeason);
+        const lbl = document.getElementById('seasonNavLabel');
+        if (lbl && selectedSeason) lbl.textContent = selectedSeason;
+        const idx = allSeasons.indexOf(selectedSeason);
+        const prev = document.getElementById('seasonPrev'), next = document.getElementById('seasonNext');
+        if (prev) prev.disabled = idx < 0 || idx >= allSeasons.length - 1;
+        if (next) next.disabled = idx <= 0;
     }
 
     function filterBySeason() {
@@ -3533,7 +3679,7 @@ body {
             ? '<span class="match-rank-badge' + (rank <= 3 ? ' rank-' + rank : '') + '">' + rank + '</span>'
             : '';
         const tagsHtml = (tags.length > 0 || showPreNLSBadge || rankBadgeHtml)
-            ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => { const className = t.isSilver ? 'record-tag silver' : 'record-tag'; return '<span class="' + className + '">' + t.text + '</span>'; }).join('') + '</div>'
+            ? '<div class="match-tags">' + rankBadgeHtml + preNLSBadgeHtml + tags.map(t => '<span class="record-tag' + (t.isJoint ? ' joint" title="Shared with ' + (t.count - 1) + ' other match' + (t.count > 2 ? 'es' : '') + '"' : '"') + '>' + t.text + '</span>').join('') + '</div>'
             : '';
         // ── Scorer columns ──
         let scorerColumnsHtml = '';
@@ -3553,7 +3699,7 @@ body {
                 const rightHtml = isHome ? oppHtml  : westHtml;
                 let milestoneHtml = '';
                 if (!matchIsNonCounting && westResult.milestones.length > 0) {
-                    const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? '⭐' : '🎯'; return icon + ' ' + m.name + '\'s ' + label; });
+                    const notes = westResult.milestones.map(m => { const label = m.milestone === 1 ? 'first goal for the club' : ordinal(m.milestone) + ' goal for the club'; const icon = m.milestone === 1 ? ICON_STAR : ICON_TARGET; return icon + ' ' + m.name + '\'s ' + label; });
                     milestoneHtml = '<div class="milestone-note">' + notes.join('<br>') + '</div>';
                 }
                 scorerColumnsHtml =
@@ -3569,7 +3715,7 @@ body {
                     '</div>' + milestoneHtml;
             }
         }
-        const notesHtml = match.Notes ? '<div class="milestone-note">📝 ' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' : '';
+        const notesHtml = match.Notes ? '<div class="milestone-note">' + ICON_NOTE + ' ' + match.Notes.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' : '';
         const safeOpp = match.Opposition.replace(/'/g, "\\'");
         const oppLink = '<span class="opposition-link" onclick="showH2H(\'' + safeOpp + '\')">' + match.Opposition + '</span>';
         const displayHome = displayHomeTeam === match.Opposition ? oppLink : displayHomeTeam;
@@ -3580,7 +3726,7 @@ body {
 
         let typeBanner = '';
         if (matchIsFriendly) {
-            typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">🤝</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
+            typeBanner = '<div class="match-type-banner friendly-banner"><span class="match-type-banner-icon">' + ICON_SHAKE + '</span> Friendly <span class="match-type-banner-note">Not counted in records</span></div>';
         } else if (matchIsNullVoid) {
             const nvComp = match.Competition ? match.Competition + ' · ' : '';
             typeBanner = '<div class="match-type-banner null-void-banner"><span class="match-type-banner-icon">✕</span> Null &amp; Void <span class="match-type-banner-note">' + nvComp + 'Not counted in records</span></div>';
@@ -3592,7 +3738,7 @@ body {
         const ftPill    = (wentToET && displayFtHomeScore != null) ? '<span class="match-meta-pill">FT ' + displayFtHomeScore + '–' + displayFtAwayScore + '</span>' : '';
         const pensPill  = (shootout && penScore) ? '<span class="match-meta-pill">' + (penResult === 'W' ? 'West won ' : 'West lost ') + penScore + ' on pens</span>' : '';
         const attPill   = match.Attendance ? '<span class="match-meta-pill">Attendance ' + match.Attendance.toLocaleString() + '</span>' : '';
-        const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">📍 ' + match.Venue + '</span>' : '';
+        const venuePill = (match.Venue && match.Venue.trim()) ? '<span class="match-meta-pill">' + ICON_PIN + ' ' + match.Venue + '</span>' : '';
         const compStr   = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
         const htInScore = (match['HT Goals For'] != null && !isAbandoned(match)) ? '<span class="match-ht">HT ' + displayHtHomeScore + '–' + displayHtAwayScore + '</span>' : '';
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
@@ -3775,13 +3921,30 @@ body {
         const streakFilters = ['win-streak', 'draw-streak', 'loss-streak', 'unbeaten-streak', 'winless-streak'];
         const recordFilters = ['biggest-wins', 'biggest-losses', 'most-goals-scored', 'most-goals-conceded', 'most-goals-total', 'highest-attendance', 'lowest-attendance'];
         if (streakFilters.includes(currentFilter)) {
-            const runLabels = { 'win-streak': 'Longest Winning Run', 'draw-streak': 'Longest Run of Draws', 'loss-streak': 'Longest Losing Run', 'unbeaten-streak': 'Longest Unbeaten Run', 'winless-streak': 'Longest Winless Run' };
+            const runLabels = { 'win-streak': 'longest winning run', 'draw-streak': 'longest run of draws', 'loss-streak': 'longest losing run', 'unbeaten-streak': 'longest unbeaten run', 'winless-streak': 'longest winless run' };
             const allStreaks = filtered._allStreaks || [filtered];
-            const jointLabel = allStreaks.length > 1 ? 'Joint-' : '';
-            document.getElementById('resultCount').textContent = jointLabel + (runLabels[currentFilter] || currentFilter) + ': ' + filtered.length + ' matches' + (allStreaks.length > 1 ? ' (' + allStreaks.length + ' occurrences)' : '');
+            const label = runLabels[currentFilter] || currentFilter;
+            const scope = selectedSeason ? ' in ' + selectedSeason
+                        : selectedCompetition ? ' in the ' + selectedCompetition : '';
+            // Naming the dates means a linked run view says which run it is.
+            const span = filtered.length
+                ? ', ' + formatDateShort(filtered[0].Date) + ' \u2013 ' + formatDateShort(filtered[filtered.length - 1].Date)
+                : '';
+            const joint = allStreaks.length > 1
+                ? ' \u00b7 joint with ' + (allStreaks.length - 1) + ' other run' + (allStreaks.length > 2 ? 's' : '')
+                : '';
+            document.getElementById('resultCount').textContent =
+                (allStreaks.length > 1 ? 'Joint ' : '') + (allStreaks.length > 1 ? label : label.charAt(0).toUpperCase() + label.slice(1)) +
+                scope + ': ' + filtered.length + ' matches' + span + joint;
         } else if (recordFilters.includes(currentFilter)) {
-            const recordType = { 'biggest-wins': 'Biggest Wins', 'biggest-losses': 'Biggest Defeats', 'most-goals-scored': 'Most Goals Scored', 'most-goals-conceded': 'Most Goals Conceded', 'most-goals-total': 'Highest Scoring Games', 'highest-attendance': 'Biggest Crowds', 'lowest-attendance': 'Smallest Crowds' }[currentFilter];
-            document.getElementById('resultCount').textContent = 'Top ' + filtered.length + ' – ' + recordType;
+            const recordType = { 'biggest-wins': 'biggest wins', 'biggest-losses': 'biggest defeats', 'most-goals-scored': 'most goals scored', 'most-goals-conceded': 'most goals conceded', 'most-goals-total': 'highest scoring games', 'highest-attendance': 'biggest crowds', 'lowest-attendance': 'smallest crowds' }[currentFilter];
+            const total = filtered._totalCount || filtered.length;
+            const scopeR = selectedSeason ? ' in ' + selectedSeason
+                         : selectedCompetition ? ' in the ' + selectedCompetition : '';
+            // The count now describes what is actually on screen.
+            document.getElementById('resultCount').textContent =
+                (filtered.length < total ? 'Top ' + filtered.length + ' of ' + total : 'All ' + total) +
+                ' by ' + recordType + scopeR;
         } else if (selectedSeason && currentFilter === 'season') {
             const abandonedInSeason = filtered.filter(m => isAbandoned(m)).length;
             const abandonedSuffix = abandonedInSeason > 0 ? ' (+' + abandonedInSeason + ' abandoned)' : '';
@@ -3874,6 +4037,7 @@ body {
             if (totalCount && filtered.length < totalCount) html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
         }
         document.getElementById('matchList').innerHTML = html;
+        updateSeasonNavVisibility();
         syncHash();
     }
 
@@ -3937,7 +4101,7 @@ body {
         document.getElementById('seasonSelect').value = '';
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
         updateStats([match]);
-        document.getElementById('resultCount').textContent = '🎲 Random Match';
+        document.getElementById('resultCount').textContent = 'Random match';
         document.getElementById('matchList').innerHTML = renderMatchCard(match);
         scrollToResults();
     }
@@ -4193,7 +4357,7 @@ body {
         // Milestones
         const milestonesEl = document.getElementById('playerMilestones');
         if (milestoneList.length > 0) {
-            const icon = ms => ms === 1 ? '⭐' : '🎯';
+            const icon = ms => ms === 1 ? ICON_STAR : ICON_TARGET;
             milestonesEl.innerHTML = milestoneList.map(ms =>
                 '<div class="player-milestone-item">' +
                     '<div class="player-milestone-badge' + (ms.milestone === 1 ? ' first' : '') + '">' + icon(ms.milestone) + '</div>' +
@@ -4218,7 +4382,7 @@ body {
                 const vsLabel = match['Home/Away'] === 'A' ? '@ ' + match.Opposition : 'vs ' + match.Opposition;
                 const homeScore = match['Home/Away'] === 'A' ? match['Goals Against'] : match['Goals For'];
                 const awayScore = match['Home/Away'] === 'A' ? match['Goals For'] : match['Goals Against'];
-                const goalLabel = goalsInMatch === 1 ? '⚽ 1' : '⚽ ' + goalsInMatch;
+                const goalLabel = ICON_BALL + ' ' + goalsInMatch;
                 const hidden = i >= MATCH_CAP ? ' style="display:none;"' : '';
                 return '<div class="player-match-row"' + hidden + '>' +
                     '<span class="player-match-result ' + result + '">' + resultLetter + '</span>' +
@@ -4907,12 +5071,12 @@ body {
                 const ogL  = e.og  ? ' (OG)'  : '';
                 const penL = e.pen ? ' (pen)' : '';
                 markerHtml += '<div class="tl-goal-marker ' + lane + '" style="left:' + pct + '%">' +
-                    '<div class="tl-goal-dot">⚽</div>' +
+                    '<div class="tl-goal-dot">' + ICON_BALL + '</div>' +
                     '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.scorer + ogL + penL + ' · ' + team + '</div>' +
                     '</div>';
             } else if (e.type === 'redcard') {
                 markerHtml += '<div class="tl-goal-marker redcard ' + lane + '" style="left:' + pct + '%">' +
-                    '<div class="tl-goal-dot">🟥</div>' +
+                    '<div class="tl-goal-dot"><span class="tl-card rc"></span></div>' +
                     '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' – Red card · ' + team + '</div>' +
                     '</div>';
             } else if (e.type === 'missedpen') {
@@ -4922,7 +5086,7 @@ body {
                     '</div>';
             } else if (e.type === 'yellowcard') {
                 markerHtml += '<div class="tl-goal-marker yellowcard ' + lane + '" style="left:' + pct + '%">' +
-                    '<div class="tl-goal-dot">🟨</div>' +
+                    '<div class="tl-goal-dot"><span class="tl-card yc"></span></div>' +
                     '<div class="tl-goal-tooltip">' + e.minute + '\'' + ' ' + e.player + ' – Yellow card · ' + team + '</div>' +
                     '</div>';
             }
@@ -5069,9 +5233,9 @@ body {
                 if (isLeft) {
                     leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
-                               '<span class="tl-er-icon">⚽</span>';
+                               '<span class="tl-er-icon">' + ICON_BALL + '</span>';
                 } else {
-                    rightCell = '<span class="tl-er-icon">⚽</span>' +
+                    rightCell = '<span class="tl-er-icon">' + ICON_BALL + '</span>' +
                                 '<div class="tl-er-nameblock"><span class="tl-er-name">' + e.scorer + ogBadge + penBadge + '</span></div>' +
                                 '<span class="tl-er-score">' + dispScore + '</span>';
                 }
@@ -5080,9 +5244,9 @@ body {
                 if (isLeft) {
                     leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                '<span class="tl-er-name">' + e.player + '</span>' +
-                               '<span class="tl-er-icon rc">🟥</span>';
+                               '<span class="tl-er-icon rc"><span class="tl-card rc"></span></span>';
                 } else {
-                    rightCell = '<span class="tl-er-icon rc">🟥</span>' +
+                    rightCell = '<span class="tl-er-icon rc"><span class="tl-card rc"></span></span>' +
                                 '<span class="tl-er-name">' + e.player + '</span>' +
                                 '<span class="tl-er-score">' + dispScore + '</span>';
                 }
@@ -5091,9 +5255,9 @@ body {
                 if (isLeft) {
                     leftCell = '<span class="tl-er-score">' + dispScore + '</span>' +
                                '<span class="tl-er-name dimmed">' + e.player + '</span>' +
-                               '<span class="tl-er-icon yc">🟨</span>';
+                               '<span class="tl-er-icon yc"><span class="tl-card yc"></span></span>';
                 } else {
-                    rightCell = '<span class="tl-er-icon yc">🟨</span>' +
+                    rightCell = '<span class="tl-er-icon yc"><span class="tl-card yc"></span></span>' +
                                 '<span class="tl-er-name dimmed">' + e.player + '</span>' +
                                 '<span class="tl-er-score">' + dispScore + '</span>';
                 }
