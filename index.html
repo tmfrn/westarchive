@@ -2622,6 +2622,10 @@ body {
         women: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxBB-zrWbmuupGshRiy4GHwT6uDrqtK_fidvsb_KuzJXXzoHEJhjthdUVhtETIjQ/pub?gid=1577136919&single=true&output=csv'
     };
 
+    // Published CSV of the Competitions sheet (File > Share > Publish to web >
+    // Competitions > CSV). While blank, the built-in lists in COMP_ORDER are used.
+    const COMPETITIONS_CSV_URL = '';
+
     let filterResult = '';   // '' | wins | draws | losses  (Result dropdown)
     let filterVenue  = '';   // '' | home-games | away-games (Venue dropdown + lens pills)
     let MATCHES_DATA = [];
@@ -3467,13 +3471,18 @@ body {
     function populateCompetitionFilter() {
         const present = new Set();
         eraMatches().forEach(m => { const canon = getCanonicalCompetition(m.Competition); if (canon) present.add(canon); });
-        const leagueOrder = currentTeam === 'women'
-            ? ['NWWRL Premier', 'NWWRL Division One South']
-            : ['NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs','Manchester League Premier Division','Manchester League Division One'];
-        const cupOrder = currentTeam === 'women'
-            ? ['FA Cup','Lancashire Senior Cup','Lancashire Challenge Cup','Manchester Challenge Cup','Alliance Design and Print Cup','Alliance Design and Print Plate','Argyle Sports Cup','Argyle Sports Kit NW Regional Cup 2018-19','Argyle Sports Kit NW Regional Cup 2022-23']
-            : ['FA Cup','FA Vase','NWCFL League Cup','NWCFL First Division Trophy','Lancashire Challenge Trophy','Manchester Premier Cup','Murray Shield','LFA Amateur Shield','Lancashire Amateur Shield','Glychrist Cup','Invitational Divisional Cup'];
+        const order = COMP_ORDER[currentTeam] || COMP_ORDER.men;
+        const leagueOrder = order.leagues;
+        const cupOrder = order.cups;
         const leagueOptions = leagueOrder.filter(c => present.has(c));
+        // With levels from the sheet: highest level first, and within a level
+        // the most recently played competition first.
+        if (Object.keys(COMP_LEVEL).length) {
+            const lastPlayed = {};
+            eraMatches().forEach(m => { const c = getCanonicalCompetition(m.Competition); const d = parseDate(m.Date); if (c && d && (!lastPlayed[c] || d > lastPlayed[c])) lastPlayed[c] = d; });
+            const lv = c => (COMP_LEVEL[c] === undefined ? Infinity : COMP_LEVEL[c]);
+            leagueOptions.sort((a, b) => (lv(a) - lv(b)) || ((lastPlayed[b] || 0) - (lastPlayed[a] || 0)));
+        }
         const cupOptions = cupOrder.filter(c => present.has(c));
         const otherOptions = [...present].filter(c => !leagueOrder.includes(c) && !cupOrder.includes(c)).sort();
         const select = document.getElementById('competitionSelect');
@@ -3481,7 +3490,9 @@ body {
         if (leagueOptions.length) html += '<optgroup label="League">' + leagueOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('') + '</optgroup>';
         if (cupOptions.length) html += '<optgroup label="Cups">' + cupOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('') + '</optgroup>';
         if (otherOptions.length) html += otherOptions.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+        const keep = select.value;
         select.innerHTML = html;
+        if (keep && [...select.options].some(o => o.value === keep)) select.value = keep;
     }
 
     function deactivateLensForFilter() {
@@ -4536,7 +4547,7 @@ body {
         input.focus();
     }
 
-    fetchMatchData(); fetchGoalsData();
+    fetchMatchData(); fetchGoalsData(); fetchCompetitions();
     // Back/forward through linked views.
     window.addEventListener('hashchange', () => {
         if (hashApplying) return;
@@ -4599,7 +4610,7 @@ body {
             const lines = csvText.split('\n').filter(l => l.trim()); const headers = parseCSVLine(lines[0]);
             if (myToken !== fetchToken) return;
             GOALS_DATA = [];
-            for (let i = 1; i < lines.length; i++) { if (!lines[i].trim()) continue; const values = parseCSVLine(lines[i]); const row = {}; headers.forEach((h, idx) => { row[h] = values[idx] || ''; }); GOALS_DATA.push(row); }
+            for (let i = 1; i < lines.length; i++) { if (!lines[i].trim()) continue; const values = parseCSVLine(lines[i]); const row = {}; headers.forEach((h, idx) => { row[h] = values[idx] || ''; }); GOALS_DATA.push(normaliseGoalRow(row)); }
             aggregateGoals(); populateGsSeasonSelect(); renderGoalscorers(); renderMatches();
             goalsLoaded = true; maybeApplyHash();
         } catch (error) {
@@ -4608,6 +4619,20 @@ body {
         }
     }
 
+
+    // Goal rows can use a single Type column (blank / Pen / OG) or the older
+    // Penalty and Own Goal Y/N columns. Either way, the rest of the code sees
+    // Penalty and Own Goal as 'Y' or ''. Blank means no. For/Against also
+    // accepts F and A.
+    function normaliseGoalRow(row) {
+        const type = String(row['Type'] || '').trim().toLowerCase();
+        const yes = v => String(v || '').trim().toUpperCase() === 'Y';
+        row['Penalty']  = (yes(row['Penalty'])  || ['pen', 'p', 'penalty'].includes(type)) ? 'Y' : '';
+        row['Own Goal'] = (yes(row['Own Goal']) || ['og', 'own goal'].includes(type)) ? 'Y' : '';
+        const fa = String(row['For/Against'] || '').trim().toLowerCase();
+        row['For/Against'] = (fa === 'f' || fa === 'for') ? 'For' : (fa === 'a' || fa === 'against') ? 'Against' : String(row['For/Against'] || '').trim();
+        return row;
+    }
 
     function indexMatches() {
         matchesByKey = {};
@@ -4729,10 +4754,67 @@ body {
 
     (function() { if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) { CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) { const rad = Array.isArray(r) ? r[0] : r; this.moveTo(x + rad, y); this.lineTo(x + w - rad, y); this.quadraticCurveTo(x + w, y, x + w, y + rad); this.lineTo(x + w, y + h); this.lineTo(x, y + h); this.lineTo(x, y + rad); this.quadraticCurveTo(x, y, x + rad, y); this.closePath(); return this; }; } })();
 
-    const LEAGUE_COMPS = {
-        men: new Set(['NWCFL Premier Division', 'NWCFL First Division South', 'NWCFL First Division']),
-        women: new Set(['NWWRL Premier', 'NWWRL Division One South'])
+    // Built-in competition lists. Used until (or unless) the Competitions sheet
+    // loads; once it does, these are rebuilt from it, so a new league or cup only
+    // needs adding to the sheet.
+    const COMP_ORDER = {
+        men: {
+            leagues: ['Midland Football League Premier Division','NWCFL Premier Division','NWCFL First Division','NWCFL First Division South','NWCFL Premier Division Play-Offs','Manchester League Premier Division','Manchester League Division One'],
+            cups: ['FA Cup','FA Vase','NWCFL League Cup','NWCFL First Division Trophy','Lancashire Challenge Trophy','Manchester Premier Cup','Murray Shield','LFA Amateur Shield','Lancashire Amateur Shield','Glychrist Cup','Invitational Divisional Cup']
+        },
+        women: {
+            leagues: ['NWWRL Premier', 'NWWRL Division One South'],
+            cups: ["FA Cup","Women's FA Cup",'Lancashire Senior Cup','Lancashire Challenge Cup','Manchester Challenge Cup','Alliance Design and Print Cup','Alliance Design and Print Plate','Argyle Sports Cup','Argyle Sports Kit NW Regional Cup 2018-19','Argyle Sports Kit NW Regional Cup 2022-23']
+        }
     };
+    // Home league attendance leaves out play-offs, which aren't regular league gates.
+    // League levels from the Competitions sheet, used to order the dropdown.
+    let COMP_LEVEL = {};
+    const LEAGUE_COMPS = { men: new Set(), women: new Set() };
+    function rebuildLeagueComps() {
+        ['men', 'women'].forEach(t => {
+            LEAGUE_COMPS[t].clear();
+            COMP_ORDER[t].leagues.filter(c => !/play-?offs?/i.test(c)).forEach(c => LEAGUE_COMPS[t].add(c));
+        });
+    }
+    rebuildLeagueComps();
+
+    async function fetchCompetitions() {
+        if (!COMPETITIONS_CSV_URL) return;
+        try {
+            const resp = await fetch(COMPETITIONS_CSV_URL);
+            if (!resp.ok) throw new Error('Competitions sheet returned ' + resp.status);
+            const text = await resp.text();
+            if (!text || text.includes('<!DOCTYPE')) throw new Error('Invalid competitions data');
+            const lines = text.split('\n').filter(l => l.trim());
+            const headers = parseCSVLine(lines[0]);
+            const rows = lines.slice(1).map(l => {
+                const v = parseCSVLine(l); const r = {};
+                headers.forEach((h, i) => { r[h] = v[i] || ''; });
+                return r;
+            }).filter(r => r.Competition);
+            const next = { men: { leagues: [], cups: [] }, women: { leagues: [], cups: [] } };
+            // Leagues sort by level (top first); anything without a level keeps sheet order after them.
+            const lvl = r => { const n = parseFloat(r.Level); return isNaN(n) ? Infinity : n; };
+            const leagues = rows.filter(r => /league/i.test(r.Category)).map((r, i) => ({ r, i }))
+                .sort((a, b) => (lvl(a.r) - lvl(b.r)) || (a.i - b.i)).map(x => x.r);
+            const cups = rows.filter(r => /cup/i.test(r.Category));
+            const teamsFor = r => { const t = (r.Team || '').trim().toLowerCase(); return t === 'both' ? ['men', 'women'] : t === 'women' ? ['women'] : ['men']; };
+            leagues.forEach(r => teamsFor(r).forEach(t => next[t].leagues.push(r.Competition.trim())));
+            cups.forEach(r => teamsFor(r).forEach(t => next[t].cups.push(r.Competition.trim())));
+            if (!next.men.leagues.length && !next.women.leagues.length) throw new Error('No leagues in Competitions sheet');
+            COMP_ORDER.men = next.men; COMP_ORDER.women = next.women;
+            COMP_LEVEL = {}; leagues.forEach(r => { COMP_LEVEL[r.Competition.trim()] = lvl(r); });
+            rebuildLeagueComps();
+            if (MATCHES_DATA.length) {
+                populateCompetitionFilter();
+                const body = document.getElementById('attendanceBody');
+                if (body && body.classList.contains('open')) drawAttendanceChart();
+            }
+        } catch (e) {
+            console.warn('Using built-in competition lists:', e.message);
+        }
+    }
 
     let attendanceMode = 'league';
 
