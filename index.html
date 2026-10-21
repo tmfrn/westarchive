@@ -15,11 +15,11 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Pocket West">
     <meta name="twitter:description" content="Every West Didsbury &amp; Chorlton AFC result, scorer and attendance.">
-    <meta name="theme-color" content="#166534">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23166534'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial,sans-serif' font-size='19' font-weight='700' fill='%23fff' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#374DF5">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23374DF5'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial,sans-serif' font-size='19' font-weight='700' fill='%23fff' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #f5f5f0;
@@ -36,14 +36,14 @@
             --accent: #166534;
             --accent-dim: #15803d;
             --accent-deep: #14532d;
-            --accent-surface: rgba(22,101,52,0.05);
-            --accent-border: rgba(22,101,52,0.18);
+            --accent-surface: rgba(55,77,245,0.05);
+            --accent-border: rgba(55,77,245,0.18);
             --win: #166534;
-            --win-bg: rgba(22,101,52,0.08);
+            --win-bg: rgba(55,77,245,0.08);
             --draw: #4b5563;
             --draw-bg: rgba(75,85,99,0.10);
             --loss: #991b1b;
-            --loss-bg: rgba(153,27,27,0.08);
+            --loss-bg: rgba(225,53,45,0.08);
             --font-display: 'Bricolage Grotesque', 'Georgia', serif;
             --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --radius-sm: 6px;
@@ -749,7 +749,7 @@ body {
     align-self: flex-start;
     margin-left: 0;
     background: none;
-    border: 1.5px solid rgba(153,27,27,0.35);
+    border: 1.5px solid rgba(225,53,45,0.35);
     color: var(--loss);
     font-size: 0.78rem;
     font-weight: 700;
@@ -762,7 +762,7 @@ body {
     font-family: var(--font-body);
 }
 
-.lenses-clear:hover { background: rgba(153,27,27,0.07); border-color: var(--loss); }
+.lenses-clear:hover { background: rgba(225,53,45,0.07); border-color: var(--loss); }
 .lenses-clear.hidden { visibility: hidden; pointer-events: none; }
 
 .venue-pills { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
@@ -873,7 +873,7 @@ body {
 #clearFiltersBtn:not(.visible) { display: none; }
 #clearFiltersBtn {
     background: none;
-    border: 1.5px solid rgba(153,27,27,0.35);
+    border: 1.5px solid rgba(225,53,45,0.35);
     color: var(--loss);
     font-weight: 700;
     min-height: 44px;
@@ -886,7 +886,7 @@ body {
     white-space: nowrap;
 }
 #clearFiltersBtn:hover {
-    background: rgba(153,27,27,0.07);
+    background: rgba(225,53,45,0.07);
     border-color: var(--loss);
 }
 
@@ -1166,13 +1166,13 @@ body {
     color: var(--win);
     cursor: pointer;
     padding: 4px 9px;
-    border: 1px solid rgba(22,101,52,0.25);
+    border: 1px solid rgba(55,77,245,0.25);
     border-radius: 6px;
-    background: rgba(22,101,52,0.04);
+    background: rgba(55,77,245,0.04);
     white-space: nowrap;
     transition: background 0.15s;
 }
-.match-tl-btn:hover { background: rgba(22,101,52,0.1); }
+.match-tl-btn:hover { background: rgba(55,77,245,0.1); }
 
 /* Row 1: date lives in footer now */
 .match-date { display: none; }
@@ -2204,9 +2204,9 @@ body {
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
 }
-.pre-nls-toggle-card:hover { background: rgba(22,101,52,0.09); }
+.pre-nls-toggle-card:hover { background: rgba(55,77,245,0.09); }
 .pre-nls-toggle-card.men-active { display: flex; }
-.pre-nls-toggle-card.on { background: rgba(22,101,52,0.1); border-color: rgba(22,101,52,0.4); }
+.pre-nls-toggle-card.on { background: rgba(55,77,245,0.1); border-color: rgba(55,77,245,0.4); }
 .pre-nls-toggle-label {
     font-size: 0.85rem; font-weight: 700; color: var(--accent-deep); line-height: 1.4;
     display: flex; align-items: flex-start;
@@ -2315,7 +2315,187 @@ body {
 }
 
 </style>
+<style id="theme">
+/* Pocket West theme (Oct 2026), modelled on Sofascore. Cool blue-grey ground,
+   white rounded panels, one bright blue, compact rows with teams stacked and
+   the score on the right. */
+:root {
+    --ground: #EDF1F6; --panel: #FFFFFF; --wash: #F5F7FA; --line: #E4E8EE;
+    --fg: #222226; --fg-2: #52525B; --fg-3: #8A8F98; --blue: #374DF5; --green: #1AAB52; --red: #E1352D; --grey: #A4A9B3;
+    --bg-primary: var(--ground); --bg-card: var(--panel); --bg-card-hover: var(--wash); --bg-surface: var(--panel); --bg-elevated: var(--panel);
+    --border-primary: var(--line); --border-subtle: var(--line);
+    --text-primary: var(--fg); --text-secondary: var(--fg-2); --text-muted: var(--fg-3); --text-bright: var(--fg);
+    --accent: var(--blue); --accent-dim: var(--blue); --accent-deep: var(--blue);
+    --accent-surface: rgba(55,77,245,0.07); --accent-border: rgba(55,77,245,0.3);
+    --win: var(--green); --win-bg: rgba(26,171,82,0.12); --draw: var(--fg-3); --draw-bg: rgba(164,169,179,0.2); --loss: var(--red); --loss-bg: rgba(225,53,45,0.1);
+    --font-display: 'Manrope', 'Segoe UI', Roboto, sans-serif; --font-body: 'Manrope', 'Segoe UI', Roboto, sans-serif;
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 16px;
+    color-scheme: light;
+}
+body { background: var(--ground); color: var(--fg); font-size: 14px; }
+.container { padding: 0 16px; }
+.header { background: var(--blue); color: #fff; text-align: left; padding: 20px 24px 0; border: none; border-radius: 0 0 16px 16px; margin: 0 -16px 16px; }
+.header h1 { color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0; }
+.header p { color: rgba(255,255,255,0.75); font-size: 0.88rem; }
+.team-tabs { justify-content: flex-start; gap: 4px; margin-top: 14px; }
+.team-tab { border: none; border-bottom: 3px solid transparent; border-radius: 0; color: rgba(255,255,255,0.7); background: transparent; padding: 10px 14px; font-size: 0.88rem; }
+.team-tab:hover { color: #fff; border-color: transparent; }
+.team-tab.active { background: transparent; color: #fff; border-bottom-color: #fff; }
+.credits-toggle { color: rgba(255,255,255,0.75); margin: 10px 0 12px; }
+.credits-panel { margin-left: 0; color: var(--fg-2); }
+.download-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 8px; top: 20px; right: 24px; }
+.download-btn:hover { color: #fff; background: rgba(255,255,255,0.25); }
+.pre-nls-toggle-card, .otd-banner, .streak-box, .summary-box, .goalscorers-box, .controls, .results-header {
+    background: var(--panel); border: none !important; border-radius: 16px; margin: 0 0 12px; }
+.pre-nls-toggle-card { padding: 14px 18px; }
+.pre-nls-toggle-card:hover, .pre-nls-toggle-card.on { background: var(--panel); }
+.pre-nls-toggle-label { color: var(--fg); }
+.pre-nls-toggle-card.on .pre-nls-toggle-switch { background: var(--blue); }
+.otd-banner { overflow: hidden; }
+.otd-title { color: var(--fg); font-weight: 700; }
+.otd-match { background: var(--wash); border: none; border-radius: 10px; }
+.otd-match-year { color: var(--blue); }
+.streak-box { padding: 18px; }
+.streak-content { text-align: left; max-width: none; margin: 0; }
+.streak-label { color: var(--fg-3); font-size: 0.8rem; font-weight: 600; }
+.streak-value { font-size: 1.35rem; font-weight: 800; }
+.streak-context { font-size: 0.86rem; }
+.form-guide { justify-content: flex-start; border-top: 1px solid var(--line); }
+.form-guide-label { font-size: 0.8rem; color: var(--fg-3); }
+.form-badge { border-radius: 6px; width: 24px; height: 24px; font-size: 0.75rem; color: #fff !important; }
+.form-badge.w { background: var(--green); } .form-badge.d { background: var(--grey); } .form-badge.l { background: var(--red); }
+.section-toggle-header { padding: 14px 18px; }
+.section-toggle-header:hover { background: transparent; }
+.section-toggle-header h2 { font-size: 0.95rem; font-weight: 800; }
+.section-body { padding: 0 18px 18px; }
+.summary-grid { gap: 8px; }
+.summary-item { background: var(--wash); border: none; border-radius: 12px; padding: 12px 14px; }
+.summary-item:hover { background: #ECEFFD; }
+.summary-label { font-size: 0.75rem; color: var(--fg-3); font-weight: 600; }
+.summary-value { font-size: 0.88rem; font-weight: 700; }
+.gs-bar-track { background: var(--wash); } .gs-bar-fill { background: var(--blue); opacity: 1; }
+.gs-goals { color: var(--fg); }
+.controls { padding: 16px 18px; }
+.search-input { background: var(--wash); border: 1px solid transparent; border-radius: 10px; font-size: 0.9rem; }
+.search-input:focus { background: #fff; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(55,77,245,0.15); }
+.lenses-group-label { font-size: 0.78rem; font-weight: 700; }
+.lens-btn, .filter-btn, .venue-pill, .filter-bar select, .gs-season-select, .season-summary-btn, .show-more-btn, .otd-explore {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; color: var(--fg-2); font-weight: 700; font-size: 0.8rem; }
+.lens-btn:hover, .filter-btn:hover, .venue-pill:hover { border-color: var(--blue); color: var(--blue); }
+.lens-btn.active, .filter-btn.active, .venue-pill.active, .filter-bar select.active-filter, .gs-season-select.active-filter { background: var(--blue); border-color: var(--blue); color: #fff; }
+.filter-bar { border-top-color: var(--line); }
+.lenses-clear, #clearFiltersBtn { border-radius: 8px; }
+.active-filter-chip { border-radius: 8px; background: var(--blue); }
+.results-header { padding: 16px 18px; }
+.result-count { font-size: 1rem; font-weight: 800; margin-bottom: 12px; }
+.stats-bar { gap: 8px; }
+.stat-item { background: var(--wash); border: none; border-radius: 12px; padding: 10px 12px; }
+.stat-label { font-size: 0.72rem; }
+.stat-value { font-size: 1.15rem; font-weight: 800; }
+.matches { padding: 0 0 48px; background: transparent; }
+/* Match row: teams stacked on the left, score block on the right */
+.match-card { background: var(--panel); border: none !important; border-radius: 16px; margin-bottom: 8px; }
+.match-card:hover { box-shadow: 0 1px 0 var(--line); background: var(--panel); }
+.match-card.border-win  { box-shadow: inset 4px 0 0 var(--green); }
+.match-card.border-loss { box-shadow: inset 4px 0 0 var(--red); }
+.match-card.border-draw { box-shadow: inset 4px 0 0 var(--grey); }
+.match-fixture { grid-template-columns: 1fr auto; grid-template-rows: auto auto; row-gap: 6px; padding: 14px 18px 12px 22px; align-items: center; }
+.match-fixture .fixture-home { grid-column: 1; grid-row: 1; font-size: 0.92rem; font-weight: 700; text-align: left; }
+.match-fixture .fixture-away { grid-column: 1; grid-row: 2; font-size: 0.92rem; font-weight: 700; text-align: left; }
+.match-score-block { grid-column: 2; grid-row: 1 / span 2; text-align: right; max-width: none; padding-left: 16px; border-left: 1px solid var(--line); }
+.match-score { font-size: 1.5rem; font-weight: 800; letter-spacing: 0; }
+.match-ht { font-size: 0.72rem; }
+.match-result-line { font-size: 0.75rem; font-weight: 700; }
+.match-result-venue { color: var(--fg-3); opacity: 1; font-weight: 600; }
+.match-header-badges { justify-content: flex-end; }
+.match-scorers { border-top: 1px solid var(--line); font-size: 0.8rem; }
+.match-scorer-side { padding: 8px 18px 8px 22px; }
+.match-scorer-side:first-child { border-right-color: var(--line); }
+.match-scorer-label { font-size: 0.72rem; font-weight: 700; }
+.milestone-note { border-top-color: var(--line); padding: 6px 22px; font-size: 0.76rem; }
+.match-footer { background: var(--wash); border-top: none; padding: 8px 18px 8px 22px; border-radius: 0 0 16px 16px; }
+.match-footer-comp { font-size: 0.76rem; font-weight: 800; color: var(--fg); }
+.match-footer-detail { font-size: 0.72rem; }
+.match-tl-btn { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; color: var(--blue); font-size: 0.74rem; }
+.match-tl-btn:hover { background: #ECEFFD; }
+.match-tags { padding: 12px 18px 0 22px; }
+.record-tag { background: rgba(55,77,245,0.1); color: var(--blue); border: none; border-radius: 6px; font-weight: 700; }
+.record-tag.joint { background: var(--wash); color: var(--fg-2); border: none; }
+.match-rank-badge { border-radius: 6px; }
+.match-type-banner.friendly-banner, .match-type-banner.null-void-banner { border-radius: 16px 16px 0 0; }
+.opposition-link, .scorer-link, .gs-name-link { text-decoration: none; }
+.opposition-link:hover, .scorer-link:hover, .gs-name-link:hover { color: var(--blue); }
+.timeline-overlay, .h2h-overlay, .player-overlay { background: rgba(34,34,38,0.45); backdrop-filter: none; }
+.timeline-modal, .h2h-modal, .player-modal { border: none; border-radius: 16px; }
+.timeline-modal-header, .h2h-header, .player-header { border-radius: 16px 16px 0 0; }
+.tl-goal-dot.goal, .tl-goal-mark { background: var(--blue); }
+@media (max-width: 768px) {
+    .container { padding: 0 10px; }
+    .header { margin: 0 -10px 12px; padding: 52px 16px 0; }
+    .download-btn { right: 16px; top: 14px; }
+}
 
+/* Shared fixes */
+/* Shared fixes for all three variants */
+.streak-label, .form-guide-label, .summary-label, .lenses-group-label, .stat-label,
+.match-scorer-label, .match-result-line, .match-type-banner, .badge, .h2h-stat-label,
+.h2h-matches h4, .h2h-match-result, .player-matches-header, .season-modal-stat-label,
+.season-modal-fact-label, .tl-log-title, .tl-ht-strip-label, .tl-ht-row-label,
+.tl-meta-result-line, .streak-divider, .pre-nls-era-divider, .pre-nls-inline-badge,
+.match-tl-btn, .filter-bar-label { text-transform: none; letter-spacing: 0; }
+.stat-value, .match-score, .gs-goals, .h2h-stat-value, .player-total-number,
+.season-modal-stat-value, .otd-match-score, .tl-er-score, .tl-ht-strip-score,
+.h2h-match-score, .player-match-score { font-variant-numeric: tabular-nums lining-nums; }
+.lenses-clear.hidden { display: none; }
+.header::before, .streak-box::before { display: none; }
+.streak-value { text-transform: lowercase; }
+.streak-value::first-letter { text-transform: uppercase; }
+.tl-meta-result-line.win { color: var(--win); }
+.tl-meta-result-line.loss { color: var(--loss); }
+.tl-meta-result-line.draw { color: var(--draw); }
+.tl-meta-detail-line { color: var(--text-muted); }
+.timeline-modal-meta { border-top-color: var(--border-subtle); }
+.match-card.is-friendly, .match-card.is-null-void { background: var(--bg-card); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+
+/* ===== UX fixes (Oct 2026) ===== */
+/* Results header: no empty band when the stats strip is hidden */
+.results-head-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.results-header.no-stats .results-head-row { margin-bottom: 0; }
+.results-header.no-stats .result-count { margin-bottom: 0; }
+/* "Filtered by" line sits between panels; give it breathing room */
+.active-filter-banner { padding: 2px 6px 0; margin: 2px 0 10px; }
+/* Season stepper sits beside the lens buttons, not inside one: give it its own
+   filled pill so its white arrows show */
+.lens-season-nav.active { background: var(--blue); color: #fff; border-radius: 8px; padding: 3px 6px; gap: 6px; }
+.lens-season-nav .season-nav-btn { background: rgba(255,255,255,0.22); color: #fff; width: 24px; height: 24px; font-size: 1rem; }
+.lens-season-nav .season-nav-btn:hover { background: rgba(255,255,255,0.35); }
+.lens-season-nav .lens-season-label { font-size: 0.8rem; font-weight: 700; opacity: 1; min-width: 0; }
+.season-nav-summary { background: #fff; color: var(--blue); font-size: 0.74rem; padding: 3px 8px; border-radius: 6px; }
+.season-nav-summary:hover { background: #ECEFFD; }
+/* Long competition names (grassroots era) pushed the page wider than a phone */
+.filter-bar select { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+/* Empty results */
+.empty-state { background: var(--panel); border-radius: 16px; padding: 36px 24px; text-align: center; color: var(--fg-2); font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.empty-state p { margin: 0; max-width: 46ch; line-height: 1.5; }
+.empty-state-clear { background: var(--blue); color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+.empty-state-clear:hover { background: #2A3FE0; }
+@media (max-width: 768px) {
+    /* Label above its buttons, so the buttons get the full width */
+    .lenses-group { flex-direction: column; align-items: stretch; gap: 6px; }
+    .lenses-group-label { padding-top: 0; }
+    /* Two records per row instead of a long single column */
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .summary-item { padding: 10px 12px; }
+    .summary-value { font-size: 0.82rem; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .stat-item:first-child { grid-column: 1 / -1; }
+}
+[role="button"]:focus-visible, .season-nav-btn:focus-visible, .season-nav-summary:focus-visible, .download-btn:focus-visible, .empty-state-clear:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.section-toggle-header:focus-visible { outline-offset: -2px; border-radius: 16px; }
+
+</style>
 </head>
 <body>
     <div class="container">
@@ -2435,9 +2615,9 @@ body {
                     <span class="lens-label">This season</span>
                 </button>
                 <div class="lens-season-nav" id="seasonNav">
-                    <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(-1)">‹</button>
+                    <button class="season-nav-btn" id="seasonPrev" onclick="stepSeason(1)" aria-label="Previous season">‹</button>
                     <span class="lens-season-label" id="seasonNavLabel"></span>
-                    <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(1)">›</button>
+                    <button class="season-nav-btn" id="seasonNext" onclick="stepSeason(-1)" aria-label="Next season">›</button>
                     <button class="season-nav-summary" onclick="showSeasonSummary(selectedSeason)" title="Season summary" aria-label="Season summary">Summary</button>
                 </div>
                 <button class="lens-btn" id="lensBigWins" onclick="activateLens('big-wins', this)">
@@ -2506,7 +2686,7 @@ body {
 </div>
 
 <div class="results-header">
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px;">
+    <div class="results-head-row">
         <div class="result-count" id="resultCount">Loading matches...</div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
             <button class="season-summary-btn" id="seasonSummaryBtn" onclick="showSeasonSummary(selectedSeason)">Season summary</button>
@@ -2743,7 +2923,8 @@ body {
 
     function getSeasons() {
         const seasons = new Set();
-        MATCHES_DATA.forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
+        // Only seasons in the current era, so stepping never lands on a hidden grassroots season.
+        eraMatches().forEach(m => { if (m.Season && m.Season.trim()) seasons.add(m.Season.trim()); });
         return Array.from(seasons).sort().reverse();
     }
 
@@ -2804,16 +2985,21 @@ body {
         selectedSeason = allSeasons[currentSeasonIndex];
         currentFilter = 'season';
         document.getElementById('seasonNavLabel').textContent = selectedSeason;
-        document.getElementById('seasonPrev').disabled = currentSeasonIndex === 0;
-        document.getElementById('seasonNext').disabled = currentSeasonIndex === allSeasons.length - 1;
         updateSeasonNavVisibility();
         renderMatches(); scrollToResults();
     }
 
+    // allSeasons is newest first: ‹ (direction 1) goes back a season, › (direction -1) forward.
+    // Works whether the season came from the This season lens or the season dropdown.
     function stepSeason(direction) {
-        const newIndex = currentSeasonIndex + direction;
+        allSeasons = getSeasons();
+        const from = allSeasons.indexOf(selectedSeason);
+        const newIndex = (from < 0 ? currentSeasonIndex : from) + direction;
         if (newIndex < 0 || newIndex >= allSeasons.length) return;
-        currentSeasonIndex = newIndex; applySeasonLens();
+        currentSeasonIndex = newIndex;
+        if (activeLens === 'this-season') { applySeasonLens(); return; }
+        document.getElementById('seasonSelect').value = allSeasons[newIndex];
+        filterBySeason();
     }
 
     function clearLens() {
@@ -3533,6 +3719,7 @@ body {
         nav.classList.toggle('active', !!selectedSeason);
         const lbl = document.getElementById('seasonNavLabel');
         if (lbl && selectedSeason) lbl.textContent = selectedSeason;
+        if (selectedSeason) allSeasons = getSeasons();
         const idx = allSeasons.indexOf(selectedSeason);
         const prev = document.getElementById('seasonPrev'), next = document.getElementById('seasonNext');
         if (prev) prev.disabled = idx < 0 || idx >= allSeasons.length - 1;
@@ -3926,9 +4113,13 @@ body {
 
     function updateStats(matches) {
         const statsBar = document.getElementById('statsBar');
-        if (!isRankedView(currentFilter) && !isStreakView(currentFilter) && currentFilter !== 'random') {
+        const validMatches = matches.filter(m => !isAbandoned(m) && !isNonCounting(m));
+        // No stats strip for ranked/run views, or when nothing in the list counts
+        // (no results, or only friendlies) — a row of zeros reads as an error.
+        const showStats = !isRankedView(currentFilter) && !isStreakView(currentFilter) && currentFilter !== 'random' && validMatches.length > 0;
+        statsBar.closest('.results-header').classList.toggle('no-stats', !showStats);
+        if (showStats) {
             statsBar.style.display = 'grid';
-            const validMatches = matches.filter(m => !isAbandoned(m) && !isNonCounting(m));
             const wins = validMatches.filter(m => effectiveResult(m) === 'W').length;
             const gf = validMatches.reduce((s, m) => s + (m['Goals For'] || 0), 0);
             const ga = validMatches.reduce((s, m) => s + (m['Goals Against'] || 0), 0);
@@ -4067,7 +4258,9 @@ body {
                 } else {
                     msg = 'Nothing to show here.';
                 }
-                html = '<div style="text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.92em;">' + msg + '</div>';
+                const canClear = active.length > 0 || activeLens || (currentFilter && !['all', 'season', 'random'].includes(currentFilter));
+                html = '<div class="empty-state"><p>' + msg + '</p>' +
+                    (canClear ? '<button class="empty-state-clear" onclick="clearLens()">Clear filters and search</button>' : '') + '</div>';
             }
             if (totalCount && filtered.length < totalCount) html += '<button class="show-more-btn" onclick="showMoreList()">Show more (' + (totalCount - filtered.length) + ' remaining)</button>';
         }
@@ -4460,6 +4653,31 @@ body {
         }
     });
 
+    // Many controls are spans/divs with onclick (section headers, records, scorer
+    // and opponent links, timeline buttons). Make them reachable and usable by
+    // keyboard: focusable, announced as buttons, Enter/Space activates.
+    const KEYBOARD_CLICKABLE = '.section-toggle-header, .otd-summary, .pre-nls-toggle-card, .credits-toggle, ' +
+        '.summary-item:not(.non-clickable), .scorer-link, .opposition-link, .gs-name-link, .match-tl-btn, .match-season-chip';
+    function makeKeyboardOperable(root) {
+        if (!root || !root.querySelectorAll) return;
+        const els = root.matches && root.matches(KEYBOARD_CLICKABLE) ? [root] : [];
+        root.querySelectorAll(KEYBOARD_CLICKABLE).forEach(el => els.push(el));
+        els.forEach(el => {
+            if (el.hasAttribute('tabindex')) return;
+            el.setAttribute('tabindex', '0');
+            el.setAttribute('role', 'button');
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const el = e.target;
+        if (!el || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'A') return;
+        if (el.getAttribute('role') === 'button') { e.preventDefault(); el.click(); }
+    });
+    makeKeyboardOperable(document.body);
+    new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) makeKeyboardOperable(n); })))
+        .observe(document.body, { childList: true, subtree: true });
+
     function showShootoutModal() {
         const shootouts = MATCHES_DATA.filter(m => hasPens(m))
             .slice().sort((a, b) => { const da = parseDate(a.Date), db = parseDate(b.Date); if (!da || !db) return 0; return db - da; });
@@ -4474,7 +4692,7 @@ body {
             const result = penResultOf(m);
             const isWin = result === 'W';
             const resultCol = isWin ? 'var(--win)' : 'var(--loss)';
-            const resultBg  = isWin ? 'rgba(22,101,52,0.12)' : 'rgba(153,27,27,0.12)';
+            const resultBg  = isWin ? 'rgba(55,77,245,0.12)' : 'rgba(225,53,45,0.12)';
             const resultLabel = isWin ? 'W' : 'L';
             const penScore = parsePenScoreLocal(m);
             const score90 = m['Goals For'] + '–' + m['Goals Against'];
@@ -4901,9 +5119,9 @@ body {
 
         legendEl.innerHTML =
             '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
-            '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(22,101,52,0.8);"></span>Season average</span>' +
+            '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(55,77,245,0.8);"></span>Season average</span>' +
             '<span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);font-weight:600;">' +
-            '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #166534;background:transparent;"></span>Peak gate</span>' +
+            '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid #374DF5;background:transparent;"></span>Peak gate</span>' +
             '<span style="display:flex;align-items:center;gap:4px;margin-left:auto;">' +
             '<button style="' + (leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'league\')">League only</button>' +
             '<button style="' + (!leagueActive ? btnOn : btnOff) + '" onclick="setAttendanceMode(\'all\')">League &amp; cup</button>' +
@@ -4912,25 +5130,29 @@ body {
         const PAD = { top: 24, right: isMobile ? 8 : 16, bottom: isMobile ? 52 : 48, left: isMobile ? 40 : 52 };
         const chartW = W - PAD.left - PAD.right; const chartH = H - PAD.top - PAD.bottom;
 
-        // Scale y-axis: floor at nearest 100 below min avg, ceiling at max peak
-        let maxVal = Math.ceil(Math.max(...data.map(d => d.peak)) / 100) * 100;
+        // Scale y-axis on round steps (100, 200, 250, 500, 1000…) so gridline labels are readable numbers.
+        const yTicks = isMobile ? 4 : 5;
+        const rawMax = Math.max(...data.map(d => d.peak));
         const minAvg = Math.min(...data.map(d => d.avg));
-        const minVal = Math.max(0, Math.floor((minAvg * 0.85) / 100) * 100);
-        // A flat range would make every bar height NaN.
-        if (maxVal <= minVal) maxVal = minVal + 100;
+        const rawMin = Math.max(0, minAvg * 0.85);
+        const roughStep = Math.max(1, (rawMax - rawMin) / yTicks);
+        const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
+        const step = [1, 2, 2.5, 5, 10].map(f => f * mag).find(st => st >= roughStep);
+        const minVal = Math.floor(rawMin / step) * step;
+        const maxVal = Math.max(minVal + step, Math.ceil(rawMax / step) * step);
+        const tickCount = Math.round((maxVal - minVal) / step);
         const barW = chartW / data.length; const BAR_GAP = Math.max(2, barW * 0.15);
         const yScale = v => PAD.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
 
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#fbfbf8';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#F5F7FA';
         ctx.fillRect(0, 0, W, H);
 
-        ctx.font = (isMobile ? '10' : '11') + 'px "DM Sans", -apple-system, sans-serif';
-        const yTicks = isMobile ? 4 : 5;
-        for (let i = 0; i <= yTicks; i++) {
-            const v = Math.round(minVal + (maxVal - minVal) / yTicks * i); const y = yScale(v);
-            ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#ccc' : '#e8e6df'; ctx.lineWidth = 1;
+        ctx.font = (isMobile ? '10' : '11') + 'px "Manrope", -apple-system, sans-serif';
+        for (let i = 0; i <= tickCount; i++) {
+            const v = minVal + step * i; const y = yScale(v);
+            ctx.beginPath(); ctx.strokeStyle = i === 0 ? '#C9CFD8' : '#E4E8EE'; ctx.lineWidth = 1;
             ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
-            ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'right';
+            ctx.fillStyle = '#8A8F98'; ctx.textAlign = 'right';
             const label = v >= 1000 ? (v / 1000).toFixed(1).replace('.0','') + 'k' : v.toString();
             ctx.fillText(label, PAD.left - 5, y + 4);
         }
@@ -4940,11 +5162,11 @@ body {
             const x = PAD.left + i * barW + BAR_GAP / 2; const bw = barW - BAR_GAP;
             const barH = ((d.avg - minVal) / (maxVal - minVal)) * chartH; const y = PAD.top + chartH - barH;
             const alpha = data.length > 1 ? 0.3 + 0.7 * (i / (data.length - 1)) : 1;
-            ctx.fillStyle = `rgba(22,101,52,${alpha.toFixed(2)})`;
+            ctx.fillStyle = `rgba(55,77,245,${alpha.toFixed(2)})`;
             ctx.beginPath(); ctx.roundRect(x, y, bw, barH, [3, 3, 0, 0]); ctx.fill();
             if (!isMobile || i % 2 === 0) {
-                ctx.fillStyle = '#8a8a80'; ctx.textAlign = 'center';
-                ctx.font = (isMobile ? '9' : '10') + 'px "DM Sans", -apple-system, sans-serif';
+                ctx.fillStyle = '#8A8F98'; ctx.textAlign = 'center';
+                ctx.font = (isMobile ? '9' : '10') + 'px "Manrope", -apple-system, sans-serif';
                 const shortSeason = d.season.split('/')[0].slice(2); const nextPart = d.season.split('/')[1] || '';
                 const label = isMobile ? "'" + shortSeason : shortSeason + '/' + nextPart;
                 ctx.fillText(label, x + bw / 2, H - PAD.bottom + 14);
@@ -4961,7 +5183,7 @@ body {
             ctx.arc(x, y, isMobile ? 3.5 : 4.5, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
-            ctx.strokeStyle = '#166534';
+            ctx.strokeStyle = '#374DF5';
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.restore();
@@ -5235,7 +5457,7 @@ body {
         const htAway = westFirst ? htAgainst : htFor;
         const htWest = htFor, htOpp = htAgainst;
         const htValid = htWest != null && htOpp != null;
-        const htBg      = htValid ? (htWest > htOpp ? 'rgba(22,101,52,0.12)' : htOpp > htWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)') : 'rgba(100,100,100,0.08)';
+        const htBg      = htValid ? (htWest > htOpp ? 'rgba(55,77,245,0.12)' : htOpp > htWest ? 'rgba(225,53,45,0.12)' : 'rgba(100,100,100,0.08)') : 'rgba(100,100,100,0.08)';
         const htCol     = htValid ? (htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-muted)') : 'var(--text-muted)';
         const htTextCol = htValid ? (htWest > htOpp ? 'var(--win)' : htOpp > htWest ? 'var(--loss)' : 'var(--text-primary)') : 'var(--text-muted)';
         const htDesc    = htValid ? (htWest > htOpp ? 'West leading' : htOpp > htWest ? 'West trailing' : 'Level') : '';
@@ -5252,7 +5474,7 @@ body {
             const ftHome = westFirst ? ftFor : ftAgainst;
             const ftAway = westFirst ? ftAgainst : ftFor;
             const ftWest = ftFor, ftOpp = ftAgainst;
-            const ftBg      = ftWest > ftOpp ? 'rgba(22,101,52,0.12)' : ftOpp > ftWest ? 'rgba(153,27,27,0.12)' : 'rgba(100,100,100,0.08)';
+            const ftBg      = ftWest > ftOpp ? 'rgba(55,77,245,0.12)' : ftOpp > ftWest ? 'rgba(225,53,45,0.12)' : 'rgba(100,100,100,0.08)';
             const ftCol     = ftWest > ftOpp ? 'var(--win)' : ftOpp > ftWest ? 'var(--loss)' : 'var(--text-muted)';
             const ftTextCol = ftWest > ftOpp ? 'var(--win)' : ftOpp > ftWest ? 'var(--loss)' : 'var(--text-primary)';
             const ftDesc    = ftWest > ftOpp ? 'West leading' : ftOpp > ftWest ? 'West trailing' : 'Level';
@@ -5277,7 +5499,7 @@ body {
             const penResult = penResultOf(match);
             const penScore = penScoreStr(match);
             const isWest = penResult === 'W';
-            const penBg  = isWest ? 'rgba(22,101,52,0.12)' : 'rgba(153,27,27,0.12)';
+            const penBg  = isWest ? 'rgba(55,77,245,0.12)' : 'rgba(225,53,45,0.12)';
             const penCol = isWest ? 'var(--win)' : 'var(--loss)';
             const penDesc = isWest
                 ? 'West won' + (penScore ? ' ' + penScore : '') + ' on penalties'
@@ -5412,7 +5634,7 @@ body {
         const finalAwayScore = westFirst ? ga : gf;
         const finalScore = finalHomeScore + '–' + finalAwayScore;
         const finalResult = gf > ga ? 'var(--win)' : ga > gf ? 'var(--loss)' : 'var(--text-muted)';
-        const finalBg = gf > ga ? 'rgba(22,101,52,0.08)' : ga > gf ? 'rgba(153,27,27,0.08)' : 'rgba(100,100,100,0.06)';
+        const finalBg = gf > ga ? 'rgba(55,77,245,0.08)' : ga > gf ? 'rgba(225,53,45,0.08)' : 'rgba(100,100,100,0.06)';
         const finalLabel = wentToET ? 'AET' : 'FT';
         if (events.length > 0 || !isAbandoned(match)) {
             logRows +=
@@ -5428,7 +5650,7 @@ body {
             const prScore  = penScoreStr(match);
             const prIsWest = prResult === 'W';
             const prCol    = prIsWest ? 'var(--win)' : 'var(--loss)';
-            const prBg     = prIsWest ? 'rgba(22,101,52,0.10)' : 'rgba(153,27,27,0.10)';
+            const prBg     = prIsWest ? 'rgba(55,77,245,0.10)' : 'rgba(225,53,45,0.10)';
             const prDesc   = prIsWest
                 ? 'West won' + (prScore ? ' ' + prScore : '') + ' on penalties'
                 : 'West lost' + (prScore ? ' ' + prScore : '') + ' on penalties';
