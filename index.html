@@ -2494,6 +2494,11 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
 }
 [role="button"]:focus-visible, .season-nav-btn:focus-visible, .season-nav-summary:focus-visible, .download-btn:focus-visible, .empty-state-clear:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .section-toggle-header:focus-visible { outline-offset: -2px; border-radius: 16px; }
+/* Friendlies / null & void: result stripe at half strength, so the result reads but the card still looks different */
+.match-card.is-friendly.border-win,  .match-card.is-null-void.border-win  { box-shadow: inset 4px 0 0 rgba(26,171,82,0.4); }
+.match-card.is-friendly.border-loss, .match-card.is-null-void.border-loss { box-shadow: inset 4px 0 0 rgba(225,53,45,0.4); }
+.match-card.is-friendly.border-draw, .match-card.is-null-void.border-draw { box-shadow: inset 4px 0 0 rgba(164,169,179,0.5); }
+.h2h-match-row.non-counting .h2h-match-comp { font-style: italic; }
 
 </style>
 </head>
@@ -3793,21 +3798,40 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
 
     function ordinal(n) { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
 
-    function formatScorerEntry(entry, dateKey, isWest) {
-        const minutePart = (entry.minute && entry.minute !== '0') ? (entry.pen ? entry.minute + ', pen' : entry.minute) : (entry.pen ? 'pen' : '');
-        const ogPart = entry.og ? ' (OG)' : '';
-        const safeName = entry.name.replace(/'/g, "\\'");
-        const nameHtml = (isWest && !entry.og)
-            ? '<span class="scorer-link" onclick="showPlayerModal(\'' + safeName + '\')">' + entry.name + '</span>'
-            : entry.name;
-        let label = nameHtml;
-        if (minutePart) label += ' (' + minutePart + ')';
-        label += ogPart;
-        return label;
+    // Scorer names the sheet uses when the player isn't known.
+    function isGenericScorer(name) { return /^(unknown|own goal|og)$/i.test((name || '').trim()); }
+
+    // One label per player: "Sam Heathcote (4, 18, 32 pen)". Own goals read
+    // "Own goal (86)", or "Name (86, og)" when the player is known.
+    function formatScorerGroup(g, isWest) {
+        const mins = g.entries.map(e => {
+            const m = (e.minute && e.minute !== '0') ? e.minute : '';
+            return e.pen ? (m ? m + ' pen' : 'pen') : m;
+        }).filter(Boolean);
+        if (g.og) {
+            if (g.generic) return 'Own goal' + (!mins.length && g.entries.length > 1 ? ' \u00d7' + g.entries.length : '') + (mins.length ? ' (' + mins.join(', ') + ')' : '');
+            return g.name + ' (' + (mins.length ? mins.join(', ') + ', ' : '') + 'og)';
+        }
+        const safeName = g.name.replace(/'/g, "\\'");
+        const nameHtml = (isWest && !g.generic)
+            ? '<span class="scorer-link" onclick="showPlayerModal(\'' + safeName + '\')">' + g.name + '</span>'
+            : g.name;
+        const countNote = (!mins.length && g.entries.length > 1) ? ' \u00d7' + g.entries.length : '';
+        return nameHtml + countNote + (mins.length ? ' (' + mins.join(', ') + ')' : '');
     }
 
-    function formatScorerList(entries, dateKey, isWest) {
-        const html = entries.map(e => formatScorerEntry(e, dateKey, isWest)).join(', ');
+    function formatScorerList(entries, dateKey, isWest, expected) {
+        const groups = []; const byKey = {};
+        entries.forEach(e => {
+            const generic = isGenericScorer(e.name);
+            const key = (e.og ? 'og|' : 'pl|') + (e.og && generic ? '' : e.name);
+            if (!byKey[key]) { byKey[key] = { name: e.name, og: e.og, generic, entries: [] }; groups.push(byKey[key]); }
+            byKey[key].entries.push(e);
+        });
+        let html = groups.map(g => formatScorerGroup(g, isWest)).join(', ');
+        // Scores with only some scorers recorded: say so rather than look complete.
+        const missing = (expected || 0) - entries.length;
+        if (html && missing > 0) html += ', <span class="no-data">' + missing + ' not recorded</span>';
         const milestones = [];
         if (isWest && dateKey) {
             entries.forEach(e => {
@@ -3878,8 +3902,8 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
             const leftLabel  = isHome ? 'West' : oppLabel;
             const rightLabel = isHome ? oppLabel : 'West';
             if (matchScorers && (match['Goals For'] > 0 || match['Goals Against'] > 0)) {
-                const westResult = formatScorerList(matchScorers.west, dateKey, true);
-                const oppResult  = formatScorerList(matchScorers.opp,  dateKey, false);
+                const westResult = formatScorerList(matchScorers.west, dateKey, true, match['Goals For']);
+                const oppResult  = formatScorerList(matchScorers.opp,  dateKey, false, match['Goals Against']);
                 const westHtml = westResult.html || (match['Goals For']     > 0 ? '<span class="no-data">Not recorded</span>' : '<span class="no-data">None</span>');
                 const oppHtml  = oppResult.html  || (match['Goals Against'] > 0 ? '<span class="no-data">Not recorded</span>' : '<span class="no-data">None</span>');
                 const leftHtml  = isHome ? westHtml : oppHtml;
@@ -3931,24 +3955,19 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         const cardClass = 'match-card' + (matchIsFriendly ? ' is-friendly' : matchIsNullVoid ? ' is-null-void' : '');
         const sep = '<span class="match-footer-sep">·</span>'; const footerRight = ['<span class="match-footer-sep">·</span><span class="match-meta-pill">' + compStr + '</span>', ftPill ? sep + ftPill : '', pensPill ? sep + pensPill : '', attPill ? sep + attPill : '', venuePill ? sep + venuePill : ''].filter(Boolean).join('');
         // Option J: result as plain text line, coloured top border, timeline button in footer
+        // Friendlies and null & void games still show who won; the banner says they don't count.
         const resultWord = isAbandoned(match) ? 'Abandoned' :
-                           matchIsFriendly ? 'Friendly' :
-                           matchIsNullVoid ? 'Null &amp; Void' :
                            effectiveResult(match) === 'W' ? 'Win' :
                            effectiveResult(match) === 'L' ? 'Loss' : 'Draw';
         const venueWord  = match['Home/Away'] === 'H' ? 'Home' :
                            match['Home/Away'] === 'N' ? 'Neutral' : 'Away';
         const resultCls  = isAbandoned(match) ? 'abandoned' :
-                           matchIsFriendly ? 'friendly' :
-                           matchIsNullVoid ? 'null-void' :
                            effectiveResult(match) === 'W' ? 'win' :
                            effectiveResult(match) === 'L' ? 'loss' : 'draw';
         const pensLine   = (shootout && penScore) ? ' · ' + (penResult === 'W' ? 'Won' : 'Lost') + ' pens ' + penScore : '';
         const aetLine    = wentToET ? ' · AET' : '';
         const resultLine = '<span class="match-result-line ' + resultCls + '">' + resultWord + ' <span class="match-result-venue">' + venueWord + '</span>' + aetLine + pensLine + '</span>';
         const borderCls  = isAbandoned(match) ? 'border-abandoned' :
-                           matchIsFriendly ? 'border-friendly' :
-                           matchIsNullVoid ? 'border-null-void' :
                            effectiveResult(match) === 'W' ? 'border-win' :
                            effectiveResult(match) === 'L' ? 'border-loss' : 'border-draw';
         const tlBtn      = hasTimelineData(match) ? '<span class="match-tl-btn" onclick="event.stopPropagation();showMatchTimeline(\'' + matchKey(match) + '\')" title="Match timeline">Timeline →</span>' : '';
@@ -4381,7 +4400,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         function matchLine(m) {
             if (!m) return 'N/A';
             const ha = m['Home/Away'] === 'H' ? 'H' : m['Home/Away'] === 'N' ? 'N' : 'A';
-            return m['Goals For'] + '–' + m['Goals Against'] + ' vs ' + m.Opposition + ' (' + ha + ', ' + m.Date + ')';
+            return m['Goals For'] + '–' + m['Goals Against'] + ' vs ' + m.Opposition + ' (' + ha + ', ' + formatDateShort(m.Date) + ')';
         }
 
         document.getElementById('seasonModalTitle').textContent = formatPreNLSSeason(season);
@@ -4427,8 +4446,8 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         lossMatches.sort((a, b) => (b['Goals Against'] - b['Goals For']) - (a['Goals Against'] - a['Goals For']));
         const bigWin = winMatches[0];
         const bigLoss = lossMatches[0];
-        const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + bigWin.Date + ')' : '–';
-        const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + bigLoss.Date + ')' : '–';
+        const bigWinStr = bigWin ? bigWin['Goals For'] + '–' + bigWin['Goals Against'] + ' (' + formatDateShort(bigWin.Date) + ')' : '–';
+        const bigLossStr = bigLoss ? bigLoss['Goals For'] + '–' + bigLoss['Goals Against'] + ' (' + formatDateShort(bigLoss.Date) + ')' : '–';
 
         const hasPreNLSMatches = allMatches.some(m => isPreNLS(m));
         const eraNote = (!showPreNLS && hasPreNLSMatches) ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(NLS era)</span>' : (showPreNLS && hasPreNLSMatches ? ' <span style="font-size:0.72rem;font-weight:400;color:var(--text-muted)">(all eras)</span>' : '');
@@ -4466,9 +4485,9 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
             const isNV = isNullVoid(m);
             const isNC = isF || isNV;
             const res = isAbandoned(m) ? 'a' : effectiveResult(m).toLowerCase();
-            const resultClass = isAbandoned(m) ? 'a' : isF ? 'friendly' : isNV ? 'null-void' : res;
-            const rowClass = isAbandoned(m) ? 'row-a' : isF ? 'row-f' : isNV ? 'row-nv' : 'row-' + res;
-            const resultWord = isAbandoned(m) ? 'Abn' : isF ? 'Fr' : isNV ? 'N/V' : effectiveResult(m) === 'W' ? 'Win' : effectiveResult(m) === 'L' ? 'Loss' : 'Draw';
+            const resultClass = isAbandoned(m) ? 'a' : res;
+            const rowClass = isAbandoned(m) ? 'row-a' : 'row-' + res;
+            const resultWord = isAbandoned(m) ? 'Abn' : effectiveResult(m) === 'W' ? 'Win' : effectiveResult(m) === 'L' ? 'Loss' : 'Draw';
             const penSuffix = (!isF && !isNV && hasPens(m)) ? (penResultOf(m) === 'W' ? ' · West won pens' : ' · West lost pens') : '';
             const score = isAbandoned(m) ? 'A–A' : m['Goals For'] + '–' + m['Goals Against'];
             const compStr = isF ? 'Friendly' : isNV ? (m.Competition ? m.Competition + ' · N&amp;V' : 'N&amp;V') : ((m.Competition || '') + penSuffix);
@@ -4477,7 +4496,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
             return '<div class="h2h-match-row ' + rowClass + (isNC ? ' non-counting' : '') + '">' +
                 '<span class="h2h-match-result ' + resultClass + '">' + resultWord + '</span>' +
                 '<span class="h2h-match-score">' + score + '</span>' +
-                '<span class="h2h-match-date">' + m.Date + ' <span style="' + venueStyle + '">' + venueWord + '</span></span>' +
+                '<span class="h2h-match-date">' + formatDateShort(m.Date) + ' <span style="' + venueStyle + '">' + venueWord + '</span></span>' +
                 '<span class="h2h-match-comp">' + compStr + '</span>' +
             '</div>';
         };
@@ -4614,7 +4633,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
                 const hidden = i >= MATCH_CAP ? ' style="display:none;"' : '';
                 return '<div class="player-match-row"' + hidden + '>' +
                     '<span class="player-match-result ' + result + '">' + resultLetter + '</span>' +
-                    '<span class="player-match-date">' + match.Date + '</span>' +
+                    '<span class="player-match-date">' + formatDateShort(match.Date) + '</span>' +
                     '<span class="player-match-opposition">' + vsLabel + '</span>' +
                     '<span class="player-match-score">' + homeScore + '–' + awayScore + '</span>' +
                     '<span class="player-match-goals">' + goalLabel + '</span>' +
@@ -4798,8 +4817,8 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         if (matches.length === 0) return;
         const html = matches.map(m => {
             const isF = isFriendly(m); const isNV = isNullVoid(m);
-            const result = (isF || isNV) ? (isF ? 'friendly' : 'null-void') : effectiveResult(m).toLowerCase();
-            const resultLabel = isF ? 'F' : isNV ? 'N/V' : effectiveResult(m);
+            const result = effectiveResult(m).toLowerCase();
+            const resultLabel = effectiveResult(m);
             const isHome = m['Home/Away'] !== 'A';
             const gf = m['Goals For'] !== null && m['Goals For'] !== undefined ? m['Goals For'] : '-';
             const ga = m['Goals Against'] !== null && m['Goals Against'] !== undefined ? m['Goals Against'] : '-';
@@ -5205,7 +5224,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         function tooltipContent(d) {
             let peakLine = '';
             if (d.peakMatches && d.peakMatches.length > 0) {
-                const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + m.Date + ')').join(', ');
+                const peakGames = d.peakMatches.map(m => 'vs ' + m.Opposition + ' (' + formatDateShort(m.Date) + ')').join(', ');
                 peakLine = '<br>Peak: ' + d.peak.toLocaleString() + ' – ' + peakGames;
             }
             const gamesLabel = attendanceMode === 'league' ? 'league home games' : 'home games (all)';
@@ -5336,8 +5355,8 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
 
         // Build sorted event list from the goals sheet
         const events = [];
-        scorers.west.forEach(g => events.push({ minute: g.minute, type: 'goal', side: 'west', scorer: g.name, pen: g.pen, og: g.og }));
-        scorers.opp.forEach(g =>  events.push({ minute: g.minute, type: 'goal', side: 'opp',  scorer: g.name, pen: g.pen, og: g.og }));
+        scorers.west.forEach(g => events.push({ minute: g.minute, type: 'goal', side: 'west', scorer: (g.og && isGenericScorer(g.name)) ? 'Own goal' : g.name, pen: g.pen, og: g.og && !isGenericScorer(g.name) }));
+        scorers.opp.forEach(g =>  events.push({ minute: g.minute, type: 'goal', side: 'opp',  scorer: (g.og && isGenericScorer(g.name)) ? 'Own goal' : g.name, pen: g.pen, og: g.og && !isGenericScorer(g.name) }));
         events.sort((a, b) => parseMin(a.minute) - parseMin(b.minute));
 
         // Map data side (west/opp) to display lane (top/left vs bottom/right)
@@ -5683,7 +5702,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
             ftStrip +
             '<div style="margin-top:16px;">' +
                 '<div class="tl-log-title">Match events</div>' +
-                (events.length === 0 && match.Penalties !== 'Y'
+                (events.length === 0 && !hasPens(match)
                     ? '<div class="tl-no-goals">No match events recorded.</div>'
                     : '<div>' + logRows + '</div>'
                 ) +
@@ -5694,7 +5713,7 @@ body { background: var(--ground); color: var(--fg); font-size: 14px; }
         const tlPensStr = (hasPens(match)) ? ' · ' + (penResultOf(match) === 'W' ? 'Won' : 'Lost') + ' pens' : '';
         const tlVenueWord = match['Home/Away'] === 'H' ? 'Home' : match['Home/Away'] === 'N' ? 'Neutral' : 'Away';
         const tlCompStr = match.Competition + (match.Round && match.Round.trim() ? ' · ' + match.Round : '');
-        const tlDetailParts = [match.Date, tlCompStr];
+        const tlDetailParts = [formatDateShort(match.Date), tlCompStr];
         if (match.Attendance) tlDetailParts.push('Attendance ' + Number(match.Attendance).toLocaleString());
         if (match.Venue && match.Venue.trim()) tlDetailParts.push(match.Venue);
         document.getElementById('timelineMeta').innerHTML =
